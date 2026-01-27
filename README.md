@@ -1,3 +1,10 @@
+## アイデア
+
+一言で言うと
+FWD = Domain Modeling Made Functional の GUI 化 + 実行基盤
+または
+FWD = 関数型 DDD を業務担当者が触れる形にしたもの
+
 ## RESTの制約
 
 * Make Illegal States Unrepresentable
