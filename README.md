@@ -1,4 +1,8 @@
-## 仮定
+## RESTの制約
+
+* Make Illegal States Unrepresentable
+* DMMFとHATEOAS
+* ハイパーメディアとドメイン駆動のインターフェース
 
 ## レイヤー定義
 
