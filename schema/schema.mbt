@@ -1,5 +1,6 @@
 ///|
 /// L1 schema types (self-describing meta model).
+
 ///|
 pub(all) struct Schema {
   fwd_version : String

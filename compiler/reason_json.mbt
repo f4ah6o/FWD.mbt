@@ -92,7 +92,10 @@ pub fn validation_json(ok : Bool, reasons : Array[@core.Reason]) -> Json {
 }
 
 ///|
-pub fn validation_json_string(ok : Bool, reasons : Array[@core.Reason]) -> String {
+pub fn validation_json_string(
+  ok : Bool,
+  reasons : Array[@core.Reason],
+) -> String {
   let sb = StringBuilder::new()
   sb.write_char('{')
   sb.write_char('\n')

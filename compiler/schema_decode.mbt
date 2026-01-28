@@ -1,5 +1,6 @@
 ///|
 /// Decode YAML AST into L1 Schema.
+
 ///|
 pub(all) suberror DecodeError {
   DecodeError(String)
@@ -36,7 +37,10 @@ fn first_value(a : YamlValue?, b : YamlValue?) -> YamlValue? {
 }
 
 ///|
-fn as_map(value : YamlValue, ctx : String) -> Array[(String, YamlValue)] raise DecodeError {
+fn as_map(
+  value : YamlValue,
+  ctx : String,
+) -> Array[(String, YamlValue)] raise DecodeError {
   match value {
     Map(items) => items
     _ => raise DecodeError::new("expected map for " + ctx)
@@ -44,7 +48,10 @@ fn as_map(value : YamlValue, ctx : String) -> Array[(String, YamlValue)] raise D
 }
 
 ///|
-fn as_seq(value : YamlValue, ctx : String) -> Array[YamlValue] raise DecodeError {
+fn as_seq(
+  value : YamlValue,
+  ctx : String,
+) -> Array[YamlValue] raise DecodeError {
   match value {
     Seq(items) => items
     _ => raise DecodeError::new("expected list for " + ctx)
@@ -65,7 +72,7 @@ fn as_string(value : YamlValue, ctx : String) -> String raise DecodeError {
 fn as_bool(value : YamlValue, ctx : String) -> Bool raise DecodeError {
   match value {
     Bool(b) => b
-    String(s) => {
+    String(s) =>
       if s == "true" {
         true
       } else if s == "false" {
@@ -73,13 +80,15 @@ fn as_bool(value : YamlValue, ctx : String) -> Bool raise DecodeError {
       } else {
         raise DecodeError::new("expected bool for " + ctx)
       }
-    }
     _ => raise DecodeError::new("expected bool for " + ctx)
   }
 }
 
 ///|
-fn optional_string(map : Array[(String, YamlValue)], key : String) -> String? raise DecodeError {
+fn optional_string(
+  map : Array[(String, YamlValue)],
+  key : String,
+) -> String? raise DecodeError {
   match map_find(map, key) {
     Some(v) => Some(as_string(v, key))
     None => None
@@ -87,7 +96,10 @@ fn optional_string(map : Array[(String, YamlValue)], key : String) -> String? ra
 }
 
 ///|
-fn optional_seq(map : Array[(String, YamlValue)], key : String) -> Array[YamlValue] raise DecodeError {
+fn optional_seq(
+  map : Array[(String, YamlValue)],
+  key : String,
+) -> Array[YamlValue] raise DecodeError {
   match map_find(map, key) {
     Some(v) => as_seq(v, key)
     None => []
@@ -108,12 +120,20 @@ fn decode_state(value : YamlValue) -> @schema.StateDefinition raise DecodeError 
 }
 
 ///|
-fn decode_attribute(value : YamlValue) -> @schema.AttributeDefinition raise DecodeError {
+fn decode_attribute(
+  value : YamlValue,
+) -> @schema.AttributeDefinition raise DecodeError {
   let items = as_map(value, "attribute")
   let name_value = map_find(items, "name").unwrap_or(YamlValue::String(""))
   let name = as_string(name_value, "attribute.name")
-  let type_value = first_value(map_find(items, "type"), map_find(items, "type_ref"))
-  let type_ref = as_string(type_value.unwrap_or(YamlValue::String("")), "attribute.type")
+  let type_value = first_value(
+    map_find(items, "type"),
+    map_find(items, "type_ref"),
+  )
+  let type_ref = as_string(
+    type_value.unwrap_or(YamlValue::String("")),
+    "attribute.type",
+  )
   let optional = match map_find(items, "optional") {
     Some(v) => as_bool(v, "attribute.optional")
     None => false
@@ -122,12 +142,20 @@ fn decode_attribute(value : YamlValue) -> @schema.AttributeDefinition raise Deco
 }
 
 ///|
-fn decode_entity(value : YamlValue) -> @schema.EntityDefinition raise DecodeError {
+fn decode_entity(
+  value : YamlValue,
+) -> @schema.EntityDefinition raise DecodeError {
   let items = as_map(value, "entity")
   let name_value = map_find(items, "name").unwrap_or(YamlValue::String(""))
   let name = as_string(name_value, "entity.name")
-  let init_value = first_value(map_find(items, "initialState"), map_find(items, "initial_state"))
-  let initial_state = as_string(init_value.unwrap_or(YamlValue::String("")), "entity.initialState")
+  let init_value = first_value(
+    map_find(items, "initialState"),
+    map_find(items, "initial_state"),
+  )
+  let initial_state = as_string(
+    init_value.unwrap_or(YamlValue::String("")),
+    "entity.initialState",
+  )
   let attrs_raw = optional_seq(items, "attributes")
   let attrs : Array[@schema.AttributeDefinition] = []
   for raw in attrs_raw {
@@ -144,7 +172,7 @@ fn decode_rule_expr_from_map(
   let preset_value = optional_string(items, "preset")
   let impl_value = optional_string(items, "impl")
   match type_value {
-    Some(t) => {
+    Some(t) =>
       if t == "custom" {
         match impl_value {
           Some(impl_name) => @schema.RuleExpression::Custom(impl_name)
@@ -158,23 +186,23 @@ fn decode_rule_expr_from_map(
       } else {
         @schema.RuleExpression::Preset(t)
       }
-    }
-    None => {
+    None =>
       match preset_value {
         Some(name) => @schema.RuleExpression::Preset(name)
-        None => {
+        None =>
           match impl_value {
             Some(impl_name) => @schema.RuleExpression::Custom(impl_name)
-            None => raise DecodeError::new("rule expression missing type/preset/impl")
+            None =>
+              raise DecodeError::new("rule expression missing type/preset/impl")
           }
-        }
       }
-    }
   }
 }
 
 ///|
-fn decode_rule_expr(value : YamlValue) -> @schema.RuleExpression raise DecodeError {
+fn decode_rule_expr(
+  value : YamlValue,
+) -> @schema.RuleExpression raise DecodeError {
   match value {
     String(name) => @schema.RuleExpression::Preset(name)
     Map(items) => decode_rule_expr_from_map(items)
@@ -183,11 +211,12 @@ fn decode_rule_expr(value : YamlValue) -> @schema.RuleExpression raise DecodeErr
 }
 
 ///|
-fn decode_rule_def(value : YamlValue) -> @schema.RuleDefinition raise DecodeError {
+fn decode_rule_def(
+  value : YamlValue,
+) -> @schema.RuleDefinition raise DecodeError {
   match value {
-    String(name) => {
+    String(name) =>
       { name, expr: @schema.RuleExpression::Preset(name), description: None }
-    }
     Map(items) => {
       let name_value = map_find(items, "name").unwrap_or(YamlValue::String(""))
       let name = as_string(name_value, "rule.name")
@@ -195,13 +224,12 @@ fn decode_rule_def(value : YamlValue) -> @schema.RuleDefinition raise DecodeErro
       let preset_value = optional_string(items, "preset")
       let impl_value = optional_string(items, "impl")
       let expr = match type_value {
-        Some(t) => {
+        Some(t) =>
           if t == "preset" && preset_value is None && impl_value is None {
             @schema.RuleExpression::Preset(name)
           } else {
             decode_rule_expr_from_map(items)
           }
-        }
         None => decode_rule_expr_from_map(items)
       }
       let description = optional_string(items, "description")
@@ -212,11 +240,15 @@ fn decode_rule_def(value : YamlValue) -> @schema.RuleDefinition raise DecodeErro
 }
 
 ///|
-fn decode_reason(value : YamlValue) -> @schema.ReasonDefinition raise DecodeError {
+fn decode_reason(
+  value : YamlValue,
+) -> @schema.ReasonDefinition raise DecodeError {
   let items = as_map(value, "reason")
   let code_value = map_find(items, "code").unwrap_or(YamlValue::String(""))
   let code = as_string(code_value, "reason.code")
-  let message_value = map_find(items, "message").unwrap_or(YamlValue::String(""))
+  let message_value = map_find(items, "message").unwrap_or(
+    YamlValue::String(""),
+  )
   let message = as_string(message_value, "reason.message")
   let context_schema = match optional_string(items, "contextSchema") {
     Some(v) => Some(v)
@@ -226,7 +258,9 @@ fn decode_reason(value : YamlValue) -> @schema.ReasonDefinition raise DecodeErro
 }
 
 ///|
-fn decode_boundary(value : YamlValue) -> @schema.BoundaryDefinition raise DecodeError {
+fn decode_boundary(
+  value : YamlValue,
+) -> @schema.BoundaryDefinition raise DecodeError {
   match value {
     String(name) => { name, }
     Map(items) => {
@@ -239,7 +273,9 @@ fn decode_boundary(value : YamlValue) -> @schema.BoundaryDefinition raise Decode
 }
 
 ///|
-fn decode_effect(value : YamlValue) -> @schema.EffectDefinition raise DecodeError {
+fn decode_effect(
+  value : YamlValue,
+) -> @schema.EffectDefinition raise DecodeError {
   let items = as_map(value, "effect")
   let name_value = map_find(items, "name").unwrap_or(YamlValue::String(""))
   let name = as_string(name_value, "effect.name")
@@ -254,7 +290,9 @@ fn decode_effect(value : YamlValue) -> @schema.EffectDefinition raise DecodeErro
 }
 
 ///|
-fn decode_transition(value : YamlValue) -> @schema.TransitionDefinition raise DecodeError {
+fn decode_transition(
+  value : YamlValue,
+) -> @schema.TransitionDefinition raise DecodeError {
   let items = as_map(value, "transition")
   let name_value = map_find(items, "name").unwrap_or(YamlValue::String(""))
   let name = as_string(name_value, "transition.name")
@@ -281,13 +319,26 @@ fn decode_transition(value : YamlValue) -> @schema.TransitionDefinition raise De
 
 ///|
 /// Decode a YAML AST into Schema.
+
 ///|
 pub fn schema_from_yaml(value : YamlValue) -> @schema.Schema raise DecodeError {
   let root = as_map(value, "root")
-  let fwd_value = first_value(map_find(root, "fwdVersion"), map_find(root, "fwd_version"))
-  let fwd_version = as_string(fwd_value.unwrap_or(YamlValue::String("")), "fwdVersion")
-  let schema_value = first_value(map_find(root, "schemaVersion"), map_find(root, "schema_version"))
-  let schema_version = as_string(schema_value.unwrap_or(YamlValue::String("")), "schemaVersion")
+  let fwd_value = first_value(
+    map_find(root, "fwdVersion"),
+    map_find(root, "fwd_version"),
+  )
+  let fwd_version = as_string(
+    fwd_value.unwrap_or(YamlValue::String("")),
+    "fwdVersion",
+  )
+  let schema_value = first_value(
+    map_find(root, "schemaVersion"),
+    map_find(root, "schema_version"),
+  )
+  let schema_version = as_string(
+    schema_value.unwrap_or(YamlValue::String("")),
+    "schemaVersion",
+  )
   let states_raw = optional_seq(root, "states")
   let states : Array[@schema.StateDefinition] = []
   for raw in states_raw {

@@ -1,5 +1,6 @@
 ///|
 /// FWD-IR definitions (v1).
+
 ///|
 pub(all) struct DirectedGraph[N, E] {
   nodes : Map[N, Unit]

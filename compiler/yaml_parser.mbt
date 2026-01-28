@@ -1,5 +1,6 @@
 ///|
 /// Minimal YAML parser (indent-based, block style only).
+
 ///|
 priv struct Line {
   indent : Int
@@ -101,7 +102,10 @@ fn try_split_key_value(
 }
 
 ///|
-fn split_key_value(text : String, line_no : Int) -> (String, String?) raise YamlError {
+fn split_key_value(
+  text : String,
+  line_no : Int,
+) -> (String, String?) raise YamlError {
   match try_split_key_value(text, line_no) {
     Some(pair) => pair
     None => raise YamlError::new("expected ':'", line_no)
@@ -113,7 +117,9 @@ fn parse_double_quoted(text : String, line_no : Int) -> String raise YamlError {
   if !text.has_prefix("\"") || !text.has_suffix("\"") {
     raise YamlError::new("unterminated double-quoted string", line_no)
   }
-  let inner = text.view(start_offset=1, end_offset=text.length() - 1).to_string()
+  let inner = text
+    .view(start_offset=1, end_offset=text.length() - 1)
+    .to_string()
   let sb = StringBuilder::new()
   let mut escape = false
   for c in inner {
@@ -251,11 +257,10 @@ fn parse_list(
           let next_indent = lines[next_idx].indent
           let (nested, next) = parse_block(lines, next_idx, next_indent)
           match nested {
-            Map(more) => {
+            Map(more) =>
               for entry in more {
                 entries.push(entry)
               }
-            }
             _ => raise YamlError::new("expected map block", line.line_no)
           }
           next_idx = next
@@ -312,6 +317,7 @@ fn parse_map(
 
 ///|
 /// Parse YAML input into YamlValue AST.
+
 ///|
 pub fn parse_yaml_value(input : String) -> YamlValue raise YamlError {
   let lines = to_lines(input)

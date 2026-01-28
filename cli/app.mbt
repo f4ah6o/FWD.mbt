@@ -28,8 +28,9 @@ fn read_input_result(path : String) -> Result[String, @fs.IOError] {
 
 ///|
 fn write_output(path : String, output : String) -> Bool {
-  let write_result : Result[Unit, @fs.IOError] =
-    try? @fs.write_string_to_file(path, output)
+  let write_result : Result[Unit, @fs.IOError] = try? @fs.write_string_to_file(
+    path, output,
+  )
   match write_result {
     Ok(_) => true
     Err(err) => {
@@ -110,15 +111,17 @@ pub fn run(args : Array[String]) -> Int {
         println(usage())
         return 1
       }
-    } else {}
+    } else {
+
+    }
     let input_result = read_input_result(input_path)
     match input_result {
-      Ok(input) => {
+      Ok(input) =>
         match baseline_path {
           Some(path) => {
             let baseline_result = read_input_result(path)
             match baseline_result {
-              Ok(baseline) => {
+              Ok(baseline) =>
                 match @compiler.validate_with_baseline(input, baseline) {
                   Ok(_) => {
                     if json_output {
@@ -145,14 +148,15 @@ pub fn run(args : Array[String]) -> Int {
                     1
                   }
                 }
-              }
               Err(err) => {
                 if json_output {
                   let reasons : Array[@core.Reason] = []
-                  reasons.push(@core.Reason::new(
-                    "ReadFailure",
-                    "read error: " + err.to_string(),
-                  ))
+                  reasons.push(
+                    @core.Reason::new(
+                      "ReadFailure",
+                      "read error: " + err.to_string(),
+                    ),
+                  )
                   println(@compiler.validation_json_string(false, reasons))
                 } else {
                   println("read error: " + err.to_string())
@@ -161,30 +165,30 @@ pub fn run(args : Array[String]) -> Int {
               }
             }
           }
-          None => {
+          None =>
             if json_output {
               match @compiler.parse_yaml(input) {
-                Ok(schema) => {
+                Ok(schema) =>
                   match @compiler.resolve_schema(schema) {
-                    Ok(resolved) => {
+                    Ok(resolved) =>
                       match @compiler.validate_schema(resolved) {
                         Ok(_) => {
                           println(@compiler.validation_json_string(true, []))
                           0
                         }
                         Err(reason) => {
-                          println(@compiler.validation_json_string(false, [reason]))
+                          println(
+                            @compiler.validation_json_string(false, [reason]),
+                          )
                           1
                         }
                       }
-                    }
                     Err(err) => {
                       let reason = reason_from_compile_error(err)
                       println(@compiler.validation_json_string(false, [reason]))
                       1
                     }
                   }
-                }
                 Err(err) => {
                   let reason = reason_from_compile_error(err)
                   println(@compiler.validation_json_string(false, [reason]))
@@ -193,9 +197,9 @@ pub fn run(args : Array[String]) -> Int {
               }
             } else {
               match @compiler.parse_yaml(input) {
-                Ok(schema) => {
+                Ok(schema) =>
                   match @compiler.resolve_schema(schema) {
-                    Ok(resolved) => {
+                    Ok(resolved) =>
                       match @compiler.validate_schema(resolved) {
                         Ok(_) => {
                           println("ok")
@@ -203,34 +207,32 @@ pub fn run(args : Array[String]) -> Int {
                         }
                         Err(reason) => {
                           println(
-                            "validation error: " + reason.code() + ": " + reason.message(),
+                            "validation error: " +
+                            reason.code() +
+                            ": " +
+                            reason.message(),
                           )
                           1
                         }
                       }
-                    }
                     Err(err) => {
                       println(@compiler.describe_error(err))
                       1
                     }
                   }
-                }
                 Err(err) => {
                   println(@compiler.describe_error(err))
                   1
                 }
               }
             }
-          }
         }
-      }
       Err(err) => {
         if json_output {
           let reasons : Array[@core.Reason] = []
-          reasons.push(@core.Reason::new(
-            "ReadFailure",
-            "read error: " + err.to_string(),
-          ))
+          reasons.push(
+            @core.Reason::new("ReadFailure", "read error: " + err.to_string()),
+          )
           println(@compiler.validation_json_string(false, reasons))
         } else {
           println("read error: " + err.to_string())
@@ -243,7 +245,7 @@ pub fn run(args : Array[String]) -> Int {
     let output_path = if args.length() > 1 { Some(args[1]) } else { None }
     let input_opt = read_input(input_path)
     match input_opt {
-      Some(input) => {
+      Some(input) =>
         match @compiler.compile_yaml(input) {
           Ok(ir) => {
             let json = @compiler.ir_to_json(ir)
@@ -261,7 +263,6 @@ pub fn run(args : Array[String]) -> Int {
             1
           }
         }
-      }
       None => 1
     }
   }

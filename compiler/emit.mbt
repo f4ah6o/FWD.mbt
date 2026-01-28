@@ -1,19 +1,19 @@
 ///|
 /// Emit FWD-IR from schema.
+
 ///|
 fn ensure_rule(
   rules : Map[String, @ir.CompiledRule],
   expr : @schema.RuleExpression,
 ) -> String {
   match expr {
-    @schema.RuleExpression::Preset(name) => {
+    @schema.RuleExpression::Preset(name) =>
       if rules.contains(name) {
         name
       } else {
         rules[name] = @ir.CompiledRule::Preset(name)
         name
       }
-    }
     @schema.RuleExpression::Custom(impl_name) => {
       let key = "custom:" + impl_name
       if !rules.contains(key) {
@@ -51,11 +51,11 @@ pub fn emit_ir_from_schema(schema : @schema.Schema) -> @ir.FwdIR {
     let key = rule.name
     let compiled = match rule.expr {
       @schema.RuleExpression::Preset(name) => @ir.CompiledRule::Preset(name)
-      @schema.RuleExpression::Custom(impl_name) => @ir.CompiledRule::Custom(impl_name)
+      @schema.RuleExpression::Custom(impl_name) =>
+        @ir.CompiledRule::Custom(impl_name)
     }
     rules[key] = compiled
   }
-
   let transitions : Map[String, @ir.NormalizedTransition] = Map::new()
   for transition in schema.transitions {
     let refs : Array[String] = []
@@ -71,7 +71,6 @@ pub fn emit_ir_from_schema(schema : @schema.Schema) -> @ir.FwdIR {
       input_schema: transition.input_schema,
     }
   }
-
   let entities : Map[String, @ir.NormalizedEntity] = Map::new()
   for entity in schema.entities {
     entities[entity.name] = {
@@ -80,7 +79,6 @@ pub fn emit_ir_from_schema(schema : @schema.Schema) -> @ir.FwdIR {
       data_schema: None,
     }
   }
-
   let reasons : Map[String, @ir.ReasonSpec] = Map::new()
   for reason in schema.reasons {
     reasons[reason.code] = {
@@ -89,15 +87,10 @@ pub fn emit_ir_from_schema(schema : @schema.Schema) -> @ir.FwdIR {
       context_schema: reason.context_schema,
     }
   }
-
   let effects : Map[String, @ir.EffectSpec] = Map::new()
   for effect in schema.effects {
-    effects[effect.name] = {
-      name: effect.name,
-      kind: effect.kind,
-    }
+    effects[effect.name] = { name: effect.name, kind: effect.kind }
   }
-
   {
     version: "1.0",
     fwd_version: schema.fwd_version,

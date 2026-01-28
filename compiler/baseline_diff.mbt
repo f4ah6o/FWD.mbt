@@ -6,10 +6,7 @@ fn append_reasons(dst : Array[@core.Reason], src : Array[@core.Reason]) -> Unit 
 }
 
 ///|
-fn find_context_value(
-  reason : @core.Reason,
-  key : String,
-) -> String? {
+fn find_context_value(reason : @core.Reason, key : String) -> String? {
   for pair in reason.context() {
     if pair.0 == key {
       return Some(pair.1)
@@ -41,17 +38,15 @@ fn reason_kind(reason : @core.Reason) -> String {
 fn reason_subject(reason : @core.Reason) -> String {
   match find_context_value(reason, "subject") {
     Some(subject) => subject
-    None => {
+    None =>
       match find_context_value(reason, "state") {
         Some(state) => state
-        None => {
+        None =>
           match find_context_value(reason, "transition") {
             Some(transition) => transition
             None => ""
           }
-        }
       }
-    }
   }
 }
 
@@ -136,7 +131,10 @@ fn compare_reason(a : @core.Reason, b : @core.Reason) -> Int {
   if subject != 0 {
     return subject
   }
-  let field = compare_int(field_rank(reason_field(a)), field_rank(reason_field(b)))
+  let field = compare_int(
+    field_rank(reason_field(a)),
+    field_rank(reason_field(b)),
+  )
   if field != 0 {
     return field
   }
@@ -154,7 +152,9 @@ fn push_unique(dst : Array[String], value : String) -> Unit {
 }
 
 ///|
-fn summarize_migration_required(reasons : Array[@core.Reason]) -> Array[@core.Reason] {
+fn summarize_migration_required(
+  reasons : Array[@core.Reason],
+) -> Array[@core.Reason] {
   let summaries : Array[@core.Reason] = []
   let mut count = 0
   let kinds : Array[String] = []
@@ -188,11 +188,11 @@ fn summarize_migration_required(reasons : Array[@core.Reason]) -> Array[@core.Re
   context.push(("kinds", kinds.join(",")))
   context.push(("subjects", subjects.join(",")))
   context.push(("scopes", scopes.join(",")))
-  summaries.push(@core.Reason::with_context(
-    "MigrationRequired",
-    "breaking change requires migration",
-    context,
-  ))
+  summaries.push(
+    @core.Reason::with_context(
+      "MigrationRequired", "breaking change requires migration", context,
+    ),
+  )
   summaries
 }
 
@@ -229,9 +229,7 @@ fn migration_required(
   ctx.push(("scope", scope))
   append_reasons_context(ctx, extra)
   @core.Reason::with_context(
-    "MigrationRequired",
-    "breaking change requires migration",
-    ctx,
+    "MigrationRequired", "breaking change requires migration", ctx,
   )
 }
 
@@ -258,18 +256,15 @@ fn diff_states(
   }
   for state in baseline.states {
     if !candidate_state_set.contains(state.name) {
-      reasons.push(@core.Reason::with_context(
-        "BreakingChange",
-        "state removed",
-        [("state", state.name)],
-      ))
+      reasons.push(
+        @core.Reason::with_context("BreakingChange", "state removed", [
+          ("state", state.name),
+        ]),
+      )
       if !has_global {
-        reasons.push(migration_required(
-          "stateRemoved",
-          state.name,
-          "global",
-          [],
-        ))
+        reasons.push(
+          migration_required("stateRemoved", state.name, "global", []),
+        )
       }
     }
   }
@@ -293,18 +288,15 @@ fn diff_transitions(
   }
   for transition in baseline.transitions {
     if !candidate_transition_set.contains(transition.name) {
-      reasons.push(@core.Reason::with_context(
-        "BreakingChange",
-        "transition removed",
-        [("transition", transition.name)],
-      ))
+      reasons.push(
+        @core.Reason::with_context("BreakingChange", "transition removed", [
+          ("transition", transition.name),
+        ]),
+      )
       if !has_global {
-        reasons.push(migration_required(
-          "transitionRemoved",
-          transition.name,
-          "global",
-          [],
-        ))
+        reasons.push(
+          migration_required("transitionRemoved", transition.name, "global", []),
+        )
       }
       continue
     }
@@ -312,7 +304,8 @@ fn diff_transitions(
     let candidate_from = pair.0
     let candidate_to = pair.1
     if transition.from != candidate_from || transition.to != candidate_to {
-      let field = if transition.from != candidate_from && transition.to != candidate_to {
+      let field = if transition.from != candidate_from &&
+        transition.to != candidate_to {
         "from,to"
       } else if transition.from != candidate_from {
         "from"
@@ -333,28 +326,28 @@ fn diff_transitions(
       } else {
         candidate_from + "->" + candidate_to
       }
-      reasons.push(@core.Reason::with_context(
-        "BreakingChange",
-        "transition modified",
-        [
+      reasons.push(
+        @core.Reason::with_context("BreakingChange", "transition modified", [
           ("transition", transition.name),
           ("field", field),
           ("baseline", baseline_value),
           ("candidate", candidate_value),
-        ],
-      ))
+        ]),
+      )
       let effects = candidate_transition_effects[transition.name]
       if !has_migrate_effect(effects) {
-        reasons.push(migration_required(
-          "transitionModified",
-          transition.name,
-          "transition",
-          [
-            ("field", field),
-            ("baseline", baseline_value),
-            ("candidate", candidate_value),
-          ],
-        ))
+        reasons.push(
+          migration_required(
+            "transitionModified",
+            transition.name,
+            "transition",
+            [
+              ("field", field),
+              ("baseline", baseline_value),
+              ("candidate", candidate_value),
+            ],
+          ),
+        )
       }
     }
   }

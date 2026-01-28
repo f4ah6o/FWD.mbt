@@ -1,5 +1,6 @@
 ///|
 /// Rule registry + resolve stage.
+
 ///|
 pub(all) enum RuleOrigin {
   Builtin
@@ -15,21 +16,19 @@ pub(all) struct ResolvedSchema {
 ///|
 pub fn builtin_rule_names() -> Array[String] {
   [
-    "hasAtLeastOneState",
-    "hasAtLeastOneTransition",
-    "allReferencesResolved",
-    "noBreakingChanges",
+    "hasAtLeastOneState", "hasAtLeastOneTransition", "allReferencesResolved", "noBreakingChanges",
     "noBreakingChangesOrMigrationDefined",
   ]
 }
 
 ///|
-pub fn resolve_schema(schema : @schema.Schema) -> Result[ResolvedSchema, CompileError] {
+pub fn resolve_schema(
+  schema : @schema.Schema,
+) -> Result[ResolvedSchema, CompileError] {
   let rule_index : Map[String, RuleOrigin] = Map::new()
   for name in builtin_rule_names() {
     rule_index[name] = Builtin
   }
-
   let schema_rule_set : Map[String, Unit] = Map::new()
   for rule in schema.rules {
     if rule.name.length() == 0 {
@@ -39,11 +38,12 @@ pub fn resolve_schema(schema : @schema.Schema) -> Result[ResolvedSchema, Compile
       return Err(ResolveFailure("duplicate rule name: " + rule.name))
     }
     if rule_index.contains(rule.name) {
-      return Err(ResolveFailure("rule name conflicts with builtin: " + rule.name))
+      return Err(
+        ResolveFailure("rule name conflicts with builtin: " + rule.name),
+      )
     }
     schema_rule_set[rule.name] = ()
     rule_index[rule.name] = Schema
   }
-
   Ok({ schema, rule_index })
 }

@@ -22,10 +22,7 @@ fn rf_compare_string(a : String, b : String) -> Int {
 }
 
 ///|
-fn find_last_value(
-  context : Array[(String, String)],
-  key : String,
-) -> String? {
+fn find_last_value(context : Array[(String, String)], key : String) -> String? {
   for i in 0..<context.length() {
     let index = context.length() - 1 - i
     let pair = context[index]

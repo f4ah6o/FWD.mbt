@@ -1,5 +1,6 @@
 ///|
 /// Convert FWD-IR into JSON.
+
 ///|
 fn json_string(value : String) -> Json {
   Json::string(value)
@@ -83,10 +84,7 @@ fn effect_spec_json(effect : @ir.EffectSpec) -> Json {
 }
 
 ///|
-fn[T] map_values_json(
-  map : Map[String, T],
-  f : (T) -> Json,
-) -> Json {
+fn[T] map_values_json(map : Map[String, T], f : (T) -> Json) -> Json {
   let obj : Map[String, Json] = Map::new()
   for key, value in map {
     obj[key] = f(value)
@@ -118,6 +116,7 @@ fn directed_graph_json(
 
 ///|
 /// Public entry: IR -> Json.
+
 ///|
 pub fn ir_to_json(ir : @ir.FwdIR) -> Json {
   let obj : Map[String, Json] = Map::new()
@@ -125,7 +124,10 @@ pub fn ir_to_json(ir : @ir.FwdIR) -> Json {
   obj["fwdVersion"] = json_string(ir.fwd_version)
   obj["stateGraph"] = directed_graph_json(ir.state_graph)
   obj["entities"] = map_values_json(ir.entities, normalized_entity_json)
-  obj["transitions"] = map_values_json(ir.transitions, normalized_transition_json)
+  obj["transitions"] = map_values_json(
+    ir.transitions,
+    normalized_transition_json,
+  )
   obj["rules"] = map_values_json(ir.rules, compiled_rule_json)
   obj["reasons"] = map_values_json(ir.reasons, reason_spec_json)
   obj["effects"] = map_values_json(ir.effects, effect_spec_json)

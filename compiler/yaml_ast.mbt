@@ -1,5 +1,6 @@
 ///|
 /// Minimal YAML AST for v1 parsing.
+
 ///|
 pub enum YamlValue {
   Null
@@ -16,18 +17,17 @@ pub(all) suberror YamlError {
 
 ///|
 fn YamlError::new(message : String, line : Int) -> YamlError {
-  YamlError::YamlError(line=line, message=message)
+  YamlError::YamlError(line~, message~)
 }
 
 ///|
 pub impl Show for YamlError with output(self, logger) {
   match self {
-    YamlError::YamlError(line~, message~) => {
+    YamlError::YamlError(line~, message~) =>
       logger
       ..write_string("line ")
       ..write_object(line)
       ..write_string(": ")
       ..write_string(message)
-    }
   }
 }

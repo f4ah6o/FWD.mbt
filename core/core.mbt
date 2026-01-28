@@ -1,5 +1,6 @@
 ///|
 /// L0 core primitives: types only, no schema knowledge.
+
 ///|
 pub(all) struct StateTag {
   value : String
@@ -89,6 +90,7 @@ pub fn[S, D] Entity::data(self : Entity[S, D]) -> D {
 
 ///|
 /// Effect execution kind used by schema and IR.
+
 ///|
 pub(all) enum EffectKind {
   Sync

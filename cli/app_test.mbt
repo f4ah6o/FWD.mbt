@@ -5,66 +5,58 @@ test "run validate" {
 
 ///|
 test "run validate examples" {
-  inspect(run(["validate", "examples/fwd_schema_change_valid.yaml"]), content="0")
+  inspect(
+    run(["validate", "examples/fwd_schema_change_valid.yaml"]),
+    content="0",
+  )
   inspect(run(["validate", "examples/effects_v1.yaml"]), content="0")
-  inspect(run(["validate", "examples/fwd_schema_change_invalid.yaml"]), content="1")
-  inspect(run(["validate", "examples/fwd_schema_change_valid.yaml", "--json"]), content="0")
+  inspect(
+    run(["validate", "examples/fwd_schema_change_invalid.yaml"]),
+    content="1",
+  )
+  inspect(
+    run(["validate", "examples/fwd_schema_change_valid.yaml", "--json"]),
+    content="0",
+  )
 }
 
 ///|
 test "run validate baseline" {
   inspect(
     run([
-      "validate",
-      "examples/remove-state.yaml",
-      "--baseline",
+      "validate", "examples/remove-state.yaml", "--baseline", "examples/fwd_schema_change_valid.yaml",
+    ]),
+    content="1",
+  )
+  inspect(
+    run([
+      "validate", "examples/remove-transition.yaml", "--baseline", "examples/fwd_schema_change_valid.yaml",
+    ]),
+    content="1",
+  )
+  inspect(
+    run([
+      "validate", "examples/remove-transition-with-migration.yaml", "--baseline",
       "examples/fwd_schema_change_valid.yaml",
     ]),
     content="1",
   )
   inspect(
     run([
-      "validate",
-      "examples/remove-transition.yaml",
-      "--baseline",
-      "examples/fwd_schema_change_valid.yaml",
+      "validate", "examples/remove-state-with-migration.yaml", "--baseline", "examples/fwd_schema_change_valid.yaml",
     ]),
     content="1",
   )
   inspect(
     run([
-      "validate",
-      "examples/remove-transition-with-migration.yaml",
-      "--baseline",
-      "examples/fwd_schema_change_valid.yaml",
+      "validate", "examples/modify-transition.yaml", "--baseline", "examples/fwd_schema_change_valid.yaml",
+      "--format", "json",
     ]),
     content="1",
   )
   inspect(
     run([
-      "validate",
-      "examples/remove-state-with-migration.yaml",
-      "--baseline",
-      "examples/fwd_schema_change_valid.yaml",
-    ]),
-    content="1",
-  )
-  inspect(
-    run([
-      "validate",
-      "examples/modify-transition.yaml",
-      "--baseline",
-      "examples/fwd_schema_change_valid.yaml",
-      "--format",
-      "json",
-    ]),
-    content="1",
-  )
-  inspect(
-    run([
-      "validate",
-      "examples/modify-transition-with-migration.yaml",
-      "--baseline",
+      "validate", "examples/modify-transition-with-migration.yaml", "--baseline",
       "examples/fwd_schema_change_valid.yaml",
     ]),
     content="1",
@@ -76,9 +68,10 @@ test "run validate json output" {
   let ok_json = @compiler.validation_json_string(true, [])
   inspect(run(["validate", "examples/schema_v1.yaml", "--json"]), content="0")
   assert_true(ok_json.contains("\"ok\": true"))
-
   let reasons : Array[@core.Reason] = []
-  reasons.push(@core.Reason::new("ValidationFailure", "states must not be empty"))
+  reasons.push(
+    @core.Reason::new("ValidationFailure", "states must not be empty"),
+  )
   let err_json = @compiler.validation_json_string(false, reasons)
   inspect(run(["validate", "examples/invalid_min.yaml", "--json"]), content="1")
   assert_true(err_json.contains("\"ok\": false"))
