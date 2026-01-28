@@ -265,18 +265,29 @@ FWD は
 
 ### 9.2 Seed Validation（初回検証）
 
-Seed は `fwdc validate` により検証される。
+Seed は CLI で検証される。
 
+- 実行：`moon run cli -- validate schema/fwd_schema.yaml`
 - 成功：`ok`（exit code 0）
-- 失敗：Reason を表示し、exit code 1
+- 失敗：`parse/resolve/validation error ...` を表示し、exit code 1
 
-#### Validation Rules（v1 最小セット）
-```yaml
-rules:
-  - hasRequiredFields       # fwdVersion / schemaVersion 等の存在
-  - noDuplicateDefinitions  # state / transition / rule / effect の重複検出
-  - allReferencesResolved   # transition の from/to、rule/effect 参照、entity 初期 state
-```
+#### Validation Rules（v1 実装準拠）
+L0 実装の `validate_schema` で、以下を最低保証する：
+
+- `fwdVersion` / `schemaVersion` が空でない
+- `states` / `transitions` が空でない
+- `state/transition/entity/effect/rule/reason/boundary` の **名称が空でない**かつ**重複しない**
+- `entity.initialState` が空でなく、`states` に存在する
+- `transition.from/to` が `states` に存在する
+- `transition.rules` が **解決可能**（preset 名が存在、custom の impl 名が空でない）
+- `transition.effects` が `effects` に存在する
+
+#### Resolve Rules（v1 実装準拠）
+`resolve_schema` で、以下を保証する：
+
+- Builtin preset 名の一覧をルールインデックスに登録
+- スキーマ定義の `rules:` は **builtin 名と衝突禁止**
+  - 衝突した場合は resolve error
 
 ---
 
@@ -285,7 +296,7 @@ rules:
 初回検証に成功した Seed から、初回の IR を生成する。
 
 - 入力：`schema/fwd_schema.yaml`
-- 実行：`fwdc compile schema/fwd_schema.yaml schema/fwd_schema.ir.json`
+- 実行：`moon run cli -- schema/fwd_schema.yaml schema/fwd_schema.ir.json`
 - 出力：`schema/fwd_schema.ir.json`
 
 この IR は **Seed の機械可読な固定結果**であり、以後の golden として扱う。
@@ -301,9 +312,9 @@ rules:
 #### Golden Check の規則
 
 - 以後の変更では、CI で常に以下を実行する：
-  1. `fwdc compile schema/fwd_schema.yaml` で IR を生成
+  1. `moon run cli -- schema/fwd_schema.yaml schema/fwd_schema.ir.json` で IR を生成
   2. committed な `schema/fwd_schema.ir.json` と比較
-  3. 両者を **正規化後の構造比較**で検証する（JSON key order / formatting を無視）
+  3. v1 は **同一テキスト比較**で検証する（`json.stringify(indent=2)` が安定）
 
 - 差分があれば CI 失敗
 
@@ -337,8 +348,8 @@ transitions:
     from: Draft
     to: Reviewing
     rules:
-      - hasRequiredFields
-      - noDuplicateDefinitions
+      - hasAtLeastOneState
+      - hasAtLeastOneTransition
       - allReferencesResolved
 
   - name: approve
@@ -374,8 +385,8 @@ v1 における自己記述の成立は、次の条件で定義する：
 | 条件 | 検証方法 |
 |------|----------|
 | Seed が存在する | `schema/fwd_schema.yaml` の存在 |
-| Seed が検証可能 | `fwdc validate` が exit 0 |
-| IR が生成可能 | `fwdc compile` が成功 |
+| Seed が検証可能 | `moon run cli -- validate schema/fwd_schema.yaml` が exit 0 |
+| IR が生成可能 | `moon run cli -- schema/fwd_schema.yaml schema/fwd_schema.ir.json` が成功 |
 | Golden が固定されている | CI での構造比較が一致 |
 | 変更が正当化されている | Transition + Rule/Reason による判定 |
 
