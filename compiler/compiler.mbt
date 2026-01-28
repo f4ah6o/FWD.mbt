@@ -1,45 +1,17 @@
 ///|
-/// Compiler pipeline skeleton (v1: Parse -> Validate -> Emit).
-///|
-pub enum Stage {
-  Parse
-  Resolve
-  Validate
-  Normalize
-  Emit
-  Package
-}
-
-///|
 pub enum CompileError {
-  Unimplemented(Stage)
   ParseFailure(String)
   ResolveFailure(String)
   ValidationFailure(@core.Reason)
-  EmitFailure(String)
-}
-
-///|
-pub fn stage_to_string(stage : Stage) -> String {
-  match stage {
-    Parse => "parse"
-    Resolve => "resolve"
-    Validate => "validate"
-    Normalize => "normalize"
-    Emit => "emit"
-    Package => "package"
-  }
 }
 
 ///|
 pub fn describe_error(err : CompileError) -> String {
   match err {
-    Unimplemented(stage) => "unimplemented: " + stage_to_string(stage)
     ParseFailure(msg) => "parse error: " + msg
     ResolveFailure(msg) => "resolve error: " + msg
     ValidationFailure(reason) =>
       "validation error: " + reason.code() + ": " + reason.message()
-    EmitFailure(msg) => "emit error: " + msg
   }
 }
 
