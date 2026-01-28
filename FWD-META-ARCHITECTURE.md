@@ -460,10 +460,101 @@ When `--json` or `--format json` is specified:
 - **stderr**: empty on expected validation failures (reserved for unexpected runtime errors)
 - All failure modes (including file read/parse errors) are reported as JSON with `"ok": false`.
 
+## v1.2 Normalize Stage
+
+Normalize は、Parse/Resolve/Validate を前提に、IR を **実行・生成に適した正規形**として確定する段階である。  
+v1.2 の目的は「新しい意味論の導入」ではなく、**同一入力に対して同一の正規形IRを生成できる**こと（安定性）と、以後の Runtime / Actions / Effects 実装で分岐が増えない土台を作ることにある。
+
+### 目的（v1.2）
+
+- IR の順序・表現を正規化し、golden/CI で差分が揺れないようにする
+- Resolve で得た参照解決結果を IR に焼き込み、Emit を薄くする
+- stateGraph などの派生情報を Normalize で確定し、後段で再計算しない
+
+---
+
+### 入出力
+
+- Input: `ResolvedSchema`（resolve 済みの L1 Schema）
+- Output: `NormalizedIR`（v1.2 正規形 IR）
+
+パイプラインは以下とする：
+
+- `parse → resolve → validate → normalize → emit`
+
+---
+
+### 正規化の内容（v1.2）
+
+#### 1) 順序の安定化（辞書順）
+
+次の要素は **辞書順（コードユニットのレキシカル）**で整列して IR に出力する：
+
+- `states`
+- `entities`
+- `transitions`（key=transition.name）
+- `rules`（key=rule.name）
+- `effects`（key=effect.name）
+- `reasons`（key=reason.code）
+
+> 目的は「人間にとっての順序」ではなく「機械的な再現性」である。
+
+#### 2) 参照の安定化（rule/effect refs）
+
+Normalize は、transition が参照する rule/effect を、resolve 結果に基づいて **確定的に表現**する。
+
+- rules:
+  - builtin / schema-defined / custom の origin を保持
+  - custom の場合は `impl` を保持
+- effects:
+  - 参照が存在することは validate 済み
+  - Normalize では参照表現を安定化し、Emit はそのまま吐く
+
+> v1.2 では rule/effect の「実行」は行わない（実行は v1.3+）。
+
+#### 3) stateGraph の確定
+
+Normalize は stateGraph を確定して IR に埋め込む。
+
+- `nodes`: `states`（正規化済み順序）
+- `edges`: transition 定義から導出（from → to → transitionRef）
+
+Emit 段階では stateGraph を再計算しない。
+
+---
+
+### v1.2 で “しない” こと（スコープ外）
+
+- Infer（最小属性推論、入力推論）
+- ルール式 DSL の導入（CEL 等）
+- Effect 実行モデル（outbox / saga 等）
+- 最適化（到達不能除去等の高度な変換）
+  - ※ 検出（warning/Reason）は v1.2+ で検討可
+
+---
+
+### テスト方針（v1.2）
+
+- 同一 Schema 入力から生成される IR JSON が **安定**していることを snapshot/golden で保証する
+- 順序の揺れによる差分が出ないことを CI で確認する
+  - `schema/fwd_schema.yaml` → `schema/fwd_schema.ir.json` の golden diff
+  - examples の IR snapshot
+
+---
+
+### 次フェーズへの接続（v1.3+）
+
+Normalize により、後段は “正規形IR” を前提に実装できる：
+
+- v1.3 Runtime: Transition 実行（Rule→DomainUpdate→EffectSpec）
+- v1.4 Actions: Boundary から候補 Transition を列挙（HATEOAS）
+- v1.5 Effects: Outbox 最小実装
+
+Normalize はそれらの前提となる「分岐しない土台」である。
+
 ## 次の実装ステップ（推奨）
 
 1. **L0 Core の最小実装（MoonBit）**
 2. **L1 スキーマを YAML / MoonBit 定義で記述**
 3. **最小コンパイラ（Parse → Validate → Emit）**
 4. 「FWD が FWD を処理できる」ことを実証
-
