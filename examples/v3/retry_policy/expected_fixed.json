@@ -1,0 +1,13 @@
+{
+  "policyVersion": "3",
+  "maxAttempts": 3,
+  "backoff": {
+    "kind": "fixed",
+    "delayMs": 1000
+  },
+  "scheduleMs": [
+    0,
+    1000,
+    1000
+  ]
+}

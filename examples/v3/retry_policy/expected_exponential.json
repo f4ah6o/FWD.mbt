@@ -1,0 +1,15 @@
+{
+  "policyVersion": "3",
+  "maxAttempts": 4,
+  "backoff": {
+    "kind": "exponential",
+    "baseDelayMs": 500,
+    "factor": 2
+  },
+  "scheduleMs": [
+    0,
+    500,
+    1000,
+    2000
+  ]
+}
