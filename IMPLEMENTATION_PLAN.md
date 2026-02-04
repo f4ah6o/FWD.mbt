@@ -322,10 +322,12 @@
 
 **DoD**
 - fixtures で audit event を固定
+- 時間は logicalTime (monotonic counter) または外部注入の固定値のみを使用 (wall-clock 禁止)
 
 ### M31: Policy Gate (pre-execution)
 - policy input/output の JSON 契約
-- Reason v1 を利用（policy prefix の code）
+- Reason v1 を利用（policy prefix の code: `POLICY_*`)
+- decision shape は `allow|deny` + reasons を固定
 
 **DoD**
 - policy decision が決定的
@@ -340,6 +342,7 @@
 
 ### M33: Timeline v3
 - transition / effects / policy の統合タイムライン契約
+- ordering は `(entityId, logicalTime, sequence)` で決定
 
 **DoD**
 - append-only + deterministic order を fixture で固定
@@ -352,6 +355,7 @@
 
 **DoD**
 - pure router + fixtures で JSON を固定
+- HTTP status / envelope / Reason code を fixture で固定
 
 ## Frozen Contracts (v3)
 - M30a: `examples/v3/retry_policy/expected*.json` + tests
