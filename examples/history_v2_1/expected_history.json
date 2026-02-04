@@ -1,0 +1,35 @@
+{
+  "events": [
+    {
+      "eventId": 1,
+      "transition": "submit",
+      "from": "Draft",
+      "to": "Approved",
+      "payload": {
+        "note": "ok"
+      },
+      "result": "executed",
+      "reasons": []
+    },
+    {
+      "eventId": 2,
+      "transition": "reject",
+      "from": "Approved",
+      "to": "Approved",
+      "payload": {
+        "note": "blocked"
+      },
+      "result": "blocked",
+      "reasons": [
+        {
+          "reasonVersion": 1,
+          "code": "RULE_NOT_SATISFIED",
+          "level": "info",
+          "target": "rule",
+          "message": "Rule not satisfied",
+          "hint": "Provide rule result true for this transition"
+        }
+      ]
+    }
+  ]
+}
