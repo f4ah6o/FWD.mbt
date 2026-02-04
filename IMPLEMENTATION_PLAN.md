@@ -120,6 +120,69 @@
 - M7 tmpx Deterministic HTML v1: `examples/hypermedia_show/expected.html` + ui/views tests
 - M8 mhx Client Execution v1: `examples/hypermedia_show/expected_mx.html` + ui/client harness
 
+## Frozen Contracts (v2 / v2.1 / v2.2)
+**Principle**
+- v1 契約は不変 (fixture 等価がゲート)
+- 新規 work は “新 surface 追加” のみ
+- 変更は必ず fixture + test で固定
+
+### v2 (Hypermedia + Forms)
+- M6 Hypermedia Resource v1 (CLI surface)
+  - Fixtures: `examples/hypermedia_show/expected.json`, `examples/hypermedia_show/invalid_input.json`
+  - Tests: `cli/hypermedia_output_test.mbt`, `cli/app_test.mbt`
+- M7 tmpx deterministic HTML (v1 view)
+  - Fixtures: `examples/hypermedia_show/expected.html`
+  - Tests: `ui/views/resource_view_test.mbt`
+- M8 mhx MX HTML contract + client harness
+  - Fixtures: `examples/hypermedia_show/expected_mx.html`
+  - Tests: `ui/views/resource_view_mx_test.mbt`
+- M10 HTML Form First (v2 HTML-only surface)
+  - Fixtures: `examples/api_v2/input_form/expected.html`, `examples/api_v2/input_form/expected_validate_ok.html`, `examples/api_v2/input_invalid/expected.json`
+  - Tests: `api_v2/api_test.mbt`
+- M11 Resource v2 contract (JSON/HTML/MX aligned)
+  - Fixtures: `examples/resource_v2/expected.json`, `examples/resource_v2/expected.html`, `examples/resource_v2/expected_mx.html`
+  - Tests: `ui/views/resource_view_v2_test.mbt`, `api_v2/api_test.mbt`
+
+### v2.1 (Persistence + History + UI wiring)
+- M12 Snapshot store v2.1
+  - Fixtures: `examples/store_v2_1/expected_snapshot.json`, `examples/store_v2_1/expected_list.json`
+  - Tests: `store_v2_1/store_test.mbt`
+- M13 History contract v2.1
+  - Fixtures: `examples/history_v2_1/expected_history.json`, `examples/history_v2_1/expected_empty.json`
+  - Tests: `history_v2_1/history_test.mbt`
+- M14 v2.1 API (CRUD + history + execute-and-persist)
+  - Fixtures: `examples/api_v2_1/entities_create/expected.json`, `examples/api_v2_1/entities_get/expected.json`, `examples/api_v2_1/history_get/expected.json`, `examples/api_v2_1/execute_*/expected_*.json`
+  - Tests: `api_v2_1/api_test.mbt`
+- M15-M17 UI History HTML + mx swap + empty state
+  - Fixtures: `examples/history_v2_1/expected.html`, `examples/history_v2_1/expected_empty.html`, `examples/api_v2_1/history_html/expected.html`, `examples/api_v2_1/history_html/expected_empty.html`, `examples/api_v2_1/entity_html/expected.html`
+  - Tests: `ui/views/history_view_v2_1_test.mbt`, `ui/views/entity_view_v2_1_test.mbt`, `api_v2_1/api_test.mbt`
+  - Note: history swap target is `.fwd-history` (contract)
+
+### v2.2 (Effects)
+- M18 Effects plan (pure planner)
+  - Fixtures: `examples/effects_v2_2/planned/expected.json`, `examples/effects_v2_2/skipped_blocked/expected.json`
+  - Tests: `effects_v2_2/planner_test.mbt`
+- M20 CLI Effects plan
+  - Fixtures: `examples/effects_v2_2/cli_planned/expected.json`, `examples/effects_v2_2/cli_skipped/expected.json`
+  - Tests: `cli/effects_plan_output_test.mbt`, `cli/app_test.mbt`
+- M21 Effects execute stub
+  - Fixtures: `examples/effects_v2_2/execute/expected_executed.json`, `examples/effects_v2_2/execute/expected_skipped.json`
+  - Tests: `effects_v2_2/execution_test.mbt`, `cli/effects_execute_output_test.mbt`
+- M22 Effects HTTP surface + HTTP runner scaffold
+  - Fixtures: `examples/api_v2_2/effects_plan/expected.json`, `examples/api_v2_2/effects_execute/expected.json`
+  - Tests: `api_v2_2/api_test.mbt`, `effects_exec_adapters_v2_2/http_runner_test.mbt`
+- M23 Record/Replay harness
+  - Fixtures: `examples/effects_v2_2/record_replay/cassette_example.json`, `examples/effects_v2_2/record_replay/expected_executed.json`
+  - Tests: `effects_exec_rr_v2_2/rr_test.mbt`
+- M24 fwdc effects record
+  - Fixtures: `examples/effects_v2_2/record_cli/expected_cassette.json`, `examples/effects_v2_2/record_cli/expected_execution.json`
+  - Tests: `cli/effects_record_output_test.mbt`
+- M25 fwdc effects run (config-based)
+  - Fixtures: `examples/effects_v2_2/real_runner/config.json`, `examples/effects_v2_2/real_runner/expected_execution.json`
+  - Tests: `effects_exec_real_v2_2/runner_test.mbt`, CLI run test in `cli/app_test.mbt`
+- M26 Real HTTP transport (implementation-only)
+  - CI is replay-only; transport wiring must not change frozen JSON surfaces
+
 ## クロスカット (常時実施)
 - テスト: parse / resolve / validate / baseline のユニット + golden
 - CI: `just ci` を品質ゲートにする
