@@ -230,6 +230,28 @@ Contract locks:
 - `examples/effects_v2_2/record_cli/expected_cassette.json`
 - `examples/effects_v2_2/record_cli/expected_execution.json`
 
+## Effects run (v2.2)
+
+```
+fwdc effects run --plan <plan.json> --config <config.json>
+```
+
+Optional:
+- `--cassette <cassette.json>`: replay recorded HTTP interactions.
+
+Config example (v2.2):
+
+```
+{
+  "allowlist": ["https://api.example.com/"],
+  "timeoutMs": 5000
+}
+```
+
+Contract locks:
+- `examples/effects_v2_2/real_runner/config.json`
+- `examples/effects_v2_2/real_runner/expected_execution.json`
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
