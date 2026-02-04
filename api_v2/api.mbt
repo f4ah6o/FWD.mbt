@@ -176,6 +176,20 @@ fn render_resource(
 }
 
 ///|
+fn render_resource_v2(
+  resource : @hypermedia.ResourceV2,
+  format : String,
+) -> ApiResponse {
+  if format == "v2-html" {
+    return response_html(200, @views.render_resource_html_v2(resource))
+  }
+  if format == "v2-mx" {
+    return response_html(200, @views.render_resource_html_v2_mx(resource))
+  }
+  response_json(200, @hypermedia.resource_v2_json(resource).stringify(indent=2))
+}
+
+///|
 fn transitions_from_state(
   ir : @ir.FwdIR,
   state : String,
@@ -249,6 +263,10 @@ fn handle_resource(schema_text : String, req : ApiRequest) -> ApiResponse {
       200,
       @views.render_resource_html_v2_form(state, transitions, blocked),
     )
+  }
+  if format == "v2-json" || format == "v2-html" || format == "v2-mx" {
+    let resource_v2 = @hypermedia.resource_v2_from_ir(ir, state)
+    return render_resource_v2(resource_v2, format)
   }
   let runtime_result = match @runtime.compute_available_transitions(
     ir,
@@ -477,6 +495,7 @@ fn handle_validate(schema_text : String, req : ApiRequest) -> ApiResponse {
     Some(value) => value
     None => Json::object(Map::new())
   }
+  let errors : Array[@core.Reason] = []
   match tr.input_schema {
     Some(_) => {
       match payload_json {
@@ -488,19 +507,31 @@ fn handle_validate(schema_text : String, req : ApiRequest) -> ApiResponse {
           )
       }
       if payload is None {
-        return response_json(
-          400,
-          error_envelope_json(payload_required_reason()),
-        )
+        errors.push(payload_required_reason())
       }
     }
     None => ()
   }
-  let payload_text = payload_json.stringify()
-  response_html(
-    200,
-    @views.render_validation_result_html(state, transition, payload_text),
+  if errors.length() > 0 {
+    let resource_v2 = @hypermedia.resource_v2_validation(
+      state,
+      transition,
+      tr.to.value(),
+      tr.input_schema,
+      payload,
+      errors,
+    )
+    return response_html(200, @views.render_resource_html_v2(resource_v2))
+  }
+  let resource_v2 = @hypermedia.resource_v2_validation(
+    state,
+    transition,
+    tr.to.value(),
+    tr.input_schema,
+    payload,
+    [],
   )
+  response_html(200, @views.render_resource_html_v2(resource_v2))
 }
 
 ///|

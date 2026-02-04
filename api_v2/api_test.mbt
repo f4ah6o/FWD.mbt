@@ -87,6 +87,51 @@ test "api v2 resource mx" {
 }
 
 ///|
+test "api v2 resource v2 json" {
+  let schema_text = load_schema("examples/api_v2/input_form/model.yaml")
+  let expected = load_expected("examples/resource_v2/expected.json")
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v2/resource",
+    query: make_query([("state", "Draft"), ("format", "v2-json")]),
+    body: None,
+  }
+  let resp = handle_request(schema_text, req)
+  inspect(resp.status, content="200")
+  assert_body(resp.body, expected)
+}
+
+///|
+test "api v2 resource v2 html" {
+  let schema_text = load_schema("examples/api_v2/input_form/model.yaml")
+  let expected = load_expected("examples/resource_v2/expected.html")
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v2/resource",
+    query: make_query([("state", "Draft"), ("format", "v2-html")]),
+    body: None,
+  }
+  let resp = handle_request(schema_text, req)
+  inspect(resp.status, content="200")
+  assert_body(resp.body, expected)
+}
+
+///|
+test "api v2 resource v2 mx" {
+  let schema_text = load_schema("examples/api_v2/input_form/model.yaml")
+  let expected = load_expected("examples/resource_v2/expected_mx.html")
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v2/resource",
+    query: make_query([("state", "Draft"), ("format", "v2-mx")]),
+    body: None,
+  }
+  let resp = handle_request(schema_text, req)
+  inspect(resp.status, content="200")
+  assert_body(resp.body, expected)
+}
+
+///|
 fn execute_request_body(state : String, transition : String) -> String {
   let obj : Map[String, Json] = Map::new()
   obj["state"] = Json::string(state)

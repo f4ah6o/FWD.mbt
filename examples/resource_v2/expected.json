@@ -1,0 +1,12 @@
+{
+  "state": "Draft",
+  "transitions": [
+    {
+      "id": "submit",
+      "to": "Approved",
+      "inputSchema": "PayloadV1",
+      "errors": [],
+      "canExecute": false
+    }
+  ]
+}

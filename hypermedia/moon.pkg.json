@@ -2,6 +2,7 @@
   "import": [
     "fwd/core",
     "fwd/compiler",
+    "fwd/ir",
     "fwd/runtime",
     "moonbitlang/core/json",
     "moonbitlang/x/fs"
