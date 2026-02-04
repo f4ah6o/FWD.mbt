@@ -205,6 +205,16 @@ Contract locks:
 Notes:
 - Execution uses an adapter boundary; the HTTP runner enforces an allowlist and sends an idempotency header.
 
+## Effects record/replay (v2.2)
+
+v2.2 includes a deterministic replay harness for HTTP effects execution. Tests use a cassette-driven transport to avoid real network calls.
+
+Fixtures (contract locks):
+- `examples/effects_v2_2/record_replay/cassette_example.json`
+- `examples/effects_v2_2/record_replay/expected_executed.json`
+
+Replay is used by injecting the cassette transport into the HTTP runner’s transport boundary.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
