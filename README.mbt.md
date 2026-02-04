@@ -191,6 +191,20 @@ Fixtures (contract locks):
 - `examples/effects_v2_2/execute/expected_executed.json`
 - `examples/effects_v2_2/execute/expected_skipped.json`
 
+## Effects HTTP endpoints (v2.2)
+
+v2.2 exposes effects planning and execution over a pure HTTP adapter surface.
+
+- `POST /v2.2/effects/plan` → EffectsPlan JSON (same shape as `fwdc effects plan`)
+- `POST /v2.2/effects/execute` → EffectsExecutionResult JSON (same shape as `fwdc effects execute`)
+
+Contract locks:
+- `examples/api_v2_2/effects_plan/expected.json`
+- `examples/api_v2_2/effects_execute/expected.json`
+
+Notes:
+- Execution uses an adapter boundary; the HTTP runner enforces an allowlist and sends an idempotency header.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
