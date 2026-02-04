@@ -1,0 +1,7 @@
+{
+  "key": "k1",
+  "kind": "done",
+  "logicalTime": 12,
+  "reservedAt": 10,
+  "resultRef": "exec-1"
+}
