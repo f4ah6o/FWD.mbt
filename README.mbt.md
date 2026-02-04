@@ -167,6 +167,18 @@ v2.1 は entity の保存・履歴・実行を **新しい surface** として�
 - `examples/api_v2_1/`
 - `examples/api_v2_1/history_html/expected.html`
 
+## Effects plan (v2.2)
+
+Generate a deterministic effects plan (no I/O). This is a **planning-only** surface: it lists what effects would be executed for a transition, without executing them.
+
+```
+fwdc effects plan <schema.yaml> --entity <id> --state <state> --transition <id> --input <json>
+```
+
+Fixtures (contract locks):
+- `examples/effects_v2_2/cli_planned/expected.json`
+- `examples/effects_v2_2/cli_skipped/expected.json`
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
