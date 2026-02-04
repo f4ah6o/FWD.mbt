@@ -152,6 +152,32 @@ v1 の resource / runtime / Reason 契約は保持され、**新しい surface �
 - **deterministic**：順序・構造は fixture で固定
 - **v1 untouched**：既存の v1 契約は変更しない
 
+## v2.1 Persistence Endpoints
+
+v2.1 は entity の保存・履歴・実行を **新しい surface** として提供します。
+
+### Endpoints
+- `POST /v2.1/entities`（create）
+- `GET /v2.1/entities/:id`（get）
+- `GET /v2.1/entities/:id/history`（history）
+- `POST /v2.1/entities/:id/execute`（execute-and-persist）
+
+### Fixtures (Contract Locks)
+- `examples/api_v2_1/`
+
+## v2.1 Persistence Endpoints
+
+v2.1 は entity の保存・履歴・実行を **新しい surface** として提供します。
+
+### Endpoints
+- `POST /v2.1/entities`（create）
+- `GET /v2.1/entities/:id`（get）
+- `GET /v2.1/entities/:id/history`（history）
+- `POST /v2.1/entities/:id/execute`（execute-and-persist）
+
+### Fixtures (Contract Locks)
+- `examples/api_v2_1/`
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`

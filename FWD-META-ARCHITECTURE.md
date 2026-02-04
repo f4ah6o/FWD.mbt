@@ -515,6 +515,19 @@ All non-success outcomes return diagnostics via Reason v1 and are deterministic 
 - The execution JSON envelope shape and ordering are fixture-locked.
 - Reason v1 remains frozen and is forwarded without inference.
 
+## v2.1 Persistence Endpoints
+
+v2.1 は entity の保存・履歴・実行を **新しい surface** として提供する。
+
+### Endpoints
+- `POST /v2.1/entities`（create）
+- `GET /v2.1/entities/:id`（get）
+- `GET /v2.1/entities/:id/history`（history）
+- `POST /v2.1/entities/:id/execute`（execute-and-persist）
+
+### Fixtures
+- `examples/api_v2_1/`
+
 ## Hypermedia Layer (v1)
 
 ### Layering (conceptual)
