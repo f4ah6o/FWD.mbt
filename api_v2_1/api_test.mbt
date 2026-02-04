@@ -168,6 +168,27 @@ test "api v2.1 history html" {
 }
 
 ///|
+test "api v2.1 history html empty" {
+  let expected = load_expected("examples/api_v2_1/history_html/expected_empty.html")
+  let schema_text = load_schema()
+  let state = ApiState::new()
+  let create_req : ApiRequest = {
+    http_method: "POST",
+    path: "/v2.1/entities",
+    body: Some(create_body("order-1", "Draft", "hello")),
+  }
+  ignore(handle_request(schema_text, state, create_req))
+  let history_req : ApiRequest = {
+    http_method: "GET",
+    path: "/v2.1/entities/order-1/history?format=v2_1_html",
+    body: None,
+  }
+  let resp = handle_request(schema_text, state, history_req)
+  inspect(resp.status, content="200")
+  assert_body(resp.body, expected)
+}
+
+///|
 test "api v2.1 execute executed" {
   let expected = load_expected("examples/api_v2_1/execute_executed/expected.json")
   let schema_text = load_schema()

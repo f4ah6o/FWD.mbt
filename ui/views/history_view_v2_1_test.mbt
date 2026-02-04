@@ -59,3 +59,19 @@ test "history html fixture" {
   }
   inspect(output, content=expected)
 }
+
+///|
+test "history html empty fixture" {
+  let expected = match read_text_history_view(
+    "examples/history_v2_1/expected_empty.html",
+    "expected empty history html",
+  ) {
+    Ok(text) => text
+    Err(msg) => fail(msg)
+  }
+  let mut output = render_history_html([])
+  if expected.has_suffix("\n") {
+    output = output + "\n"
+  }
+  inspect(output, content=expected)
+}
