@@ -278,3 +278,86 @@
 - no inference: projection 層は推測しない
 - deterministic: ソート順・出力順は固定
 - Reason v1 を維持（必要なら v2 を別 surface で追加）
+
+---
+
+# v3 Implementation Plan (Concise)
+
+## Principles
+- v1/v2/v2.1/v2.2 の凍結契約は不変
+- v3 は “新 surface 追加” のみ
+- fixture-first + deterministic + no-inference を維持
+
+## Themes (priority)
+1) Effects Execution Hardening
+2) Policy / Authorization layer
+3) Resource v3 (canonical JSON + HTML/MX projection)
+4) Timeline v3 (unified audit)
+5) Server Adapter v3 (pure router)
+
+## Non-Goals (v3)
+- v2.2 effects surface の置き換え
+- v2.1 persistence/history の置き換え
+- Reason v1 の変更
+
+## Milestones (v3)
+
+### M30a: Retry/Backoff Policy Contract
+- retry policy の JSON 契約 (決定的)
+- backoff 計算は pure/deterministic
+
+**DoD**
+- fixtures で policy 決定を固定
+
+### M30b: Idempotency Store Contract
+- key tracking / TTL semantics を契約化
+- append-only or deterministic state transitions
+
+**DoD**
+- fixtures で idempotency 状態を固定
+
+### M30c: Execution Audit Contract
+- per-item status/timing/result を append-only で記録
+- effects 実行の監査ログ契約
+
+**DoD**
+- fixtures で audit event を固定
+
+### M31: Policy Gate (pre-execution)
+- policy input/output の JSON 契約
+- Reason v1 を利用（policy prefix の code）
+
+**DoD**
+- policy decision が決定的
+- failures は Reason v1 で返す
+
+### M32: Resource v3 (JSON/HTML/MX aligned)
+- v3 canonical JSON に policy + effects preview + draft + field errors を内包
+- HTML/MX は v3 JSON の純投影
+
+**DoD**
+- JSON/HTML/MX の fixtures を固定
+
+### M33: Timeline v3
+- transition / effects / policy の統合タイムライン契約
+
+**DoD**
+- append-only + deterministic order を fixture で固定
+
+### M34: v3 HTTP Adapter
+- `/v3/resource`
+- `/v3/execute`
+- `/v3/effects`
+- `/v3/timeline`
+
+**DoD**
+- pure router + fixtures で JSON を固定
+
+## Frozen Contracts (v3)
+- M30a: `examples/v3/retry_policy/expected*.json` + tests
+- M30b: `examples/v3/idempotency/expected*.json` + tests
+- M30c: `examples/v3/execution_audit/expected*.json` + tests
+- M31: `examples/v3/policy/expected*.json` + tests
+- M32: `examples/v3/resource/expected.json|html|mx.html` + tests
+- M33: `examples/v3/timeline/expected*.json` + tests
+- M34: `examples/v3/api/expected*.json` + tests
