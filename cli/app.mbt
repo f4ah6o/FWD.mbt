@@ -1,6 +1,6 @@
 ///|
 fn usage() -> String {
-  "usage: fwdc <schema.yaml> [output.json]\n       fwdc presets\n       fwdc validate <schema.yaml> [--baseline <baseline.yaml>] [--format json|--json]\n       fwdc runtime available <schema.yaml> --state <state> [--input <json>]\n       fwdc runtime execute <schema.yaml> --state <state> --transition <id> [--input <json>]\n       fwdc hypermedia show <schema.yaml> --state <state> [--input <json>]\n       fwdc effects plan <schema.yaml> --entity <id> --state <state> --transition <id> [--input <json>]\n       fwdc effects execute --plan <json>"
+  "usage: fwdc <schema.yaml> [output.json]\n       fwdc presets\n       fwdc validate <schema.yaml> [--baseline <baseline.yaml>] [--format json|--json]\n       fwdc runtime available <schema.yaml> --state <state> [--input <json>]\n       fwdc runtime execute <schema.yaml> --state <state> --transition <id> [--input <json>]\n       fwdc hypermedia show <schema.yaml> --state <state> [--input <json>]\n       fwdc effects plan <schema.yaml> --entity <id> --state <state> --transition <id> [--input <json>]\n       fwdc effects execute --plan <json>\n       fwdc effects record --plan <plan.json> --cassette <cassette.json> [--out <execution.json>] --allow <prefix> [--allow <prefix>]"
 }
 
 ///|
@@ -38,6 +38,13 @@ fn write_output(path : String, output : String) -> Bool {
       false
     }
   }
+}
+
+///|
+fn record_send_stub(
+  _req : @effects_exec_adapters_v2_2.HttpRequest,
+) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+  Ok({ status: 200, body: "{\"ok\":true}" })
 }
 
 ///|
@@ -187,7 +194,7 @@ pub fn run(args : Array[String]) -> Int {
       println(usage())
       return 1
     }
-    if args[1] != "plan" && args[1] != "execute" {
+    if args[1] != "plan" && args[1] != "execute" && args[1] != "record" {
       println(usage())
       return 1
     }
@@ -229,6 +236,117 @@ pub fn run(args : Array[String]) -> Int {
       }
       let result = @effects_v2_2.execute_plan_stub(plan)
       println(@effects_v2_2.execution_result_json(result).stringify(indent=2))
+      return 0
+    }
+    if args[1] == "record" {
+      if args.length() < 6 {
+        println(usage())
+        return 1
+      }
+      let mut plan_path : String? = None
+      let mut cassette_path : String? = None
+      let mut out_path : String? = None
+      let allowlist : Array[String] = []
+      for i = 2; i < args.length(); {
+        let arg = args[i]
+        if arg == "--plan" {
+          if i + 1 >= args.length() {
+            println(usage())
+            return 1
+          }
+          plan_path = Some(args[i + 1])
+          continue i + 2
+        } else if arg == "--cassette" {
+          if i + 1 >= args.length() {
+            println(usage())
+            return 1
+          }
+          cassette_path = Some(args[i + 1])
+          continue i + 2
+        } else if arg == "--out" {
+          if i + 1 >= args.length() {
+            println(usage())
+            return 1
+          }
+          out_path = Some(args[i + 1])
+          continue i + 2
+        } else if arg == "--allow" {
+          if i + 1 >= args.length() {
+            println(usage())
+            return 1
+          }
+          allowlist.push(args[i + 1])
+          continue i + 2
+        } else {
+          println(usage())
+          return 1
+        }
+      } else {
+
+      }
+      let plan_file = match plan_path {
+        Some(value) => value
+        None => {
+          println(usage())
+          return 1
+        }
+      }
+      let cassette_file = match cassette_path {
+        Some(value) => value
+        None => {
+          println(usage())
+          return 1
+        }
+      }
+      if allowlist.length() == 0 {
+        println(runtime_error_json(@core.Reason::with_context(
+          "INPUT_MISSING",
+          "missing allowlist",
+          [
+            ("target", "runtime"),
+            ("level", "error"),
+            ("hint", "Provide --allow <prefix>"),
+          ],
+        )).stringify(indent=2))
+        return 2
+      }
+      let plan_text = match read_input_result(plan_file) {
+        Ok(text) => text
+        Err(err) => {
+          println(runtime_error_json(@core.Reason::with_context(
+            "ReadFailure",
+            "read error: " + err.to_string(),
+            [
+              ("target", "runtime"),
+              ("level", "error"),
+              ("hint", "Provide a valid plan path"),
+            ],
+          )).stringify(indent=2))
+          return 2
+        }
+      }
+      let plan = match @effects_v2_2.parse_plan_json(plan_text) {
+        Ok(value) => value
+        Err(reason) => {
+          println(runtime_error_json(reason).stringify(indent=2))
+          return 2
+        }
+      }
+      let (result, cassette) = @effects_exec_rr_v2_2.record_execute_plan(
+        plan,
+        allowlist,
+        record_send_stub,
+      )
+      let cassette_json = @effects_exec_rr_v2_2.cassette_json(cassette).stringify(indent=2)
+      if !write_output(cassette_file, cassette_json) {
+        return 1
+      }
+      let exec_json = @effects_v2_2.execution_result_json(result).stringify(indent=2)
+      match out_path {
+        Some(path) => if !write_output(path, exec_json) { return 1 }
+        None => ()
+      }
+      println(exec_json)
       return 0
     }
     let schema_path = args[2]

@@ -1,0 +1,17 @@
+{
+  "planVersion": "2.2",
+  "entityId": "order-1",
+  "transitionId": "submit",
+  "status": "planned",
+  "items": [
+    {
+      "effectId": "notify",
+      "kind": "async",
+      "payload": {
+        "url": "https://allowed.example/hook"
+      },
+      "idempotencyKey": "order-1:submit:notify"
+    }
+  ],
+  "reasons": []
+}
