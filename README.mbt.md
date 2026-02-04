@@ -320,6 +320,13 @@ schema/reason.schema.v1.json
 }
 ```
 
+## Frozen Contracts
+
+This project follows a strict contract-freeze discipline.
+All stable JSON/HTML/CLI surfaces are locked by fixtures and tests.
+
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts” for the full index.
+
 ## Builtin Rule Presets
 
 These preset rule names are reserved and provided by the compiler resolve stage:
