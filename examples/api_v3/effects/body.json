@@ -1,0 +1,8 @@
+{
+  "entity": "order-1",
+  "state": "Draft",
+  "transition": "submit",
+  "input": {
+    "canSubmit": true
+  }
+}

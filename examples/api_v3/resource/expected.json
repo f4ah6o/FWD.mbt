@@ -1,0 +1,15 @@
+{
+  "state": "Draft",
+  "transitions": [
+    {
+      "id": "submit",
+      "to": "Approved",
+      "inputSchema": null,
+      "draftPayload": null,
+      "fieldErrors": [],
+      "policyDecision": null,
+      "effectsPreview": null,
+      "canExecute": false
+    }
+  ]
+}

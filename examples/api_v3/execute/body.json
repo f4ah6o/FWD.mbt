@@ -1,0 +1,10 @@
+{
+  "entity": "order-1",
+  "state": "Draft",
+  "transition": "submit",
+  "logicalTime": 10,
+  "sequence": 1,
+  "input": {
+    "canSubmit": true
+  }
+}
