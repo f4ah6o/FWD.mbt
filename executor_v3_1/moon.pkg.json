@@ -5,6 +5,8 @@
     "fwd/retry_policy_v3",
     "fwd/idempotency_v3",
     "fwd/execution_audit_v3",
+    "fwd/effects_v2_2",
+    "fwd/effects_exec_adapters_v2_2",
     "moonbitlang/core/json"
   ],
   "test-import": [
