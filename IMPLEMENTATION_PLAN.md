@@ -383,3 +383,8 @@
 - Timeline query contract: `examples/v3_3/timeline_query/expected_cursor.json` + `timeline_v3_3/query_test.mbt`
 - v3.3 timeline view: `examples/api_v3_3/timeline/expected_*.html` + `ui/views/timeline_view_v3_3_test.mbt`
 - v3.3 timeline endpoint: `examples/api_v3_3/timeline/expected_*.html`, `examples/api_v3_3/timeline/expected_invalid_query.json` + `api_v3_3/api_test.mbt`
+
+## Frozen Contracts (v3.4)
+- Timeline event detail contract: `examples/v3_4/timeline_event_detail/expected.json` + `timeline_event_v3_4/detail_test.mbt`
+- v3.4 timeline event view: `examples/v3_4/timeline_event_detail/expected.html` + `ui/views/timeline_event_view_v3_4_test.mbt`
+- v3.4 timeline event endpoint: `examples/api_v3_4/timeline_event/expected*.json`, `examples/api_v3_4/timeline_event/expected.html` + `api_v3_4/api_test.mbt`

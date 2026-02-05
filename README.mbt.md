@@ -278,6 +278,12 @@ v3.3 adds filter and paging controls for the timeline UI.
 See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.3)”.
 Fixtures live under `examples/api_v3_3/`.
 
+## v3.4 Timeline drilldown
+
+v3.4 adds a timeline event detail partial (`/v3.4/timeline/event/:id`).
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.4)”.
+Fixtures live under `examples/api_v3_4/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
