@@ -378,3 +378,8 @@
 ## Frozen Contracts (v3.2)
 - Timeline HTML projection: `examples/v3/timeline/expected.html` + `ui/views/timeline_view_v3_test.mbt`
 - v3.2 timeline endpoint: `examples/api_v3_2/timeline/expected.html`, `examples/api_v3_2/timeline/expected_missing_entity.json` + `api_v3_2/api_test.mbt`
+
+## Frozen Contracts (v3.3)
+- Timeline query contract: `examples/v3_3/timeline_query/expected_cursor.json` + `timeline_v3_3/query_test.mbt`
+- v3.3 timeline view: `examples/api_v3_3/timeline/expected_*.html` + `ui/views/timeline_view_v3_3_test.mbt`
+- v3.3 timeline endpoint: `examples/api_v3_3/timeline/expected_*.html`, `examples/api_v3_3/timeline/expected_invalid_query.json` + `api_v3_3/api_test.mbt`

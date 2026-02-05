@@ -272,6 +272,12 @@ v3.2 exposes timeline HTML as a standalone surface.
 See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.2)”.
 Fixtures live under `examples/api_v3_2/`.
 
+## v3.3 Timeline filter + paging
+
+v3.3 adds filter and paging controls for the timeline UI.
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.3)”.
+Fixtures live under `examples/api_v3_3/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
