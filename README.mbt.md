@@ -314,6 +314,12 @@ v3.8 adds `/v3.8/timeline/events` (filtered event list HTML).
 See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.8)”.
 Fixtures live under `examples/api_v3_8/`.
 
+## v3.9 Timeline event paging (detail)
+
+v3.9 adds `/v3.9/timeline/event/:id` with prev/next paging.
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.9)”.
+Fixtures live under `examples/api_v3_9/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`

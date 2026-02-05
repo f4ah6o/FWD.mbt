@@ -406,3 +406,8 @@
 - Timeline event list query contract: `examples/v3_8/timeline_event_list/expected_cursor.json` + `timeline_event_v3_8/query_test.mbt`
 - v3.8 timeline event list view: `examples/api_v3_8/timeline_event_list/expected_page*.html` + `ui/views/timeline_event_view_v3_8_test.mbt`
 - v3.8 timeline event list endpoint: `examples/api_v3_8/timeline_event_list/expected_page*.html`, `examples/api_v3_8/timeline_event_list/expected_invalid_query.json` + `api_v3_8/api_test.mbt`
+
+## Frozen Contracts (v3.9)
+- Timeline event page contract: `examples/v3_9/timeline_event_page/expected.json` + `timeline_event_v3_9/page_test.mbt`
+- v3.9 timeline event page view: `examples/v3_9/timeline_event_page/expected.html` + `ui/views/timeline_event_view_v3_9_test.mbt`
+- v3.9 timeline event page endpoint: `examples/api_v3_9/timeline_event_page/expected*.json`, `examples/api_v3_9/timeline_event_page/expected.html` + `api_v3_9/api_test.mbt`
