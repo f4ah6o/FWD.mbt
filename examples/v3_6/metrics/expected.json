@@ -1,0 +1,42 @@
+{
+  "window": {
+    "entityId": "order-1",
+    "fromLogicalTime": 10,
+    "toLogicalTime": 12
+  },
+  "total": {
+    "ok": 1,
+    "failed": 1,
+    "blocked": 0,
+    "denied": 1
+  },
+  "byKind": [
+    {
+      "kind": "transition",
+      "counts": {
+        "ok": 1,
+        "failed": 0,
+        "blocked": 0,
+        "denied": 0
+      }
+    },
+    {
+      "kind": "policy",
+      "counts": {
+        "ok": 0,
+        "failed": 0,
+        "blocked": 0,
+        "denied": 1
+      }
+    },
+    {
+      "kind": "effect",
+      "counts": {
+        "ok": 0,
+        "failed": 1,
+        "blocked": 0,
+        "denied": 0
+      }
+    }
+  ]
+}
