@@ -389,3 +389,7 @@
 - v3.4 timeline event view: `examples/v3_4/timeline_event_detail/expected.html` + `ui/views/timeline_event_view_v3_4_test.mbt`
 - v3.4 timeline event endpoint: `examples/api_v3_4/timeline_event/expected*.json`, `examples/api_v3_4/timeline_event/expected.html` + `api_v3_4/api_test.mbt`
 - v3.4 timeline mx view: `examples/v3_4/timeline_mx/expected.html` + `ui/views/timeline_view_v3_4_mx_test.mbt`
+
+## Frozen Contracts (v3.5)
+- Timeline export contract: `examples/v3_5/timeline_export/expected.jsonl` + `timeline_export_v3_5/export_test.mbt`
+- v3.5 timeline export endpoint: `examples/api_v3_5/timeline_export/expected*.jsonl`, `examples/api_v3_5/timeline_export/expected_invalid_query.json` + `api_v3_5/api_test.mbt`
