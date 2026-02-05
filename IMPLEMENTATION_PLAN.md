@@ -369,3 +369,8 @@
 - M32: `examples/resource_v3/expected.json|html|mx.html` + `hypermedia/resource_v3_test.mbt`, `ui/views/resource_view_v3_test.mbt`
 - M33: `examples/v3/timeline/expected*.json` + `timeline_v3/timeline_test.mbt`
 - M34: `examples/api_v3/**/expected*.json` + `api_v3/api_test.mbt`
+
+## Frozen Contracts (v3.1)
+- M35: `examples/v3_1/executor/expected_*.json` + `executor_v3_1/executor_test.mbt`
+- M36: `executor_v3_1/runner.mbt` + `executor_v3_1/executor_test.mbt`
+- M37: `examples/api_v3_1/execute/expected_*.json` + `api_v3_1/api_test.mbt`

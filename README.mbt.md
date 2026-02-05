@@ -260,6 +260,12 @@ as new immutable contracts.
 See `IMPLEMENTATION_PLAN.md` → “v3 Implementation Plan” and “Frozen Contracts (v3)”.
 Fixtures live under `examples/api_v3/`.
 
+## v3.1 Executor endpoint
+
+v3.1 adds a detailed executor surface for effects execution.
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v3.1)”.
+Fixtures live under `examples/api_v3_1/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
