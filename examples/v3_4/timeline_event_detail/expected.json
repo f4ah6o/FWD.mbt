@@ -1,0 +1,18 @@
+{
+  "eventId": "order-1:11:1:policy",
+  "entityId": "order-1",
+  "logicalTime": 11,
+  "sequence": 1,
+  "kind": "policy",
+  "refId": "policy:submit",
+  "status": "deny",
+  "reasons": [
+    {
+      "reasonVersion": 1,
+      "code": "POLICY_DENY",
+      "level": "error",
+      "target": "transition",
+      "message": "Policy denied execution"
+    }
+  ]
+}
