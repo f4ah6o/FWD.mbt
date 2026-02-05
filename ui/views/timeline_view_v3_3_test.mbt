@@ -15,6 +15,14 @@ fn load_expected_v3_3(path : String) -> String raise {
   }
 }
 
+fn timeline_reason_v3_3(code : String, message : String, target : String) -> @core.Reason {
+  @core.Reason::with_context(
+    code,
+    message,
+    [("target", target)],
+  )
+}
+
 ///|
 test "timeline v3.3 html filtered fixture" {
   let expected = load_expected_v3_3("examples/api_v3_3/timeline/expected_filtered.html")
@@ -26,7 +34,9 @@ test "timeline v3.3 html filtered fixture" {
       kind: @timeline_v3.TimelineKind::Policy,
       ref_id: "policy:submit",
       status: "deny",
-      reasons: [],
+      reasons: [
+        timeline_reason_v3_3("POLICY_DENY", "Policy denied execution", "transition"),
+      ],
     },
   ]
   let mut output = render_timeline_html_v3_3(
@@ -34,7 +44,7 @@ test "timeline v3.3 html filtered fixture" {
     events,
     Some("policy"),
     2,
-    Some("offset:1"),
+    None,
   )
   if expected.has_suffix("\n") {
     output = output + "\n"
