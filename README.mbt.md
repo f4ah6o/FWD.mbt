@@ -344,6 +344,12 @@ v4.2 adds a read-only metrics HTML/MX surface under `/v4.2/metrics`.
 See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4.2)”.
 Fixtures live under `examples/api_v4_2/`.
 
+## v4.3 metrics export
+
+v4.3 adds read-only metrics export endpoints for JSONL and CSV.
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4.3)”.
+Fixtures live under `examples/api_v4_3/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`

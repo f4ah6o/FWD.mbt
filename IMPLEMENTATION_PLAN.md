@@ -420,3 +420,7 @@
 ## Frozen Contracts (v4.2)
 - v4.2 metrics view: `examples/v4_2/metrics/expected*.html` + `ui/views/metrics_view_v4_2_test.mbt`
 - v4.2 metrics endpoint: `examples/api_v4_2/metrics/expected*.html`, `examples/api_v4_2/metrics/expected_invalid_query.json` + `api_v4_2/api_test.mbt`
+
+## Frozen Contracts (v4.3)
+- v4.3 metrics export contract: `examples/v4_3/metrics_export/expected.jsonl`, `examples/v4_3/metrics_export/expected.csv` + `metrics_export_v4_3/export_test.mbt`
+- v4.3 metrics export endpoints: `examples/api_v4_3/metrics_export/expected.jsonl`, `examples/api_v4_3/metrics_export/expected.csv`, `examples/api_v4_3/metrics_export/expected_invalid_query.json` + `api_v4_3/api_test.mbt`
