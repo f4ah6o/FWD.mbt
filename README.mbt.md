@@ -332,6 +332,12 @@ v4 HTML/MX projections are fixture-locked.
 See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4)”.
 Fixtures live under `examples/v4/html/`.
 
+## v4 HTTP adapter
+
+v4 adds read-only HTTP endpoints under `/v4/*` (resource + timeline list/detail).
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4)”.
+Fixtures live under `examples/api_v4/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`

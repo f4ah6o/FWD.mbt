@@ -1,0 +1,13 @@
+{
+  "import": [
+    "fwd/core",
+    "fwd/compiler",
+    "fwd/canonical_v4",
+    "fwd/ui/views",
+    "fwd/timeline_event_v3_4",
+    "moonbitlang/core/json"
+  ],
+  "test-import": [
+    "moonbitlang/x/fs"
+  ]
+}

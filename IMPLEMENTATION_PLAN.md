@@ -415,3 +415,4 @@
 ## Frozen Contracts (v4)
 - Canonical fixtures: `examples/v4/canonical/*.json` + `canonical_v4/fixtures_test.mbt`
 - v4 HTML fixtures: `examples/v4/html/*` + `ui/views/resource_view_v4_test.mbt`, `ui/views/timeline_view_v4_test.mbt`, `ui/views/timeline_detail_view_v4_test.mbt`
+- v4 HTTP adapter: `examples/api_v4/**` + `api_v4/api_test.mbt`
