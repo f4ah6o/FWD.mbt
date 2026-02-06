@@ -218,25 +218,37 @@ fn resource_json() -> String {
 }
 
 fn timeline_list_view() -> @views.V4TimelineListView {
+  let events = @timeline_source_v4_5.events_for_entity("order-1")
+  let page : Array[@timeline_v3.TimelineEvent] = []
+  let mut idx = 0
+  for event in events {
+    if idx < 2 {
+      page.push(event)
+    }
+    idx = idx + 1
+  }
+  let view_events : Array[@views.V4TimelineEvent] = []
+  for event in page {
+    let reasons : Array[String] = []
+    for reason in event.reasons {
+      reasons.push(reason.message)
+    }
+    view_events.push({
+      event_id: @timeline_event_v3_4.event_id(event),
+      kind: match event.kind {
+        @timeline_v3.TimelineKind::Transition => "transition"
+        @timeline_v3.TimelineKind::Effect => "effect"
+        @timeline_v3.TimelineKind::Policy => "policy"
+      },
+      ref_id: event.ref_id,
+      status: event.status,
+      reasons,
+    })
+  }
   {
     cursor: "offset:0",
     next_cursor: Some("offset:2"),
-    events: [
-      {
-        event_id: "order-1:10:1:transition",
-        kind: "transition",
-        ref_id: "submit",
-        status: "executed",
-        reasons: [],
-      },
-      {
-        event_id: "order-1:11:1:policy",
-        kind: "policy",
-        ref_id: "policy:submit",
-        status: "deny",
-        reasons: ["Policy denied execution"],
-      },
-    ],
+    events: view_events,
   }
 }
 
@@ -250,36 +262,37 @@ fn timeline_list_json() -> String {
   query["limit"] = Json::number(2)
   query["cursor"] = Json::string("offset:0")
   obj["query"] = Json::object(query)
-  obj["events"] = Json::array([
-    Json::object({
-      "eventId": Json::string("order-1:10:1:transition"),
-      "entityId": Json::string("order-1"),
-      "logicalTime": Json::number(10),
-      "sequence": Json::number(1),
-      "kind": Json::string("transition"),
-      "refId": Json::string("submit"),
-      "status": Json::string("executed"),
-      "reasons": Json::array([]),
-    }),
-    Json::object({
-      "eventId": Json::string("order-1:11:1:policy"),
-      "entityId": Json::string("order-1"),
-      "logicalTime": Json::number(11),
-      "sequence": Json::number(1),
-      "kind": Json::string("policy"),
-      "refId": Json::string("policy:submit"),
-      "status": Json::string("deny"),
-      "reasons": Json::array([
-        Json::object({
-          "reasonVersion": Json::number(1),
-          "code": Json::string("POLICY_DENY"),
-          "level": Json::string("error"),
-          "target": Json::string("transition"),
-          "message": Json::string("Policy denied execution"),
-        }),
-      ]),
-    }),
-  ])
+  let events = @timeline_source_v4_5.events_for_entity("order-1")
+  let page : Array[@timeline_v3.TimelineEvent] = []
+  let mut idx = 0
+  for event in events {
+    if idx < 2 {
+      page.push(event)
+    }
+    idx = idx + 1
+  }
+  let items : Array[Json] = []
+  for event in page {
+    let reasons : Array[Json] = []
+    for reason in event.reasons {
+      reasons.push(@compiler.reason_json(reason))
+    }
+    items.push(Json::object({
+      "eventId": Json::string(@timeline_event_v3_4.event_id(event)),
+      "entityId": Json::string(event.entity_id),
+      "logicalTime": Json::number(event.logical_time.to_double()),
+      "sequence": Json::number(event.sequence.to_double()),
+      "kind": Json::string(match event.kind {
+        @timeline_v3.TimelineKind::Transition => "transition"
+        @timeline_v3.TimelineKind::Effect => "effect"
+        @timeline_v3.TimelineKind::Policy => "policy"
+      }),
+      "refId": Json::string(event.ref_id),
+      "status": Json::string(event.status),
+      "reasons": Json::array(reasons),
+    }))
+  }
+  obj["events"] = Json::array(items)
   obj["nextCursor"] = Json::string("offset:2")
   Json::object(obj).stringify(indent=2)
 }

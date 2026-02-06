@@ -428,3 +428,9 @@
 ## Frozen Contracts (v4.4)
 - v4.4 metrics drilldown view: `examples/v4_4/metrics/expected*.html`, `examples/v4_4/metrics_detail/expected.html` + `ui/views/metrics_view_v4_4_test.mbt`, `ui/views/metrics_detail_view_v4_4_test.mbt`
 - v4.4 metrics drilldown endpoints: `examples/api_v4_4/metrics/expected*.html`, `examples/api_v4_4/metrics_detail/expected.html`, `examples/api_v4_4/metrics_detail/expected_invalid_kind.json` + `api_v4_4/api_test.mbt`
+
+## Frozen Contracts (v4.5)
+- v4.5 metrics export contract: `examples/v4_5/metrics_export/expected.jsonl`, `examples/v4_5/metrics_export/expected.csv` + `metrics_export_v4_5/export_test.mbt`
+- v4.5 metrics export endpoints: `examples/api_v4_5/metrics_export/expected.jsonl`, `examples/api_v4_5/metrics_export/expected.csv`, `examples/api_v4_5/metrics_export/expected_invalid_query.json` + `api_v4_5/api_test.mbt`
+- v4.5 timeline export contract: `examples/v4_5/timeline_export/expected.jsonl` + `timeline_export_v4_5/export_test.mbt`
+- v4.5 timeline export endpoint: `examples/api_v4_5/timeline_export/expected_page*.jsonl`, `examples/api_v4_5/timeline_export/expected_invalid_query.json`, `examples/api_v4_5/timeline_export/expected_invalid_cursor.json` + `api_v4_5/api_test.mbt`

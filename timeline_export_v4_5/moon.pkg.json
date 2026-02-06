@@ -1,15 +1,11 @@
 {
   "import": [
-    "fwd/core",
     "fwd/compiler",
-    "fwd/canonical_v4",
-    "fwd/ui/views",
-    "fwd/timeline_event_v3_4",
-    "fwd/timeline_source_v4_5",
     "fwd/timeline_v3",
     "moonbitlang/core/json"
   ],
   "test-import": [
+    "fwd/timeline_source_v4_5",
     "moonbitlang/x/fs"
   ]
 }

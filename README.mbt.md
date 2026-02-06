@@ -356,6 +356,18 @@ v4.4 adds drilldown partials for metrics by kind under `/v4.4/metrics/kind/:kind
 See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4.4)”.
 Fixtures live under `examples/api_v4_4/`.
 
+## v4.5 export filters
+
+v4.5 adds time-range metrics export and cursor-based timeline export under `/v4.5/*`.
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4.5)”.
+Fixtures live under `examples/api_v4_5/`.
+
+## v4.5 export filters
+
+v4.5 adds time-range metrics export and cursor-based timeline export under `/v4.5/*`.
+See `IMPLEMENTATION_PLAN.md` → “Frozen Contracts (v4.5)”.
+Fixtures live under `examples/api_v4_5/`.
+
 ## M8: mhx client hypermedia execution (browser harness)
 
 M8 adds a minimal browser harness to verify that **mx-enabled HTML** is interpreted by `mhx`
