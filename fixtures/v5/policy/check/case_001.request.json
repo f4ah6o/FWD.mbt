@@ -1,0 +1,5 @@
+{
+  "endpoint": "/v5/policy/check",
+  "method": "POST",
+  "body": null
+}

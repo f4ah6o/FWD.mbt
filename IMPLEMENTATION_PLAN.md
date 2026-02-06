@@ -440,3 +440,136 @@
 
 ## Frozen Contracts (v4.7)
 - v4.7 export jobs endpoints: `examples/api_v4_7/**` + `api_v4_7/api_test.mbt`
+
+---
+
+# v5.0 Planning Anchor (Export + Observability + Policy Boundaries)
+
+## v5.0 Freeze Declaration (Anchor)
+
+- This document and `fixtures/v5/**` are the v5.0 contract anchor.
+- All v5.0 surfaces MUST remain deterministic and fixture-first.
+- v5.0 MUST NOT introduce wall-clock timestamps.
+- v5.0 MUST NOT modify or fix any v4.x behavior or fixtures.
+- Any change that would alter v5.0 fixtures is out of scope and MUST be proposed as v5.1+.
+
+Anchor inputs:
+- Plan: `IMPLEMENTATION_PLAN.md` (this section)
+- Fixtures: `fixtures/v5/**`
+- Anchor hash: (generated from fixture tree; recorded below)
+
+Anchor hash:
+- fixtures/v5 tree hash: <TO_BE_FILLED_BY_RELEASE_SCRIPT>
+
+## Core Constraints (Normative)
+- Outputs MUST be deterministic and fixture-first.
+- Projection layers MUST NOT infer or synthesize data.
+- All v5.0 surfaces MUST NOT include wall-clock timestamps.
+- v4.x surfaces MUST remain immutable; v5.0 MUST NOT fix v4.x behavior.
+
+## Scope (v5.0)
+- Export + Observability + Policy boundaries only.
+- Runtime contract refresh is out of scope.
+- v5.0 consolidates surfaces; legacy v4.x remain as regression vaults.
+
+## Job API Family
+### Single Job (v5.0)
+- POST `/v5/export/jobs`
+- GET  `/v5/export/jobs/:id`
+- POST `/v5/export/jobs/:id/cancel`
+- GET  `/v5/export/jobs/:id/result`
+
+### Batch Job (v5.0)
+- POST `/v5/export/batch/jobs`
+- GET  `/v5/export/batch/jobs/:id`
+- POST `/v5/export/batch/jobs/:id/cancel`
+- GET  `/v5/export/batch/jobs/:id/result`
+
+**Batch is a Job of Jobs**
+- Batch MUST be modeled as a job whose unit of work is child jobs.
+- Batch cancel MUST be idempotent.
+
+### Result Format
+- Supported formats: `jsonl | csv`.
+- Result bodies MUST remain canonical (JSONL/CSV schemas unchanged).
+- Result bodies MUST NOT include metadata.
+- Newlines MUST be `\n` (LF) only.
+
+### Cursor
+- Paging continuation MUST use `x-next-cursor` header only.
+- Cursor token MUST be opaque; string format MUST NOT be guaranteed.
+
+## Job Model (v5.0)
+### Job ID
+- Deterministic `job-<n>` (monotonic counter).
+
+### Status Transitions (explicit)
+- `queued → running → done`
+- `queued → running → failed`
+- `queued → running → canceled`
+- `queued → running → expired`
+- Canceled/expired are terminal; transitions MUST NOT skip states.
+
+### Progress
+- `progress: { processed: Int, total: Int }` with total required.
+- Percent MUST NOT be part of the contract.
+
+### Retention Axis (fixed)
+- Retention MUST be defined by deterministic poll-count.
+- `ttlSeconds` is informational; expiry MUST be poll-count driven.
+
+### Result Availability
+- Partial/streaming results MUST NOT exist in v5.0.
+- Result endpoints MUST return `JOB_NOT_READY` until `done`.
+
+## Errors (Reason v1, fixed)
+- Validation: `QUERY_MISSING`, `QUERY_INVALID`
+- Job: `JOB_NOT_FOUND`, `JOB_NOT_READY`, `JOB_CANCELED`, `JOB_EXPIRED`
+
+### HTTP Mapping (normative)
+- Status endpoints: 404 → `JOB_NOT_FOUND` or `JOB_EXPIRED`
+- Result endpoints: 409 → `JOB_NOT_READY` or `JOB_CANCELED`; 404 → `JOB_NOT_FOUND` or `JOB_EXPIRED`
+
+## Observability (Read-Only)
+- Metrics summary MUST be global-only in v5.0.
+- Export audit MUST include job metadata only and MUST NOT include payload/query (privacy + determinism).
+
+## Policy Boundary
+- Policy gate MUST be a separate surface.
+- Job APIs MUST NOT interpret policy.
+- Policy results MUST NOT be cached/reused in v5.0.
+- Policy responses MUST be Reason v1 only.
+
+## Store / Queue Interfaces
+- Store responsibilities: `create`, `get`, `step` (one logical step), `cancel`, `expire`.
+- Queue ordering MUST be unspecified (no FIFO/priority guarantees in v5.0).
+
+## Reference Implementation (Deterministic)
+- In-memory ref impl MUST exist for CI/fixtures.
+- MUST NOT run concurrently; async is simulated deterministically.
+- MUST NOT be positioned as production-ready.
+
+## Deliverables (v5.0)
+- Packages: `export_job_v5/`, `job_store_v5/`, `export_job_batch_v5/`, `observability_v5/`, `policy_gate_v5/`, `api_v5/`
+- Fixtures: `examples/v5/**`, `examples/api_v5/**`, `examples/api_v5_batch/**`, `examples/observability_v5/**`, `examples/policy_v5/**`
+- Fixtures are the contract (golden outputs).
+
+## Forbidden in v5.0
+- Resume
+- Streaming/partial results
+- Priority queues
+- Wall-clock timestamps
+- Policy evaluation inside job APIs
+
+## Acceptance Criteria
+- Same inputs MUST yield identical outputs across processes.
+- No hidden state between API calls.
+- All v5.0 fixtures green; all v4.x fixtures unchanged.
+
+## Suggested Implementation Order
+1. v5 job contract + fixtures
+2. Store/queue interface + deterministic ref impl
+3. Single job API
+4. Batch job API
+5. Observability + policy gate
+6. Docs + freeze anchors (file + fixture hash)
