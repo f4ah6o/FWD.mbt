@@ -1,0 +1,28 @@
+{
+  "draft": true,
+  "status": 404,
+  "headers": {},
+  "body": {
+    "error": {
+      "reasonVersion": 1,
+      "code": "JOB_EXPIRED",
+      "level": "error",
+      "target": "runtime",
+      "message": "job hidden by retention: __JOB_ID__",
+      "hint": "Job retention policy hidden"
+    },
+    "retentionDetails": {
+      "visibility": "hidden",
+      "combine": "all",
+      "failedAxes": [
+        {
+          "axis": "poll_count",
+          "rule": "max",
+          "expected": "__TBD__",
+          "observed": "__TBD__",
+          "reason": "EXPIRED_BY_POLL_COUNT"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "draft": true,
+  "status": 404,
+  "headers": {},
+  "body": {
+    "error": {
+      "reasonVersion": 1,
+      "code": "JOB_EXPIRED",
+      "level": "error",
+      "target": "runtime",
+      "message": "job hidden by retention: __LEGACY_EXPIRED_JOB_ID__",
+      "hint": "Legacy expired compatibility path"
+    },
+    "compatibility": {
+      "sourceStatus": "expired",
+      "mode": "legacy-read"
+    }
+  }
+}

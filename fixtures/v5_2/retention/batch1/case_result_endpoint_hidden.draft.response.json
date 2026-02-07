@@ -1,0 +1,20 @@
+{
+  "draft": true,
+  "status": 404,
+  "headers": {},
+  "body": {
+    "error": {
+      "reasonVersion": 1,
+      "code": "JOB_EXPIRED",
+      "level": "error",
+      "target": "runtime",
+      "message": "job hidden by retention: __JOB_ID__",
+      "hint": "Job retention policy hidden"
+    },
+    "retentionDetails": {
+      "visibility": "hidden",
+      "endpoint": "result",
+      "failedAxes": "__TBD__"
+    }
+  }
+}

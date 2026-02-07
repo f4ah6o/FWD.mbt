@@ -1,0 +1,21 @@
+{
+  "draft": true,
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.2-draft",
+    "jobId": "job-1",
+    "visibility": "visible",
+    "retentionPolicy": {
+      "combine": "all",
+      "axes": [
+        {"type": "poll_count_max", "value": "__TBD__"},
+        {"type": "generation_min", "value": "__TBD__"}
+      ]
+    },
+    "retentionContext": {
+      "pollCount": "__TBD__",
+      "generation": "__TBD__"
+    }
+  }
+}
