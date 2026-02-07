@@ -1,0 +1,18 @@
+{
+  "status": 403,
+  "headers": {
+    "cache-control": "no-store"
+  },
+  "body": {
+    "reasons": [
+      {
+        "reasonVersion": 1,
+        "code": "POLICY_DENIED",
+        "level": "error",
+        "target": "policy",
+        "message": "policy denied: action=delete",
+        "hint": "Action not permitted"
+      }
+    ]
+  }
+}

@@ -4,7 +4,7 @@
   "body": {
     "jobVersion": "5.0",
     "jobId": "job-1",
-    "status": "running",
+    "status": "failed",
     "progress": {"processed": 1, "total": 3},
     "ttlSeconds": 120
   }

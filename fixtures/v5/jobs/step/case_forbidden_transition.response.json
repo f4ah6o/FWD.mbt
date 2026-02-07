@@ -1,0 +1,14 @@
+{
+  "status": 400,
+  "headers": {},
+  "body": {
+    "error": {
+      "reasonVersion": 1,
+      "code": "QUERY_INVALID",
+      "level": "error",
+      "target": "runtime",
+      "message": "invalid status transition",
+      "hint": "Check job status transitions"
+    }
+  }
+}

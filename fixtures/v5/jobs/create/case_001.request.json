@@ -1,5 +1,10 @@
 {
   "endpoint": "/v5/export/jobs",
   "method": "POST",
-  "body": null
+  "body": {
+    "entityId": "order-1",
+    "fromLogicalTime": 10,
+    "toLogicalTime": 12,
+    "format": "jsonl"
+  }
 }

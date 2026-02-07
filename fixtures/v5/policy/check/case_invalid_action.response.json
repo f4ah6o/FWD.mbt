@@ -1,0 +1,18 @@
+{
+  "status": 400,
+  "headers": {
+    "cache-control": "no-store"
+  },
+  "body": {
+    "reasons": [
+      {
+        "reasonVersion": 1,
+        "code": "QUERY_INVALID",
+        "level": "error",
+        "target": "policy",
+        "message": "field must be string: action",
+        "hint": "Check policy request"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "allowed": [
+    "queued->running",
+    "running->done",
+    "running->failed",
+    "running->canceled",
+    "running->expired"
+  ],
+  "forbidden": [
+    "queued->done",
+    "queued->failed",
+    "queued->canceled",
+    "queued->expired",
+    "done->running",
+    "failed->running",
+    "canceled->running",
+    "expired->running"
+  ]
+}

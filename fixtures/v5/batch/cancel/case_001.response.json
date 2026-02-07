@@ -5,8 +5,9 @@
     "jobVersion": "5.0",
     "jobId": "job-1",
     "status": "canceled",
-    "progress": {"processed": 0, "total": 3},
-    "ttlSeconds": 120,
+    "progress": {"processed": 0, "total": 2},
+    "ttlSeconds": 240,
+    "childIds": ["job-2", "job-3"],
     "reasons": [
       {
         "reasonVersion": 1,

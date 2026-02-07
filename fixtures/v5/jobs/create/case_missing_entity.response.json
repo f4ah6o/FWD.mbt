@@ -1,14 +1,14 @@
 {
-  "status": 409,
+  "status": 400,
   "headers": {},
   "body": {
     "error": {
       "reasonVersion": 1,
-      "code": "JOB_NOT_READY",
+      "code": "QUERY_MISSING",
       "level": "error",
       "target": "runtime",
-      "message": "job not ready: job-1",
-      "hint": "Wait for job to complete"
+      "message": "missing query: entityId",
+      "hint": "Provide query 'entityId'"
     }
   }
 }

@@ -459,7 +459,7 @@ Anchor inputs:
 - Anchor hash: (generated from fixture tree; recorded below)
 
 Anchor hash:
-- fixtures/v5 tree hash: <TO_BE_FILLED_BY_RELEASE_SCRIPT>
+- fixtures/v5 tree hash: 91895957524b8f424f7686ddc5f7101a13a92c0c6b6706c88c94f954ebe878c1
 
 ## Core Constraints (Normative)
 - Outputs MUST be deterministic and fixture-first.
@@ -508,7 +508,7 @@ Anchor hash:
 - `queued → running → failed`
 - `queued → running → canceled`
 - `queued → running → expired`
-- Canceled/expired are terminal; transitions MUST NOT skip states.
+- Canceled/expired are terminal; transitions MUST NOT skip intermediate states.
 
 ### Progress
 - `progress: { processed: Int, total: Int }` with total required.
@@ -525,6 +525,7 @@ Anchor hash:
 ## Errors (Reason v1, fixed)
 - Validation: `QUERY_MISSING`, `QUERY_INVALID`
 - Job: `JOB_NOT_FOUND`, `JOB_NOT_READY`, `JOB_CANCELED`, `JOB_EXPIRED`
+- Policy: `POLICY_DENIED` (policy-only; job/batch MUST NOT emit)
 
 ### HTTP Mapping (normative)
 - Status endpoints: 404 → `JOB_NOT_FOUND` or `JOB_EXPIRED`

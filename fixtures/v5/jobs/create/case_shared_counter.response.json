@@ -3,9 +3,9 @@
   "headers": {},
   "body": {
     "jobVersion": "5.0",
-    "jobId": "job-1",
-    "status": "running",
-    "progress": {"processed": 1, "total": 3},
+    "jobId": "job-4",
+    "status": "queued",
+    "progress": {"processed": 0, "total": 3},
     "ttlSeconds": 120
   }
 }

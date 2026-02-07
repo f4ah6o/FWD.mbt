@@ -1,1 +1,2 @@
 {"type":"total","window":{"entityId":"order-1","fromLogicalTime":10,"toLogicalTime":12},"counts":{"ok":1,"failed":1,"blocked":0,"denied":1}}
+{"type":"total","window":{"entityId":"order-2","fromLogicalTime":20,"toLogicalTime":22},"counts":{"ok":1,"failed":1,"blocked":0,"denied":1}}

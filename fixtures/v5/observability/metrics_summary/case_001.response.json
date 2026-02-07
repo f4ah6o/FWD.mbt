@@ -1,5 +1,19 @@
 {
   "status": 200,
   "headers": {},
-  "body": null
+  "body": {
+    "scope": "global",
+    "jobs": {
+      "queued": 1,
+      "running": 0,
+      "done": 1,
+      "failed": 0,
+      "canceled": 0,
+      "expired": 0
+    },
+    "exports": {
+      "jsonl": 1,
+      "csv": 1
+    }
+  }
 }

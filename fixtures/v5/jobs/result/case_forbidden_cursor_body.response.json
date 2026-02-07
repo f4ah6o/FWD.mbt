@@ -1,0 +1,14 @@
+{
+  "status": 400,
+  "headers": {},
+  "body": {
+    "error": {
+      "reasonVersion": 1,
+      "code": "QUERY_INVALID",
+      "level": "error",
+      "target": "runtime",
+      "message": "cursor must be header-only",
+      "hint": "Use x-next-cursor header only"
+    }
+  }
+}

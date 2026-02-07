@@ -1,14 +1,14 @@
 {
-  "status": 409,
+  "status": 404,
   "headers": {},
   "body": {
     "error": {
       "reasonVersion": 1,
-      "code": "JOB_NOT_READY",
+      "code": "JOB_NOT_FOUND",
       "level": "error",
       "target": "runtime",
-      "message": "job not ready: job-1",
-      "hint": "Wait for job to complete"
+      "message": "job not found: job-999",
+      "hint": "Check job id"
     }
   }
 }

@@ -3,8 +3,8 @@
     "fwd/core",
     "fwd/compiler",
     "fwd/export_job_v5",
-    "fwd/job_store_v5",
     "fwd/export_job_batch_v5",
+    "fwd/job_store_v5",
     "fwd/observability_v5",
     "fwd/policy_gate_v5",
     "moonbitlang/core/json"
