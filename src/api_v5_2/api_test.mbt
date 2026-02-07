@@ -13,6 +13,48 @@ fn parse_json_or_fail(text : String, label : String) -> Json raise {
   }
 }
 
+fn expect_hidden_shape(
+  res : ApiResponse,
+  label : String,
+  expected_axes : Array[String],
+  endpoint : String?,
+) -> Unit raise {
+  inspect(res.status, content="404")
+  let body = parse_json_or_fail(res.body, label)
+  let obj = match body {
+    Object(v) => v
+    _ => fail("expected object")
+  }
+  let err = match obj.get("error") {
+    Some(Object(v)) => v
+    _ => fail("missing error")
+  }
+  inspect(err.get("reasonVersion").to_string(), content="Some(Number(1))")
+  inspect(err.get("code").to_string(), content="Some(String(\"JOB_EXPIRED\"))")
+  let details = match obj.get("retentionDetails") {
+    Some(Object(v)) => v
+    _ => fail("missing retentionDetails")
+  }
+  inspect(details.get("visibility").to_string(), content="Some(String(\"hidden\"))")
+  inspect(details.get("combine").to_string(), content="Some(String(\"all\"))")
+  let failed_axes = match details.get("failedAxes") {
+    Some(Array(v)) => v
+    _ => fail("missing failedAxes")
+  }
+  inspect(failed_axes.length(), content=expected_axes.length().to_string())
+  for i in 0..<expected_axes.length() {
+    let entry = match failed_axes[i] {
+      Object(v) => v
+      _ => fail("failed axis item not object")
+    }
+    inspect(entry.get("axis").to_string(), content="Some(String(\"" + expected_axes[i] + "\"))")
+  }
+  match endpoint {
+    Some(name) => inspect(details.get("endpoint").to_string(), content="Some(String(\"" + name + "\"))")
+    None => inspect(details.get("endpoint").to_string(), content="None")
+  }
+}
+
 ///|
 test "api v5.2 get visible all pass omits retentionDetails" {
   @job_store_v5_2.reset_for_test()
@@ -59,31 +101,49 @@ test "api v5.2 get hidden multi fail returns failedAxes in policy order" {
     query: query_map([]),
     body: None,
   })
-  inspect(res.status, content="404")
-  let body = parse_json_or_fail(res.body, "hidden body")
-  let obj = match body {
-    Object(v) => v
-    _ => fail("expected object")
-  }
-  let details = match obj.get("retentionDetails") {
-    Some(Object(v)) => v
-    _ => fail("missing retentionDetails")
-  }
-  let failed_axes = match details.get("failedAxes") {
-    Some(Array(v)) => v
-    _ => fail("missing failedAxes")
-  }
-  inspect(failed_axes.length(), content="2")
-  let first = match failed_axes[0] {
-    Object(v) => v
-    _ => fail("first axis not object")
-  }
-  let second = match failed_axes[1] {
-    Object(v) => v
-    _ => fail("second axis not object")
-  }
-  inspect(first.get("axis").to_string(), content="Some(String(\"poll_count\"))")
-  inspect(second.get("axis").to_string(), content="Some(String(\"generation\"))")
+  expect_hidden_shape(res, "hidden body", ["poll_count", "generation"], None)
+}
+
+///|
+test "api v5.2 get hidden poll only shape" {
+  @job_store_v5_2.reset_for_test()
+  ignore(handle_request({
+    http_method: "POST",
+    path: "/v5.2/export/jobs",
+    query: query_map([]),
+    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\",\"retentionPolicy\":{\"combine\":\"all\",\"axes\":[{\"type\":\"poll_count_max\",\"value\":0}]}}"),
+  }))
+  ignore(handle_request({
+    http_method: "POST",
+    path: "/v5.2/export/jobs/job-1/step",
+    query: query_map([]),
+    body: None,
+  }))
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/export/jobs/job-1",
+    query: query_map([]),
+    body: None,
+  })
+  expect_hidden_shape(res, "hidden poll only", ["poll_count"], None)
+}
+
+///|
+test "api v5.2 get hidden generation only shape" {
+  @job_store_v5_2.reset_for_test()
+  ignore(handle_request({
+    http_method: "POST",
+    path: "/v5.2/export/jobs",
+    query: query_map([]),
+    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\",\"retentionPolicy\":{\"combine\":\"all\",\"axes\":[{\"type\":\"generation_min\",\"value\":2}]}}"),
+  }))
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/export/jobs/job-1",
+    query: query_map([]),
+    body: None,
+  })
+  expect_hidden_shape(res, "hidden generation only", ["generation"], None)
 }
 
 ///|
@@ -107,17 +167,7 @@ test "api v5.2 result hidden includes endpoint marker" {
     query: query_map([]),
     body: None,
   })
-  inspect(res.status, content="404")
-  let body = parse_json_or_fail(res.body, "result hidden body")
-  let obj = match body {
-    Object(v) => v
-    _ => fail("expected object")
-  }
-  let details = match obj.get("retentionDetails") {
-    Some(Object(v)) => v
-    _ => fail("missing retentionDetails")
-  }
-  inspect(details.get("endpoint").to_string(), content="Some(String(\"result\"))")
+  expect_hidden_shape(res, "result hidden body", ["poll_count"], Some("result"))
 }
 
 ///|
