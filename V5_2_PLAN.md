@@ -12,6 +12,21 @@ It does not freeze semantics.
 - Freeze status: `not started`
 - Scope status: `focused exploration`
 
+## Draft Freeze Marker (Scoped)
+- Retention Batch 1 semantics are `draft-frozen` in v5.2 planning scope.
+- Coverage (as implemented + tested):
+  - `visible_all_pass`
+  - `hidden_poll_only`
+  - `hidden_generation_only`
+  - `hidden_multi_fail`
+  - `result_endpoint_hidden`
+  - `compat_legacy_expired_read`
+- Explicitly excluded from this marker:
+  - precedence logic (Batch 2)
+  - wall-clock axis
+  - scheduling/background worker semantics
+- Global freeze status remains `not started`.
+
 ## Planning Direction (Non-Binding)
 - v5.2 planning focus: generalize retention from single-axis poll-count to multi-axis retention.
 - Explicit exclusion in this planning direction: wall-clock axis is not introduced in v5.2 scope.

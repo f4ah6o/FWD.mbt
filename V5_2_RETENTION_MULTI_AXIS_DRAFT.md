@@ -3,6 +3,17 @@
 This document is a working proposal for focused exploration in v5.2.
 It is not a freeze artifact and does not commit semantics.
 
+## Batch 1 Draft-Frozen Scope
+- The following Batch 1 behaviors are draft-frozen as currently implemented and tested:
+  - `visible_all_pass`
+  - `hidden_poll_only`
+  - `hidden_generation_only`
+  - `hidden_multi_fail`
+  - `result_endpoint_hidden`
+  - `compat_legacy_expired_read`
+- Batch 2 precedence remains open draft scope.
+- This marker does not start global v5.2 freeze.
+
 ## Summary
 - Target: generalize retention from single-axis poll-count to multi-axis (non-time axes only).
 - Baseline: v5.1.0 semantics remain immutable.
