@@ -8,5 +8,8 @@
     "fwd/job_store_v5_2",
     "fwd/retention_v5_2",
     "moonbitlang/core/json"
+  ],
+  "test-import": [
+    "moonbitlang/x/fs"
   ]
 }

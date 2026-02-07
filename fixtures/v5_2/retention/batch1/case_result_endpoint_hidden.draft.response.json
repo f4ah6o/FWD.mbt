@@ -15,7 +15,15 @@
       "visibility": "hidden",
       "combine": "all",
       "endpoint": "result",
-      "failedAxes": "__TBD__"
+      "failedAxes": [
+        {
+          "axis": "poll_count",
+          "rule": "max",
+          "expected": "__TBD__",
+          "observed": "__TBD__",
+          "reason": "EXPIRED_BY_POLL_COUNT"
+        }
+      ]
     }
   }
 }
