@@ -16,12 +16,13 @@ Entries are ideas, not commitments.
 ## Seed Candidates
 - `id`: `v5_2_candidate_streaming_001`
 - `title`: `Streaming / partial result delivery`
-- `problem`: `Large result sets require incremental client consumption.`
-- `why_not_v5_1_delta`: `v5.1 non-goals explicitly excluded streaming delivery semantics.`
+- `problem`: `Large result sets force clients to wait for full materialization, which increases timeout risk and makes progressive UX difficult in long-running exports.`
+- `why_not_v5_1_delta`: `v5.1 result APIs are shaped around complete retrieval and do not include a partial-delivery surface.`
 - `candidate_fixtures`: `fixtures/v5_2/candidates/streaming/`
+- `touches_scheduling_or_policy_integration`: `no`
 - `deterministic_invariants`: `TBD`
 - `non_goals`: `TBD`
-- `open_questions`: `Chunk boundary contract, cursor semantics, terminal state signaling.`
+- `open_questions`: `What unit defines a stream chunk (row, byte window, logical page); how stream cursors relate to existing result cursors; how completion is represented when stream output is truncated or empty.`
 
 - `id`: `v5_2_candidate_scheduling_001`
 - `title`: `Wall-clock scheduling / background workers`
@@ -34,21 +35,24 @@ Entries are ideas, not commitments.
 
 - `id`: `v5_2_candidate_retention_axis_001`
 - `title`: `Retention axis expansion beyond poll-count`
-- `problem`: `Poll-count-only retention may not satisfy external retention policies.`
-- `why_not_v5_1_delta`: `v5.1 locked poll-count as the only retention axis.`
+- `problem`: `External compliance and data-governance practices often reference elapsed time or event age, which is hard to map directly onto poll-count-only expiry.`
+- `why_not_v5_1_delta`: `v5.1 explicitly fixes retention evaluation to poll-count, so additional axes are outside that frozen model.`
 - `candidate_fixtures`: `fixtures/v5_2/candidates/retention_axis/`
+- `touches_scheduling_or_policy_integration`: `no`
 - `deterministic_invariants`: `TBD`
 - `non_goals`: `TBD`
-- `open_questions`: `Precedence with poll-count, tie-break behavior, visibility migration.`
+- `open_questions`: `How multi-axis precedence is communicated when poll-count and non-poll signals disagree; how same-step tie handling is represented across axes; how visibility outcomes are expressed during axis migration windows.`
 
 - `id`: `v5_2_candidate_lifecycle_001`
 - `title`: `Lifecycle semantics beyond v5.1 staging model`
-- `problem`: `Potential new control states or transitions may be required.`
-- `why_not_v5_1_delta`: `v5.1 lifecycle delta is already frozen.`
+- `problem`: `Current staged lifecycle may not describe operator workflows such as longer operator holds, multi-phase restart paths, or richer interruption taxonomies.`
+- `why_not_v5_1_delta`: `v5.1 lifecycle transitions and staging states are frozen as delta-complete for that release line.`
 - `candidate_fixtures`: `fixtures/v5_2/candidates/lifecycle/`
+- `touches_scheduling_or_policy_integration`: `yes`
+- `touch_note`: `Lifecycle expansions can pull in scheduling-style execution windows when pause/resume intent is time-aware.`
 - `deterministic_invariants`: `TBD`
 - `non_goals`: `TBD`
-- `open_questions`: `Compatibility with existing status matrix and rollback rules.`
+- `open_questions`: `Which additional operator-visible states are meaningfully distinct from existing staging; how transition readability is preserved as the matrix grows; how rollback narratives remain understandable with added state paths.`
 
 - `id`: `v5_2_candidate_policy_integration_001`
 - `title`: `Policy/job integration beyond non-interpreting boundary`
