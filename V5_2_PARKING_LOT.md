@@ -34,14 +34,14 @@ Entries are ideas, not commitments.
 - `open_questions`: `Clock abstraction, retry timing, queue semantics, cancellation windows.`
 
 - `id`: `v5_2_candidate_retention_axis_001`
-- `title`: `Retention axis expansion beyond poll-count`
-- `problem`: `External compliance and data-governance practices often reference elapsed time or event age, which is hard to map directly onto poll-count-only expiry.`
-- `why_not_v5_1_delta`: `v5.1 explicitly fixes retention evaluation to poll-count, so additional axes are outside that frozen model.`
+- `title`: `Retention multi-axis generalization (without wall-clock)`
+- `problem`: `Single-axis poll-count retention cannot represent some domain-specific lifecycle signals that are not time-based but still need deterministic expiry decisions.`
+- `why_not_v5_1_delta`: `v5.1 fixes retention to poll-count-only evaluation, so adding non-time secondary axes is outside that frozen contract.`
 - `candidate_fixtures`: `fixtures/v5_2/candidates/retention_axis/`
 - `touches_scheduling_or_policy_integration`: `no`
 - `deterministic_invariants`: `TBD`
-- `non_goals`: `TBD`
-- `open_questions`: `How multi-axis precedence is communicated when poll-count and non-poll signals disagree; how same-step tie handling is represented across axes; how visibility outcomes are expressed during axis migration windows.`
+- `non_goals`: `Introduce wall-clock as a retention axis.`
+- `open_questions`: `Which non-time axes are representable from existing deterministic state; how cross-axis precedence is expressed when poll-count and secondary axes diverge; how post-expiry visibility remains legible across axes without redefining lifecycle states.`
 
 - `id`: `v5_2_candidate_lifecycle_001`
 - `title`: `Lifecycle semantics beyond v5.1 staging model`
@@ -69,6 +69,6 @@ Entries are ideas, not commitments.
 
 ## Draft Focus Candidate (Non-Binding)
 - `current_focus`: `v5_2_candidate_retention_axis_001`
-- `focus_note`: `This focus is exploratory for candidate elaboration only.`
+- `focus_note`: `This focus explores multi-axis retention generalization with poll-count retained and wall-clock excluded.`
 - `scope_note`: `Other in-scope candidates remain active in intake.`
 - `freeze_note`: `No freeze, commitment, or prioritization is implied by this marker.`

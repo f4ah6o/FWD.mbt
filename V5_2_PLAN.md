@@ -10,7 +10,12 @@ It does not freeze semantics.
 ## Planning Status
 - State: `open`
 - Freeze status: `not started`
-- Scope status: `candidate collection`
+- Scope status: `focused exploration`
+
+## Planning Direction (Non-Binding)
+- v5.2 planning focus: generalize retention from single-axis poll-count to multi-axis retention.
+- Explicit exclusion in this planning direction: wall-clock axis is not introduced.
+- This direction is exploratory and does not start freeze.
 
 ## Candidate Scope (Parking Lot)
 - Streaming or partial result delivery
