@@ -1,0 +1,17 @@
+{
+  "draft": true,
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.2-draft",
+    "evaluationAxis": "multi",
+    "scopeOrder": ["job", "batch", "system"],
+    "candidates": {
+      "job": null,
+      "batch": "__TBD__",
+      "system": "__TBD__"
+    },
+    "selectedScope": "batch",
+    "notes": "planning baseline only"
+  }
+}

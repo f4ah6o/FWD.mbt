@@ -458,3 +458,51 @@ test "api v5.2 fixture shape sync compat legacy expired read non authoritative" 
   })
   expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_compat_legacy_expired_read.draft.response.json")
 }
+
+///|
+test "api v5.2 precedence draft shape job over batch over system" {
+  let resolved = @retention_v5_2.resolve_retention_policy_v52(
+    Some({
+      combine: @export_job_v5_2.RetentionCombineV52::All,
+      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(9)],
+    }),
+    Some({
+      combine: @export_job_v5_2.RetentionCombineV52::All,
+      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(5)],
+    }),
+    Some({
+      combine: @export_job_v5_2.RetentionCombineV52::All,
+      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(1)],
+    }),
+  )
+  inspect(resolved.selected_scope, content="job")
+}
+
+///|
+test "api v5.2 precedence draft shape batch over system" {
+  let resolved = @retention_v5_2.resolve_retention_policy_v52(
+    None,
+    Some({
+      combine: @export_job_v5_2.RetentionCombineV52::All,
+      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(5)],
+    }),
+    Some({
+      combine: @export_job_v5_2.RetentionCombineV52::All,
+      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(1)],
+    }),
+  )
+  inspect(resolved.selected_scope, content="batch")
+}
+
+///|
+test "api v5.2 precedence draft shape system only" {
+  let resolved = @retention_v5_2.resolve_retention_policy_v52(
+    None,
+    None,
+    Some({
+      combine: @export_job_v5_2.RetentionCombineV52::All,
+      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(1)],
+    }),
+  )
+  inspect(resolved.selected_scope, content="system")
+}
