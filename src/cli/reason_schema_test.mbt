@@ -71,7 +71,7 @@ fn object_get(
 ///|
 fn load_reason_schema() -> Result[ReasonSchema, String] {
   let schema_text_result : Result[String, @fs.IOError] =
-    try? @fs.read_file_to_string("schema/reason.schema.v1.json")
+    try? @fs.read_file_to_string("src/schema/reason.schema.v1.json")
   let schema_text = match schema_text_result {
     Ok(text) => text
     Err(err) => return Err("read schema failed: " + err.to_string())

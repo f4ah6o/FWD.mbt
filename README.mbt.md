@@ -403,7 +403,7 @@ moon build ui/client/main --target js
 ```
 
 ### Run
-Serve `ui/client/main/index.html` via any static server (a file:// URL will not work because the
+Serve `src/ui/client/main/index.html` via any static server (a file:// URL will not work because the
 script path must resolve).
 
 Example:
@@ -413,7 +413,7 @@ python3 -m http.server 8000
 ```
 
 Then open:
-- `http://localhost:8000/ui/client/main/index.html`
+- `http://localhost:8000/src/ui/client/main/index.html`
 
 ### Expected behavior
 - The page loads `_build/js/.../main.js`.
@@ -444,7 +444,7 @@ Reason shape. This is the cross-cutting, machine-readable vocabulary for v1.
 ### JSON Schema
 
 ```
-schema/reason.schema.v1.json
+src/schema/reason.schema.v1.json
 ```
 
 ### Example

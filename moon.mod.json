@@ -10,5 +10,5 @@
   },
   "license": "AGPL-3.0-only",
   "description": "Functional Work Design (FWD) meta-architecture prototype",
-  "source": "."
+  "source": "src"
 }

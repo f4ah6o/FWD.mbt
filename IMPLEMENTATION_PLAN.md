@@ -113,7 +113,7 @@
 - 失敗 (blocked) は Reason v1 を UI に表示 (固定フォーマット)
 
 ## Frozen Contracts (v1)
-- Reason v1: `schema/reason.schema.v1.json` + CLI schema tests (Reason JSON 正規化)
+- Reason v1: `src/schema/reason.schema.v1.json` + CLI schema tests (Reason JSON 正規化)
 - Runtime availability v1: `examples/runtime_available/` fixtures + CLI/runtime tests
 - Runtime execution v1: `examples/runtime_execute/` fixtures + CLI/runtime tests
 - M6 Hypermedia Resource (JSON) v1: `examples/hypermedia_show/expected.json` + hypermedia tests
