@@ -19,17 +19,17 @@ This document is planning-only and does not start freeze by itself.
 - [x] No `TBD` remains in the in-scope semantics sections
 
 ### A2. Fixture Readiness
-- [ ] All v5.2 fixtures intended to define semantics are moved from draft markers to canonical fixture files (or a canonical naming scheme)
-- [ ] Each semantic surface has a named fixture family under `fixtures/v5_2/`
-- [ ] Fixture drift guards remain in place (tests) and pass
+- [x] All v5.2 fixtures intended to define semantics are moved from draft markers to canonical fixture files (or a canonical naming scheme)
+- [x] Each semantic surface has a named fixture family under `fixtures/v5_2/`
+- [x] Fixture drift guards remain in place (tests) and pass
 
 ### A3. Determinism / Invariants
-- [ ] Deterministic invariants are written (docs) and backed by tests:
-- [ ] Stable failedAxes ordering = policy declaration order
-- [ ] `combine=all` semantics (AND) for v5.2
-- [ ] No retentionDetails on visible responses
-- [ ] Precedence resolution order = `job > batch > system`
-- [ ] `No wall-clock axis` is explicitly restated as a v5.2 non-goal
+- [x] Deterministic invariants are written (docs) and backed by tests:
+- [x] Stable failedAxes ordering = policy declaration order
+- [x] `combine=all` semantics (AND) for v5.2
+- [x] No retentionDetails on visible responses
+- [x] Precedence resolution order = `job > batch > system`
+- [x] `No wall-clock axis` is explicitly restated as a v5.2 non-goal
 
 ### A4. Compatibility
 - [x] v5.1 artifacts unchanged (fixtures/anchors/semantics)
@@ -46,22 +46,22 @@ This document is planning-only and does not start freeze by itself.
 ## C. Freeze Verification (Before Declaring Complete)
 
 ### C1. Test Gates
-- [ ] `moon test src/retention_v5_2` passes
-- [ ] `moon test src/api_v5_2` passes
-- [ ] Batch 1 fixture shape sync checks pass
-- [ ] Batch 2 precedence tests pass
+- [x] `moon test src/retention_v5_2` passes
+- [x] `moon test src/api_v5_2` passes
+- [x] Batch 1 fixture shape sync checks pass
+- [x] Batch 2 precedence tests pass
 
 ### C2. Fixture Authority Gates
-- [ ] Canonical fixture set exists (no draft markers for authoritative fixtures)
-- [ ] Each canonical fixture has a corresponding test asserting:
-- [ ] Status code
-- [ ] Presence/absence of retentionDetails
-- [ ] failedAxes nesting + required fields
-- [ ] Endpoint marker correctness for result
+- [x] Canonical fixture set exists (no draft markers for authoritative fixtures)
+- [x] Each canonical fixture has a corresponding test asserting:
+- [x] Status code
+- [x] Presence/absence of retentionDetails
+- [x] failedAxes nesting + required fields
+- [x] Endpoint marker correctness for result
 
 ### C3. Documentation Gates
-- [ ] `V5_2_RETENTION_MULTI_AXIS_DRAFT.md` is either promoted to non-draft spec or explicitly marked as frozen semantics reference
-- [ ] Non-goals are re-asserted in final freeze notes
+- [x] `V5_2_RETENTION_MULTI_AXIS.md` is either promoted to non-draft spec or explicitly marked as frozen semantics reference
+- [x] Non-goals are re-asserted in final freeze notes
 
 ## D. Freeze Completion Procedure
 - [ ] Set `V5_2_PLAN.md`:

@@ -1,16 +1,15 @@
-# v5.2 Fixtures (Planning Scaffold)
+# v5.2 Fixtures (Freeze Verification Workspace)
 
-This folder is for v5.2 candidate fixtures and draft contracts.
-It does not define frozen semantics yet.
+This folder contains v5.2 candidate fixtures and canonical retention fixtures used during freeze verification.
 
 ## Baseline
 - v5.1.0 remains the immutable semantic baseline.
 - v5.0/v5.1 fixtures are not modified by v5.2 planning.
 
 ## Current status
-- Planning state: `open`
-- Freeze status: `not started`
-- Scope status: `focused exploration`
+- Planning state: `freeze_started`
+- Freeze status: `started`
+- Scope status: `closed`
 
 ## Suggested layout
 ```
@@ -24,13 +23,13 @@ fixtures/v5_2/
   retention/
     README.mbt.md
     batch1/
-      *.draft.response.json
+      *.response.json
     batch2/
-      *.draft.response.json
+      *.response.json
 ```
 
 ## Rules
 - Add candidate fixtures as explicit v5.2 artifacts only.
 - Keep cases deterministic (no wall-clock/random/environment coupling).
-- Do not treat candidate fixtures as canonical until v5.2 freeze.
-- Draft files use `*.draft.response.json` and are non-authoritative by default.
+- Candidate folders remain non-authoritative until explicitly promoted.
+- Canonical retention files use `*.response.json` for freeze verification authority.

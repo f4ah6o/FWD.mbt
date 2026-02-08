@@ -30,7 +30,7 @@ It does not freeze semantics.
   - reviewer sign-off
 
 ## Draft Freeze Marker (Scoped)
-- Retention Batch 1 semantics are `draft-frozen` in v5.2 planning scope.
+- Retention Batch 1 semantics are `draft-frozen` and in the current global freeze scope.
 - Coverage (as implemented + tested):
   - `visible_all_pass`
   - `hidden_poll_only`
@@ -42,24 +42,24 @@ It does not freeze semantics.
   - precedence logic (Batch 2)
   - wall-clock axis
   - scheduling/background worker semantics
-- Global freeze status remains `not started`.
+- Global freeze status is `started`.
 
 ## Draft Freeze Marker (Scoped: Batch 2 Precedence)
-- Retention Batch 2 precedence semantics are `draft-frozen` in v5.2 planning scope.
+- Retention Batch 2 precedence semantics are `draft-frozen` and in the current global freeze scope.
 - Covered precedence rule:
   - `job > batch > system`
 - Batch 1 draft-freeze remains unchanged.
 - No additional semantics are frozen by this marker.
-- Global freeze status remains `not started`.
+- Global freeze status is `started`.
 
 ## Planning Direction (Non-Binding)
 - v5.2 planning focus: generalize retention from single-axis poll-count to multi-axis retention.
 - Explicit exclusion in this planning direction: wall-clock axis is not introduced in v5.2 scope.
 - This direction is exploratory and does not start freeze.
 
-## Working Proposal Reference (Non-Binding)
-- See `V5_2_RETENTION_MULTI_AXIS_DRAFT.md`.
-- Any API/algorithm behavior in that document is a working proposal for comparison, not a frozen contract.
+## Frozen Semantics Reference
+- See `V5_2_RETENTION_MULTI_AXIS.md`.
+- That document is the canonical frozen reference for retention + precedence semantics in v5.2 freeze verification.
 
 ## Candidate Scope (Parking Lot)
 - Streaming or partial result delivery
