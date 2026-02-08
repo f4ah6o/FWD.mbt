@@ -1,0 +1,15 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "scopeOrder": ["job", "batch", "system"],
+    "candidates": {
+      "job": null,
+      "batch": "poll_count_max:5",
+      "system": "poll_count_max:1"
+    },
+    "selectedScope": "batch"
+  }
+}

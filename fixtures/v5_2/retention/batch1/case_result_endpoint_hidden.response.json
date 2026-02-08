@@ -1,25 +1,27 @@
 {
-  "draft": true,
   "status": 404,
-  "headers": {},
+  "headers": {
+    "content-type": "application/json"
+  },
   "body": {
     "error": {
       "reasonVersion": 1,
       "code": "JOB_EXPIRED",
       "level": "error",
       "target": "runtime",
-      "message": "job hidden by retention: __JOB_ID__",
+      "message": "job hidden by retention: job-1",
       "hint": "Job retention policy hidden"
     },
     "retentionDetails": {
       "visibility": "hidden",
       "combine": "all",
+      "endpoint": "result",
       "failedAxes": [
         {
           "axis": "poll_count",
           "rule": "max",
-          "expected": "__TBD__",
-          "observed": "__TBD__",
+          "expected": 0,
+          "observed": 1,
           "reason": "EXPIRED_BY_POLL_COUNT"
         }
       ]

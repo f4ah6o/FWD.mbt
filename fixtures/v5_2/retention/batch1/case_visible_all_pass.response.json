@@ -1,7 +1,8 @@
 {
-  "draft": true,
   "status": 200,
-  "headers": {},
+  "headers": {
+    "content-type": "application/json"
+  },
   "body": {
     "jobVersion": "5.2",
     "jobId": "job-1",

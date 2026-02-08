@@ -1,14 +1,15 @@
 {
-  "draft": true,
   "status": 404,
-  "headers": {},
+  "headers": {
+    "content-type": "application/json"
+  },
   "body": {
     "error": {
       "reasonVersion": 1,
       "code": "JOB_EXPIRED",
       "level": "error",
       "target": "runtime",
-      "message": "job hidden by retention: __LEGACY_EXPIRED_JOB_ID__",
+      "message": "job hidden by retention: job-1",
       "hint": "Legacy expired compatibility path"
     },
     "compatibility": {
