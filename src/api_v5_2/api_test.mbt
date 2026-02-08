@@ -28,29 +28,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
-fn json_shape(value : Json) -> Json {
-  match value {
-    Object(obj) => {
-      let shaped : Map[String, Json] = Map::new()
-      for pair in obj {
-        shaped[pair.0] = json_shape(pair.1)
-      }
-      Json::object(shaped)
-    }
-    Array(items) => {
-      let shaped_items : Array[Json] = []
-      for item in items {
-        shaped_items.push(json_shape(item))
-      }
-      Json::array(shaped_items)
-    }
-    String(_) => Json::string("<scalar>")
-    Number(_, ..) => Json::string("<scalar>")
-    _ => Json::string("<scalar>")
-  }
-}
-
-fn same_shape(actual : Json, expected : Json) -> Bool {
+fn same_json(actual : Json, expected : Json) -> Bool {
   match (actual, expected) {
     (Object(a), Object(b)) => {
       if a.length() != b.length() {
@@ -58,7 +36,7 @@ fn same_shape(actual : Json, expected : Json) -> Bool {
       }
       for pair in b {
         match a.get(pair.0) {
-          Some(av) => if !same_shape(av, pair.1) { return false }
+          Some(av) => if !same_json(av, pair.1) { return false }
           None => return false
         }
       }
@@ -69,15 +47,13 @@ fn same_shape(actual : Json, expected : Json) -> Bool {
         return false
       }
       for i in 0..<a.length() {
-        if !same_shape(a[i], b[i]) {
+        if !same_json(a[i], b[i]) {
           return false
         }
       }
       true
     }
-    (String(_), String(_)) => true
-    (Number(_, ..), Number(_, ..)) => true
-    (_, _) => true
+    (_, _) => actual.to_string() == expected.to_string()
   }
 }
 
@@ -97,22 +73,66 @@ fn expect_shape_matches_fixture(res : ApiResponse, fixture_path : String) -> Uni
     Some(Object(obj)) => obj
     _ => fail("missing headers in fixture: " + fixture_path)
   }
+  inspect(res.headers.length(), content=expected_headers.length().to_string())
   for pair in expected_headers {
     let key = pair.0
-    inspect(res.headers.get(key).to_string(), content="Some(" + pair.1.to_string() + ")")
+    let value = match pair.1 {
+      String(v) => v
+      _ => fail("header value must be string in fixture: " + fixture_path + ": " + key)
+    }
+    inspect(res.headers.get(key).to_string(), content="Some(" + value + ")")
   }
   let expected_body = match expected_obj.get("body") {
     Some(value) => value
     None => fail("missing body in fixture: " + fixture_path)
   }
   let actual_body = parse_json_or_fail(res.body, "actual body")
-  let actual_shape = json_shape(actual_body)
-  let expected_shape = json_shape(expected_body)
-  let matches = same_shape(actual_shape, expected_shape)
+  let matches = same_json(actual_body, expected_body)
   if !matches {
-    inspect(actual_shape.stringify(indent=2), content=expected_shape.stringify(indent=2))
+    inspect(actual_body.stringify(indent=2), content=expected_body.stringify(indent=2))
   }
   inspect(matches, content="true")
+}
+
+fn precedence_fixture_response(
+  job_policy : @export_job_v5_2.RetentionPolicyV52?,
+  batch_policy : @export_job_v5_2.RetentionPolicyV52?,
+  system_policy : @export_job_v5_2.RetentionPolicyV52?,
+) -> ApiResponse {
+  let resolved = @retention_v5_2.resolve_retention_policy_v52(job_policy, batch_policy, system_policy)
+  let body = Json::object({
+    "scopeOrder": Json::array([Json::string("job"), Json::string("batch"), Json::string("system")]),
+    "candidates": Json::object({
+      "job": policy_label(job_policy),
+      "batch": policy_label(batch_policy),
+      "system": policy_label(system_policy),
+    }),
+    "selectedScope": Json::string(resolved.selected_scope),
+  }).stringify(indent=2)
+  {
+    status: 200,
+    headers: { "content-type": "application/json" },
+    body,
+  }
+}
+
+fn policy_label(policy : @export_job_v5_2.RetentionPolicyV52?) -> Json {
+  match policy {
+    Some(value) => {
+      match value.axes[0] {
+        @export_job_v5_2.RetentionAxisConditionV52::PollCountMax(limit) => Json::string("poll_count_max:" + limit.to_string())
+        @export_job_v5_2.RetentionAxisConditionV52::GenerationMin(minimum) => Json::string("generation_min:" + minimum.to_string())
+      }
+    }
+    None => Json::null()
+  }
+}
+
+fn policy_poll(limit : Int) -> @export_job_v5_2.RetentionPolicyV52 {
+  {
+    combine: @export_job_v5_2.RetentionCombineV52::All,
+    axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(limit)],
+  }
 }
 
 fn expect_hidden_shape(
@@ -327,7 +347,7 @@ test "api v5.2 get legacy expired compatibility block" {
 }
 
 ///|
-test "api v5.2 fixture shape sync visible all pass non authoritative" {
+test "api v5.2 fixture canonical sync visible all pass" {
   @job_store_v5_2.reset_for_test()
   ignore(handle_request({
     http_method: "POST",
@@ -341,11 +361,11 @@ test "api v5.2 fixture shape sync visible all pass non authoritative" {
     query: query_map([]),
     body: None,
   })
-  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_visible_all_pass.draft.response.json")
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_visible_all_pass.response.json")
 }
 
 ///|
-test "api v5.2 fixture shape sync hidden poll only non authoritative" {
+test "api v5.2 fixture canonical sync hidden poll only" {
   @job_store_v5_2.reset_for_test()
   ignore(handle_request({
     http_method: "POST",
@@ -365,11 +385,11 @@ test "api v5.2 fixture shape sync hidden poll only non authoritative" {
     query: query_map([]),
     body: None,
   })
-  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_hidden_poll_only.draft.response.json")
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_hidden_poll_only.response.json")
 }
 
 ///|
-test "api v5.2 fixture shape sync hidden generation only non authoritative" {
+test "api v5.2 fixture canonical sync hidden generation only" {
   @job_store_v5_2.reset_for_test()
   ignore(handle_request({
     http_method: "POST",
@@ -383,11 +403,11 @@ test "api v5.2 fixture shape sync hidden generation only non authoritative" {
     query: query_map([]),
     body: None,
   })
-  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_hidden_generation_only.draft.response.json")
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_hidden_generation_only.response.json")
 }
 
 ///|
-test "api v5.2 fixture shape sync hidden multi fail non authoritative" {
+test "api v5.2 fixture canonical sync hidden multi fail" {
   @job_store_v5_2.reset_for_test()
   ignore(handle_request({
     http_method: "POST",
@@ -407,11 +427,11 @@ test "api v5.2 fixture shape sync hidden multi fail non authoritative" {
     query: query_map([]),
     body: None,
   })
-  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_hidden_multi_fail.draft.response.json")
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_hidden_multi_fail.response.json")
 }
 
 ///|
-test "api v5.2 fixture shape sync result hidden non authoritative" {
+test "api v5.2 fixture canonical sync result hidden" {
   @job_store_v5_2.reset_for_test()
   ignore(handle_request({
     http_method: "POST",
@@ -431,11 +451,11 @@ test "api v5.2 fixture shape sync result hidden non authoritative" {
     query: query_map([]),
     body: None,
   })
-  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_result_endpoint_hidden.draft.response.json")
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_result_endpoint_hidden.response.json")
 }
 
 ///|
-test "api v5.2 fixture shape sync compat legacy expired read non authoritative" {
+test "api v5.2 fixture canonical sync compat legacy expired read" {
   @job_store_v5_2.reset_for_test()
   @job_store_v5_2.seed_for_test(1, [{
     id: { value: "job-1" },
@@ -456,53 +476,23 @@ test "api v5.2 fixture shape sync compat legacy expired read non authoritative" 
     query: query_map([]),
     body: None,
   })
-  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_compat_legacy_expired_read.draft.response.json")
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch1/case_compat_legacy_expired_read.response.json")
 }
 
 ///|
-test "api v5.2 precedence draft shape job over batch over system" {
-  let resolved = @retention_v5_2.resolve_retention_policy_v52(
-    Some({
-      combine: @export_job_v5_2.RetentionCombineV52::All,
-      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(9)],
-    }),
-    Some({
-      combine: @export_job_v5_2.RetentionCombineV52::All,
-      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(5)],
-    }),
-    Some({
-      combine: @export_job_v5_2.RetentionCombineV52::All,
-      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(1)],
-    }),
-  )
-  inspect(resolved.selected_scope, content="job")
+test "api v5.2 fixture canonical sync precedence job over batch over system" {
+  let res = precedence_fixture_response(Some(policy_poll(9)), Some(policy_poll(5)), Some(policy_poll(1)))
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch2/case_precedence_job_over_batch_over_system.response.json")
 }
 
 ///|
-test "api v5.2 precedence draft shape batch over system" {
-  let resolved = @retention_v5_2.resolve_retention_policy_v52(
-    None,
-    Some({
-      combine: @export_job_v5_2.RetentionCombineV52::All,
-      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(5)],
-    }),
-    Some({
-      combine: @export_job_v5_2.RetentionCombineV52::All,
-      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(1)],
-    }),
-  )
-  inspect(resolved.selected_scope, content="batch")
+test "api v5.2 fixture canonical sync precedence batch over system" {
+  let res = precedence_fixture_response(None, Some(policy_poll(5)), Some(policy_poll(1)))
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch2/case_precedence_batch_over_system.response.json")
 }
 
 ///|
-test "api v5.2 precedence draft shape system only" {
-  let resolved = @retention_v5_2.resolve_retention_policy_v52(
-    None,
-    None,
-    Some({
-      combine: @export_job_v5_2.RetentionCombineV52::All,
-      axes: [@export_job_v5_2.RetentionAxisConditionV52::PollCountMax(1)],
-    }),
-  )
-  inspect(resolved.selected_scope, content="system")
+test "api v5.2 fixture canonical sync precedence system only" {
+  let res = precedence_fixture_response(None, None, Some(policy_poll(1)))
+  expect_shape_matches_fixture(res, "fixtures/v5_2/retention/batch2/case_precedence_system_only.response.json")
 }
