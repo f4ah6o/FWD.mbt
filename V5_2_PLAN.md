@@ -1,4 +1,4 @@
-# v5.2 Plan (Open)
+# v5.2 Plan (Freeze Started)
 
 This document opens v5.2 planning.
 It does not freeze semantics.
@@ -8,9 +8,26 @@ It does not freeze semantics.
 - v5.0 and v5.1 fixtures/anchors remain unchanged unless explicitly versioned as v5.2 artifacts.
 
 ## Planning Status
-- State: `open`
-- Freeze status: `not started`
-- Scope status: `focused exploration`
+- State: `freeze_started`
+- Freeze status: `started`
+- Scope status: `closed`
+
+## Global Freeze Scope (v5.2)
+- Included in global v5.2 freeze scope:
+  - Retention Batch 1 semantics (draft-frozen baseline)
+  - Retention Batch 2 precedence semantics (draft-frozen baseline)
+- Excluded from global v5.2 freeze scope:
+  - Optional-surface exploration under `V5_2X_OPTIONAL_SURFACES.md`
+  - wall-clock axis
+  - scheduling/background worker semantics
+  - policy/job interpretation changes
+
+## Freeze Anchor
+- Freeze start anchor: this commit (`docs-only freeze start marker`).
+- All subsequent semantic changes require:
+  - fixture-first updates
+  - explicit versioned artifacts
+  - reviewer sign-off
 
 ## Draft Freeze Marker (Scoped)
 - Retention Batch 1 semantics are `draft-frozen` in v5.2 planning scope.

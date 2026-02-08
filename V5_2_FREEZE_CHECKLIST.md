@@ -5,8 +5,8 @@ and completing the global v5.2 freeze.
 This document is planning-only and does not start freeze by itself.
 
 ## Current Status (as of now)
-- v5.2 status: PLANNING
-- global freeze: not started
+- v5.2 status: FREEZE_STARTED
+- global freeze: started
 - Batch 1 (retention semantics): draft-frozen
 - Batch 2 (precedence semantics): draft-frozen
 - v5.1.0 baseline: immutable
@@ -14,9 +14,9 @@ This document is planning-only and does not start freeze by itself.
 ## A. Entry Criteria (Start Freeze)
 
 ### A1. Scope Closure
-- [ ] In-scope surface list is explicit and final for v5.2 (no new candidates)
-- [ ] Out-of-scope list is explicit (wall-clock, scheduling/background, policy interpretation)
-- [ ] No `TBD` remains in the in-scope semantics sections
+- [x] In-scope surface list is explicit and final for v5.2 (no new candidates)
+- [x] Out-of-scope list is explicit (wall-clock, scheduling/background, policy interpretation)
+- [x] No `TBD` remains in the in-scope semantics sections
 
 ### A2. Fixture Readiness
 - [ ] All v5.2 fixtures intended to define semantics are moved from draft markers to canonical fixture files (or a canonical naming scheme)
@@ -32,16 +32,16 @@ This document is planning-only and does not start freeze by itself.
 - [ ] `No wall-clock axis` is explicitly restated as a v5.2 non-goal
 
 ### A4. Compatibility
-- [ ] v5.1 artifacts unchanged (fixtures/anchors/semantics)
-- [ ] Legacy expired compatibility behavior is documented and tested
-- [ ] ReasonV1 compatibility is preserved and stated
+- [x] v5.1 artifacts unchanged (fixtures/anchors/semantics)
+- [x] Legacy expired compatibility behavior is documented and tested
+- [x] ReasonV1 compatibility is preserved and stated
 
 ## B. Freeze Start Procedure (Docs + Tagging Discipline)
-- [ ] Set `V5_2_PLAN.md`:
-- [ ] `Freeze status: started`
-- [ ] `Scope status: closed`
-- [ ] Record freeze commit hash as the freeze anchor
-- [ ] Declare that all subsequent changes require fixture-first updates, explicit versioned artifacts, and reviewer sign-off for semantic changes
+- [x] Set `V5_2_PLAN.md`:
+- [x] `Freeze status: started`
+- [x] `Scope status: closed`
+- [x] Record freeze commit hash as the freeze anchor
+- [x] Declare that all subsequent changes require fixture-first updates, explicit versioned artifacts, and reviewer sign-off for semantic changes
 
 ## C. Freeze Verification (Before Declaring Complete)
 
