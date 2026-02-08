@@ -1,15 +1,14 @@
-# v5.2 Plan (Freeze Started)
+# v5.2 Plan (Freeze Complete)
 
-This document opens v5.2 planning.
-It does not freeze semantics.
+This document records v5.2 freeze status and scope.
 
 ## Baseline
 - v5.1.0 is the immutable upstream baseline.
 - v5.0 and v5.1 fixtures/anchors remain unchanged unless explicitly versioned as v5.2 artifacts.
 
 ## Planning Status
-- State: `freeze_started`
-- Freeze status: `started`
+- State: `freeze_complete`
+- Freeze status: `complete`
 - Scope status: `closed`
 
 ## Global Freeze Scope (v5.2)
@@ -28,6 +27,9 @@ It does not freeze semantics.
   - fixture-first updates
   - explicit versioned artifacts
   - reviewer sign-off
+- Freeze completion anchor: this commit (`docs: complete global v5.2 freeze`).
+- Post-freeze change rules:
+  - semantics changes require v5.3 or explicitly versioned v5.2.x artifacts
 
 ## Draft Freeze Marker (Scoped)
 - Retention Batch 1 semantics are `draft-frozen` and in the current global freeze scope.

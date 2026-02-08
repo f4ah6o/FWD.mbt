@@ -1,12 +1,11 @@
-# v5.2 Global Freeze Checklist (Draft, Docs-Only)
+# v5.2 Global Freeze Checklist
 
 This checklist defines the entry criteria and verification steps for starting
 and completing the global v5.2 freeze.
-This document is planning-only and does not start freeze by itself.
 
 ## Current Status (as of now)
-- v5.2 status: FREEZE_STARTED
-- global freeze: started
+- v5.2 status: FREEZE_COMPLETE
+- global freeze: complete
 - Batch 1 (retention semantics): draft-frozen
 - Batch 2 (precedence semantics): draft-frozen
 - v5.1.0 baseline: immutable
@@ -64,14 +63,14 @@ This document is planning-only and does not start freeze by itself.
 - [x] Non-goals are re-asserted in final freeze notes
 
 ## D. Freeze Completion Procedure
-- [ ] Set `V5_2_PLAN.md`:
-- [ ] `Freeze status: complete`
-- [ ] Create immutable reference (tag or documented commit) for v5.2 freeze point
-- [ ] Record post-freeze change rules:
-- [ ] Semantics changes require v5.3 or explicitly versioned v5.2.x artifacts
+- [x] Set `V5_2_PLAN.md`:
+- [x] `Freeze status: complete`
+- [x] Create immutable reference (tag or documented commit) for v5.2 freeze point
+- [x] Record post-freeze change rules:
+- [x] Semantics changes require v5.3 or explicitly versioned v5.2.x artifacts
 
 ## E. Explicit Non-Goals (Must Remain True for v5.2)
-- [ ] No wall-clock retention axis
-- [ ] No scheduling/background worker model
-- [ ] No policy/job interpretation beyond existing boundary
-- [ ] No changes to v5.1 fixtures/anchors
+- [x] No wall-clock retention axis
+- [x] No scheduling/background worker model
+- [x] No policy/job interpretation beyond existing boundary
+- [x] No changes to v5.1 fixtures/anchors
