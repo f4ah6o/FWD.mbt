@@ -1,7 +1,6 @@
 ///|
 /// Deterministic ID allocator (v5.0).
 /// Shared across single and batch job families.
-
 let counter : Ref[Int] = @ref.new(0)
 
 ///|

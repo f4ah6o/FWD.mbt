@@ -1,0 +1,10 @@
+import {
+  "fwd/compiler",
+  "fwd/timeline_v3",
+  "moonbitlang/core/json",
+}
+
+import {
+  "fwd/core",
+  "moonbitlang/x/fs",
+} for "test"

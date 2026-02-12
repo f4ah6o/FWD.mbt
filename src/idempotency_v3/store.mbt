@@ -1,6 +1,5 @@
 ///|
 /// Deterministic in-memory idempotency store (v3).
-
 pub(all) struct Store {
   records : Map[String, Record]
 }
@@ -10,6 +9,7 @@ pub fn new_store() -> Store {
   { records: Map::new() }
 }
 
+///|
 fn reserved_decision(key : String, logical_time : Int) -> Decision {
   {
     key,
@@ -20,7 +20,12 @@ fn reserved_decision(key : String, logical_time : Int) -> Decision {
   }
 }
 
-fn conflict_decision(key : String, logical_time : Int, reserved_at : Int) -> Decision {
+///|
+fn conflict_decision(
+  key : String,
+  logical_time : Int,
+  reserved_at : Int,
+) -> Decision {
   {
     key,
     kind: DecisionKind::Conflict,
@@ -30,17 +35,23 @@ fn conflict_decision(key : String, logical_time : Int, reserved_at : Int) -> Dec
   }
 }
 
-fn done_decision(key : String, logical_time : Int, reserved_at : Int, result_ref : String) -> Decision {
-  {
-    key,
-    kind: DecisionKind::Done,
-    logical_time,
-    reserved_at,
-    result_ref,
-  }
+///|
+fn done_decision(
+  key : String,
+  logical_time : Int,
+  reserved_at : Int,
+  result_ref : String,
+) -> Decision {
+  { key, kind: DecisionKind::Done, logical_time, reserved_at, result_ref }
 }
 
-fn already_done_decision(key : String, logical_time : Int, reserved_at : Int, result_ref : String) -> Decision {
+///|
+fn already_done_decision(
+  key : String,
+  logical_time : Int,
+  reserved_at : Int,
+  result_ref : String,
+) -> Decision {
   {
     key,
     kind: DecisionKind::AlreadyDone,
@@ -53,12 +64,18 @@ fn already_done_decision(key : String, logical_time : Int, reserved_at : Int, re
 ///|
 pub fn reserve(store : Store, key : String, logical_time : Int) -> Decision {
   match store.records.get(key) {
-    Some(record) => {
+    Some(record) =>
       match record.status {
-        RecordStatus::Reserved => conflict_decision(key, logical_time, record.reserved_at)
-        RecordStatus::Done => already_done_decision(key, logical_time, record.reserved_at, record.result_ref)
+        RecordStatus::Reserved =>
+          conflict_decision(key, logical_time, record.reserved_at)
+        RecordStatus::Done =>
+          already_done_decision(
+            key,
+            logical_time,
+            record.reserved_at,
+            record.result_ref,
+          )
       }
-    }
     None => {
       store.records.set(key, {
         key,
@@ -73,9 +90,14 @@ pub fn reserve(store : Store, key : String, logical_time : Int) -> Decision {
 }
 
 ///|
-pub fn mark_done(store : Store, key : String, result_ref : String, logical_time : Int) -> Decision {
+pub fn mark_done(
+  store : Store,
+  key : String,
+  result_ref : String,
+  logical_time : Int,
+) -> Decision {
   match store.records.get(key) {
-    Some(record) => {
+    Some(record) =>
       match record.status {
         RecordStatus::Reserved => {
           let updated : Record = {
@@ -88,11 +110,14 @@ pub fn mark_done(store : Store, key : String, result_ref : String, logical_time 
           store.records.set(key, updated)
           done_decision(key, logical_time, record.reserved_at, result_ref)
         }
-        RecordStatus::Done => {
-          already_done_decision(key, logical_time, record.reserved_at, record.result_ref)
-        }
+        RecordStatus::Done =>
+          already_done_decision(
+            key,
+            logical_time,
+            record.reserved_at,
+            record.result_ref,
+          )
       }
-    }
     None => {
       store.records.set(key, {
         key,
@@ -107,6 +132,6 @@ pub fn mark_done(store : Store, key : String, result_ref : String, logical_time 
 }
 
 ///|
-pub fn get(store : Store, key : String) -> Option[Record] {
+pub fn get(store : Store, key : String) -> Record? {
   store.records.get(key)
 }

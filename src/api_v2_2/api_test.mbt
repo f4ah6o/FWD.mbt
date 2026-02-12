@@ -70,8 +70,12 @@ test "api v2.2 effects plan" {
 
 ///|
 test "api v2.2 effects execute" {
-  let expected = load_expected("examples/api_v2_2/effects_execute/expected.json")
-  let plan_text = load_expected("examples/effects_v2_2/execute/plan_planned.json")
+  let expected = load_expected(
+    "examples/api_v2_2/effects_execute/expected.json",
+  )
+  let plan_text = load_expected(
+    "examples/effects_v2_2/execute/plan_planned.json",
+  )
   let body = execute_body(plan_text)
   let req : ApiRequest = {
     http_method: "POST",

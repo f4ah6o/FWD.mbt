@@ -1,6 +1,0 @@
-{
-  "import": [
-    "fwd/core",
-    "fwd/timeline_v3"
-  ]
-}

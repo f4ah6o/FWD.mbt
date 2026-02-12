@@ -3,13 +3,21 @@
 /// Batch is modeled as a job whose unit of work is child jobs.
 /// Poll-count retention is consumed ONLY by `step_batch`.
 let batch_store : Ref[Map[String, BatchJobRecord]] = @ref.new(Map::new())
-let child_store : Ref[Map[String, @export_job_v5.JobRecord]] = @ref.new(Map::new())
+
+///|
+let child_store : Ref[Map[String, @export_job_v5.JobRecord]] = @ref.new(
+  Map::new(),
+)
+
+///|
 let progress_total = 3
 
+///|
 fn next_id() -> String {
   @export_job_v5.next_job_id().value
 }
 
+///|
 fn cancel_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   {
     code: @export_job_v5.ReasonCode::JobCanceled,
@@ -20,6 +28,7 @@ fn cancel_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   }
 }
 
+///|
 fn expired_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   {
     code: @export_job_v5.ReasonCode::JobExpired,
@@ -30,15 +39,20 @@ fn expired_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   }
 }
 
-fn child_progress(status : @export_job_v5.JobStatus) -> @export_job_v5.JobProgress {
+///|
+fn child_progress(
+  status : @export_job_v5.JobStatus,
+) -> @export_job_v5.JobProgress {
   match status {
     @export_job_v5.JobStatus::Queued => { processed: 0, total: progress_total }
     @export_job_v5.JobStatus::Running => { processed: 1, total: progress_total }
-    @export_job_v5.JobStatus::Done => { processed: progress_total, total: progress_total }
+    @export_job_v5.JobStatus::Done =>
+      { processed: progress_total, total: progress_total }
     _ => { processed: 0, total: progress_total }
   }
 }
 
+///|
 fn advance_child(status : @export_job_v5.JobStatus) -> @export_job_v5.JobStatus {
   match status {
     @export_job_v5.JobStatus::Queued => @export_job_v5.JobStatus::Running
@@ -47,6 +61,7 @@ fn advance_child(status : @export_job_v5.JobStatus) -> @export_job_v5.JobStatus 
   }
 }
 
+///|
 fn is_terminal(status : @export_job_v5.JobStatus) -> Bool {
   match status {
     @export_job_v5.JobStatus::Done => true
@@ -57,11 +72,20 @@ fn is_terminal(status : @export_job_v5.JobStatus) -> Bool {
   }
 }
 
-fn should_expire(poll_count : Int, retention : @export_job_v5.Retention) -> Bool {
+///|
+fn should_expire(
+  poll_count : Int,
+  retention : @export_job_v5.Retention,
+) -> Bool {
   poll_count >= retention.ttl_polls
 }
 
-fn child_record(id_value : String, format : @export_job_v5.ResultFormat, retention : @export_job_v5.Retention) -> @export_job_v5.JobRecord {
+///|
+fn child_record(
+  id_value : String,
+  format : @export_job_v5.ResultFormat,
+  retention : @export_job_v5.Retention,
+) -> @export_job_v5.JobRecord {
   {
     id: { value: id_value },
     status: @export_job_v5.JobStatus::Queued,
@@ -73,7 +97,12 @@ fn child_record(id_value : String, format : @export_job_v5.ResultFormat, retenti
   }
 }
 
-fn update_child(id : String, status : @export_job_v5.JobStatus, reasons : Array[@export_job_v5.ReasonV1]) -> Unit {
+///|
+fn update_child(
+  id : String,
+  status : @export_job_v5.JobStatus,
+  reasons : Array[@export_job_v5.ReasonV1],
+) -> Unit {
   match child_store.val.get(id) {
     Some(child) => {
       let next : @export_job_v5.JobRecord = {
@@ -91,6 +120,7 @@ fn update_child(id : String, status : @export_job_v5.JobStatus, reasons : Array[
   }
 }
 
+///|
 fn step_child(id : String) -> Unit {
   match child_store.val.get(id) {
     Some(child) => {
@@ -114,50 +144,51 @@ fn step_child(id : String) -> Unit {
   }
 }
 
+///|
 fn cancel_child(id : String) -> Unit {
   match child_store.val.get(id) {
-    Some(child) => {
+    Some(child) =>
       if is_terminal(child.status) {
         ()
       } else {
         let reason = cancel_reason(child.id.value)
         update_child(id, @export_job_v5.JobStatus::Canceled, [reason])
       }
-    }
     None => ()
   }
 }
 
+///|
 fn expire_child(id : String) -> Unit {
   match child_store.val.get(id) {
-    Some(child) => {
+    Some(child) =>
       if is_terminal(child.status) {
         ()
       } else {
         let reason = expired_reason(child.id.value)
         update_child(id, @export_job_v5.JobStatus::Expired, [reason])
       }
-    }
     None => ()
   }
 }
 
+///|
 fn batch_progress(child_ids : Array[String]) -> @export_job_v5.JobProgress {
   let mut done_count = 0
   for child_id in child_ids {
     match child_store.val.get(child_id) {
-      Some(child) => {
+      Some(child) =>
         match child.status {
           @export_job_v5.JobStatus::Done => done_count = done_count + 1
           _ => ()
         }
-      }
       None => ()
     }
   }
   { processed: done_count, total: child_ids.length() }
 }
 
+///|
 fn derive_batch_status(batch : BatchJobRecord) -> @export_job_v5.JobStatus {
   let mut any_expired = false
   let mut any_canceled = false
@@ -165,7 +196,7 @@ fn derive_batch_status(batch : BatchJobRecord) -> @export_job_v5.JobStatus {
   let mut all_done = true
   for child_id in batch.child_ids {
     match child_store.val.get(child_id) {
-      Some(child) => {
+      Some(child) =>
         match child.status {
           @export_job_v5.JobStatus::Expired => any_expired = true
           @export_job_v5.JobStatus::Canceled => any_canceled = true
@@ -173,7 +204,6 @@ fn derive_batch_status(batch : BatchJobRecord) -> @export_job_v5.JobStatus {
           @export_job_v5.JobStatus::Done => ()
           _ => all_done = false
         }
-      }
       None => all_done = false
     }
   }
@@ -209,7 +239,11 @@ pub fn seed_for_test(next_id : Int, batches : Array[BatchJobRecord]) -> Unit {
 }
 
 ///|
-pub fn create_batch(format : @export_job_v5.ResultFormat, retention : @export_job_v5.Retention, child_specs : Array[BatchChildSpec]) -> BatchJobRecord {
+pub fn create_batch(
+  format : @export_job_v5.ResultFormat,
+  retention : @export_job_v5.Retention,
+  child_specs : Array[BatchChildSpec],
+) -> BatchJobRecord {
   let batch_id_value = next_id()
   let child_ids : Array[String] = []
   for _spec in child_specs {
@@ -246,7 +280,9 @@ pub fn step_batch(id : String) -> BatchJobRecord? {
       let next_poll = batch.poll_count + 1
       let expired = should_expire(next_poll, batch.retention)
       let child_count = batch.child_ids.length()
-      let next_child_index = if expired || is_terminal(batch.status) || child_count == 0 {
+      let next_child_index = if expired ||
+        is_terminal(batch.status) ||
+        child_count == 0 {
         batch.next_child_index
       } else {
         let index = batch.next_child_index % child_count
@@ -302,11 +338,10 @@ pub fn cancel_batch(id : String) -> BatchJobRecord? {
         _ => @export_job_v5.JobStatus::Canceled
       }
       match next_status {
-        @export_job_v5.JobStatus::Canceled => {
+        @export_job_v5.JobStatus::Canceled =>
           for child_id in batch.child_ids {
             cancel_child(child_id)
           }
-        }
         _ => ()
       }
       let next_reasons = match next_status {

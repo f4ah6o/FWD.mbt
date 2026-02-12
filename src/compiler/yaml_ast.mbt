@@ -28,6 +28,6 @@ pub impl Show for YamlError with output(self, logger) {
       ..write_string("line ")
       ..write_object(line)
       ..write_string(": ")
-      ..write_string(message)
+      .write_string(message)
   }
 }

@@ -30,19 +30,24 @@ pub(all) struct PolicyCheckResult {
   reasons : Array[ReasonV1]
 }
 
+///|
 fn reason_json(reason : ReasonV1) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["reasonVersion"] = Json::number(1)
-  obj["code"] = Json::string(match reason.code {
-    QueryMissing => "QUERY_MISSING"
-    QueryInvalid => "QUERY_INVALID"
-    PolicyDenied => "POLICY_DENIED"
-  })
-  obj["level"] = Json::string(match reason.level {
-    Error => "error"
-    Warn => "warn"
-    Info => "info"
-  })
+  obj["code"] = Json::string(
+    match reason.code {
+      QueryMissing => "QUERY_MISSING"
+      QueryInvalid => "QUERY_INVALID"
+      PolicyDenied => "POLICY_DENIED"
+    },
+  )
+  obj["level"] = Json::string(
+    match reason.level {
+      Error => "error"
+      Warn => "warn"
+      Info => "info"
+    },
+  )
   obj["target"] = Json::string(reason.target)
   obj["message"] = Json::string(reason.message)
   match reason.hint {
@@ -63,6 +68,7 @@ pub fn response_json(result : PolicyCheckResult) -> String {
   Json::object(obj).stringify(indent=2)
 }
 
+///|
 fn invalid_reason(message : String) -> ReasonV1 {
   {
     code: QueryInvalid,
@@ -73,6 +79,7 @@ fn invalid_reason(message : String) -> ReasonV1 {
   }
 }
 
+///|
 fn missing_reason(name : String) -> ReasonV1 {
   {
     code: QueryMissing,
@@ -83,6 +90,7 @@ fn missing_reason(name : String) -> ReasonV1 {
   }
 }
 
+///|
 fn denied_reason(action : String) -> ReasonV1 {
   {
     code: PolicyDenied,
@@ -93,6 +101,7 @@ fn denied_reason(action : String) -> ReasonV1 {
   }
 }
 
+///|
 fn extract_action(obj : Map[String, Json]) -> Result[String, ReasonV1] {
   match obj.get("action") {
     Some(String(value)) => Ok(value)
@@ -110,11 +119,19 @@ pub fn check_policy(body : String?) -> PolicyCheckResult {
   let parsed : Result[Json, @json.ParseError] = try? @json.parse(text)
   let value = match parsed {
     Ok(v) => v
-    Err(err) => return { status: 400, reasons: [invalid_reason("input json parse error: " + err.to_string())] }
+    Err(err) =>
+      return {
+        status: 400,
+        reasons: [invalid_reason("input json parse error: " + err.to_string())],
+      }
   }
   let obj = match value {
     Object(m) => m
-    _ => return { status: 400, reasons: [invalid_reason("input json must be an object")] }
+    _ =>
+      return {
+        status: 400,
+        reasons: [invalid_reason("input json must be an object")],
+      }
   }
   let action = match extract_action(obj) {
     Ok(value) => value

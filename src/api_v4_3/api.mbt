@@ -46,30 +46,23 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn invalid_query_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check query parameters"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check query parameters"),
+  ])
 }
 
 ///|
 fn missing_query_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_MISSING",
-    "missing query: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide query '" + name + "'"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_MISSING", "missing query: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide query '" + name + "'"),
+  ])
 }
 
+///|
 fn parse_int(value : String) -> Int? {
   if value.length() == 0 {
     return None
@@ -85,19 +78,19 @@ fn parse_int(value : String) -> Int? {
   Some(acc)
 }
 
-fn build_snapshot(entity_id : String, from_time : Int?, to_time : Int?) -> @metrics_v3_6.MetricsSnapshot {
+///|
+fn build_snapshot(
+  entity_id : String,
+  from_time : Int?,
+  to_time : Int?,
+) -> @metrics_v3_6.MetricsSnapshot {
   {
     window: {
       entity_id,
       from_logical_time: from_time,
       to_logical_time: to_time,
     },
-    total: {
-      ok: 1,
-      failed: 1,
-      blocked: 0,
-      denied: 1,
-    },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
     by_kind: [
       {
         kind: @metrics_v3_6.MetricKind::Transition,
@@ -115,23 +108,50 @@ fn build_snapshot(entity_id : String, from_time : Int?, to_time : Int?) -> @metr
   }
 }
 
-fn parse_query_snapshot(req : ApiRequest) -> Result[@metrics_v3_6.MetricsSnapshot, ApiResponse] {
+///|
+fn parse_query_snapshot(
+  req : ApiRequest,
+) -> Result[@metrics_v3_6.MetricsSnapshot, ApiResponse] {
   let entity = match req.query.get("entityId") {
     Some(value) => value
-    None => return Err(response_json(400, error_envelope_json(missing_query_reason("entityId"))))
+    None =>
+      return Err(
+        response_json(
+          400,
+          error_envelope_json(missing_query_reason("entityId")),
+        ),
+      )
   }
   let from_time = match req.query.get("fromLogicalTime") {
-    Some(value) => match parse_int(value) {
-      Some(v) => Some(v)
-      None => return Err(response_json(400, error_envelope_json(invalid_query_reason("fromLogicalTime must be integer"))))
-    }
+    Some(value) =>
+      match parse_int(value) {
+        Some(v) => Some(v)
+        None =>
+          return Err(
+            response_json(
+              400,
+              error_envelope_json(
+                invalid_query_reason("fromLogicalTime must be integer"),
+              ),
+            ),
+          )
+      }
     None => None
   }
   let to_time = match req.query.get("toLogicalTime") {
-    Some(value) => match parse_int(value) {
-      Some(v) => Some(v)
-      None => return Err(response_json(400, error_envelope_json(invalid_query_reason("toLogicalTime must be integer"))))
-    }
+    Some(value) =>
+      match parse_int(value) {
+        Some(v) => Some(v)
+        None =>
+          return Err(
+            response_json(
+              400,
+              error_envelope_json(
+                invalid_query_reason("toLogicalTime must be integer"),
+              ),
+            ),
+          )
+      }
     None => None
   }
   Ok(build_snapshot(entity, from_time, to_time))
@@ -165,14 +185,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v4.3/metrics/export.jsonl"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

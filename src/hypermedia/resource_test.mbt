@@ -1,6 +1,9 @@
 ///|
+
 ///|
-fn parse_rule_results_text(input_json : String) -> Result[Map[String, Bool], String] {
+fn parse_rule_results_text(
+  input_json : String,
+) -> Result[Map[String, Bool], String] {
   match parse_rule_results(input_json) {
     Ok(values) => Ok(values)
     Err(reason) => Err(reason.message())
@@ -9,24 +12,18 @@ fn parse_rule_results_text(input_json : String) -> Result[Map[String, Bool], Str
 
 ///|
 test "hypermedia resource fixture" {
-  let schema_text = match read_text(
-    "examples/hypermedia_show/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text("examples/hypermedia_show/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let rules_text = match read_text(
-    "examples/hypermedia_show/rules.json",
-    "rules",
-  ) {
+  let rules_text = match
+    read_text("examples/hypermedia_show/rules.json", "rules") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let expected = match read_text(
-    "examples/hypermedia_show/expected.json",
-    "expected",
-  ) {
+  let expected = match
+    read_text("examples/hypermedia_show/expected.json", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -38,11 +35,8 @@ test "hypermedia resource fixture" {
     Ok(values) => values
     Err(msg) => fail(msg)
   }
-  let runtime_result = match @runtime.compute_available_transitions(
-    ir,
-    "Draft",
-    rule_results,
-  ) {
+  let runtime_result = match
+    @runtime.compute_available_transitions(ir, "Draft", rule_results) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
   }

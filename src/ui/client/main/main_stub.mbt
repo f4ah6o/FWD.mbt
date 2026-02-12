@@ -1,4 +1,4 @@
 ///|
-fn main() -> Unit {
+fn main {
   ()
 }

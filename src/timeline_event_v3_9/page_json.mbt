@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for timeline event paging (v3.9).
-
 fn option_string(value : String?) -> Json {
   match value {
     Some(v) => Json::string(v)
@@ -8,6 +7,7 @@ fn option_string(value : String?) -> Json {
   }
 }
 
+///|
 fn kind_string(kind : @timeline_v3.TimelineKind) -> String {
   match kind {
     @timeline_v3.TimelineKind::Transition => "transition"

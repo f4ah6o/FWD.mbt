@@ -1,5 +1,8 @@
 ///|
-fn read_text_metrics_detail_v4_4(path : String, label : String) -> Result[String, String] {
+fn read_text_metrics_detail_v4_4(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -17,7 +20,9 @@ fn load_expected_metrics_detail_v4_4(path : String) -> String raise {
 
 ///|
 test "v4.4 metrics detail html fixture" {
-  let expected = load_expected_metrics_detail_v4_4("examples/v4_4/metrics_detail/expected.html")
+  let expected = load_expected_metrics_detail_v4_4(
+    "examples/v4_4/metrics_detail/expected.html",
+  )
   let view : V4_4MetricsDetailView = {
     kind: "transition",
     counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },

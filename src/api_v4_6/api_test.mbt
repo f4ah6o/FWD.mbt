@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -26,12 +27,16 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 ///|
 test "api v4.6 metrics job create" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/metrics_jobs/create_expected.json")
+  let expected = load_expected(
+    "examples/api_v4_6/metrics_jobs/create_expected.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+    ),
   }
   let res = handle_request(req)
   let mut output = res.body
@@ -44,12 +49,16 @@ test "api v4.6 metrics job create" {
 ///|
 test "api v4.6 metrics job status queued" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/metrics_jobs/get_queued_expected.json")
+  let expected = load_expected(
+    "examples/api_v4_6/metrics_jobs/get_queued_expected.json",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+    ),
   }
   ignore(handle_request(create_req))
   let req : ApiRequest = {
@@ -69,26 +78,34 @@ test "api v4.6 metrics job status queued" {
 ///|
 test "api v4.6 metrics job status done" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/metrics_jobs/get_done_expected.json")
+  let expected = load_expected(
+    "examples/api_v4_6/metrics_jobs/get_done_expected.json",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+    ),
   }
   ignore(handle_request(create_req))
-  ignore(handle_request({
-    http_method: "GET",
-    path: "/v4.6/metrics/export/jobs/job-1",
-    query: query_map([]),
-    body: None,
-  }))
-  ignore(handle_request({
-    http_method: "GET",
-    path: "/v4.6/metrics/export/jobs/job-1",
-    query: query_map([]),
-    body: None,
-  }))
+  ignore(
+    handle_request({
+      http_method: "GET",
+      path: "/v4.6/metrics/export/jobs/job-1",
+      query: query_map([]),
+      body: None,
+    }),
+  )
+  ignore(
+    handle_request({
+      http_method: "GET",
+      path: "/v4.6/metrics/export/jobs/job-1",
+      query: query_map([]),
+      body: None,
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v4.6/metrics/export/jobs/job-1",
@@ -105,12 +122,16 @@ test "api v4.6 metrics job status done" {
 ///|
 test "api v4.6 metrics job result jsonl" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/metrics_jobs/result_expected.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_6/metrics_jobs/result_expected.jsonl",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+    ),
   }
   ignore(handle_request(create_req))
   let res = handle_request({
@@ -129,12 +150,16 @@ test "api v4.6 metrics job result jsonl" {
 ///|
 test "api v4.6 metrics job result csv" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/metrics_jobs/result_expected.csv")
+  let expected = load_expected(
+    "examples/api_v4_6/metrics_jobs/result_expected.csv",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"csv\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"csv\"}",
+    ),
   }
   ignore(handle_request(create_req))
   let res = handle_request({
@@ -153,12 +178,16 @@ test "api v4.6 metrics job result csv" {
 ///|
 test "api v4.6 timeline job create" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/timeline_jobs/create_expected.json")
+  let expected = load_expected(
+    "examples/api_v4_6/timeline_jobs/create_expected.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/timeline/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"format\":\"jsonl\"}",
+    ),
   }
   let res = handle_request(req)
   let mut output = res.body
@@ -171,26 +200,34 @@ test "api v4.6 timeline job create" {
 ///|
 test "api v4.6 timeline job status done" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/timeline_jobs/get_done_expected.json")
+  let expected = load_expected(
+    "examples/api_v4_6/timeline_jobs/get_done_expected.json",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/timeline/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"format\":\"jsonl\"}",
+    ),
   }
   ignore(handle_request(create_req))
-  ignore(handle_request({
-    http_method: "GET",
-    path: "/v4.6/timeline/export/jobs/job-1",
-    query: query_map([]),
-    body: None,
-  }))
-  ignore(handle_request({
-    http_method: "GET",
-    path: "/v4.6/timeline/export/jobs/job-1",
-    query: query_map([]),
-    body: None,
-  }))
+  ignore(
+    handle_request({
+      http_method: "GET",
+      path: "/v4.6/timeline/export/jobs/job-1",
+      query: query_map([]),
+      body: None,
+    }),
+  )
+  ignore(
+    handle_request({
+      http_method: "GET",
+      path: "/v4.6/timeline/export/jobs/job-1",
+      query: query_map([]),
+      body: None,
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v4.6/timeline/export/jobs/job-1",
@@ -207,12 +244,16 @@ test "api v4.6 timeline job status done" {
 ///|
 test "api v4.6 timeline job result page1" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/timeline_jobs/result_page1_expected.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_6/timeline_jobs/result_page1_expected.jsonl",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/timeline/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"format\":\"jsonl\"}",
+    ),
   }
   ignore(handle_request(create_req))
   let res = handle_request({
@@ -232,12 +273,16 @@ test "api v4.6 timeline job result page1" {
 ///|
 test "api v4.6 timeline job result page2" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/timeline_jobs/result_page2_expected.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_6/timeline_jobs/result_page2_expected.jsonl",
+  )
   let create_req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/timeline/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"cursor\":\"offset:2\",\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"limit\":2,\"cursor\":\"offset:2\",\"format\":\"jsonl\"}",
+    ),
   }
   ignore(handle_request(create_req))
   let res = handle_request({
@@ -257,7 +302,9 @@ test "api v4.6 timeline job result page2" {
 ///|
 test "api v4.6 invalid body" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/common/expected_invalid_body.json")
+  let expected = load_expected(
+    "examples/api_v4_6/common/expected_invalid_body.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
@@ -275,7 +322,9 @@ test "api v4.6 invalid body" {
 ///|
 test "api v4.6 missing entity" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/common/expected_missing_entity.json")
+  let expected = load_expected(
+    "examples/api_v4_6/common/expected_missing_entity.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v4.6/metrics/export/jobs",
@@ -293,7 +342,9 @@ test "api v4.6 missing entity" {
 ///|
 test "api v4.6 job not found" {
   @job_store_v4_6.reset_for_test()
-  let expected = load_expected("examples/api_v4_6/common/expected_job_not_found.json")
+  let expected = load_expected(
+    "examples/api_v4_6/common/expected_job_not_found.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.6/metrics/export/jobs/job-999",

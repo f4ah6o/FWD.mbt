@@ -3,19 +3,18 @@
 
 ///|
 fn invalid_plan_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide a valid effects plan JSON"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide a valid effects plan JSON"),
+  ])
 }
 
 ///|
-fn extract_string(obj : Map[String, Json], name : String) -> Result[String, @core.Reason] {
+fn extract_string(
+  obj : Map[String, Json],
+  name : String,
+) -> Result[String, @core.Reason] {
   match obj.get(name) {
     Some(String(value)) => Ok(value)
     Some(_) => Err(invalid_plan_reason("field must be string: " + name))
@@ -46,7 +45,9 @@ fn parse_effect_kind(value : String) -> Result[@core.EffectKind, @core.Reason] {
 }
 
 ///|
-fn parse_reason_obj(obj : Map[String, Json]) -> Result[@core.Reason, @core.Reason] {
+fn parse_reason_obj(
+  obj : Map[String, Json],
+) -> Result[@core.Reason, @core.Reason] {
   let code = match extract_string(obj, "code") {
     Ok(value) => value
     Err(reason) => return Err(reason)
@@ -72,7 +73,9 @@ fn parse_reason_obj(obj : Map[String, Json]) -> Result[@core.Reason, @core.Reaso
 }
 
 ///|
-fn parse_reasons(obj : Map[String, Json]) -> Result[Array[@core.Reason], @core.Reason] {
+fn parse_reasons(
+  obj : Map[String, Json],
+) -> Result[Array[@core.Reason], @core.Reason] {
   match obj.get("reasons") {
     None => Ok([])
     Some(Array(values)) => {
@@ -94,7 +97,9 @@ fn parse_reasons(obj : Map[String, Json]) -> Result[Array[@core.Reason], @core.R
 }
 
 ///|
-fn parse_items(obj : Map[String, Json]) -> Result[Array[EffectItem], @core.Reason] {
+fn parse_items(
+  obj : Map[String, Json],
+) -> Result[Array[EffectItem], @core.Reason] {
   match obj.get("items") {
     Some(Array(values)) => {
       let items : Array[EffectItem] = []
@@ -121,12 +126,7 @@ fn parse_items(obj : Map[String, Json]) -> Result[Array[EffectItem], @core.Reaso
               Ok(value) => value
               Err(reason) => return Err(reason)
             }
-            items.push({
-              effect_id,
-              kind,
-              payload,
-              idempotency_key,
-            })
+            items.push({ effect_id, kind, payload, idempotency_key })
           }
           _ => return Err(invalid_plan_reason("item must be object"))
         }
@@ -139,12 +139,16 @@ fn parse_items(obj : Map[String, Json]) -> Result[Array[EffectItem], @core.Reaso
 }
 
 ///|
-pub fn parse_plan_json(input_json : String) -> Result[EffectsPlan, @core.Reason] {
+pub fn parse_plan_json(
+  input_json : String,
+) -> Result[EffectsPlan, @core.Reason] {
   let parsed : Result[Json, @json.ParseError] = try? @json.parse(input_json)
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
-      return Err(invalid_plan_reason("input json parse error: " + err.to_string()))
+      return Err(
+        invalid_plan_reason("input json parse error: " + err.to_string()),
+      )
   }
   let obj = match value {
     Object(m) => m
@@ -178,12 +182,5 @@ pub fn parse_plan_json(input_json : String) -> Result[EffectsPlan, @core.Reason]
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({
-    plan_version,
-    entity_id,
-    transition_id,
-    status,
-    items,
-    reasons,
-  })
+  Ok({ plan_version, entity_id, transition_id, status, items, reasons })
 }

@@ -19,9 +19,7 @@ fn payload_textarea(payload : Json?) -> @tmpx.Node {
     Some(value) => value.stringify(indent=2)
     None => ""
   }
-  @tmpx.textarea([
-    @tmpx.name_("payload"),
-  ], [@tmpx.text(text)])
+  @tmpx.textarea([@tmpx.name_("payload")], [@tmpx.text(text)])
 }
 
 ///|
@@ -30,16 +28,20 @@ fn transition_node_v2(
   tr : @hypermedia.ResourceTransitionV2,
 ) -> @tmpx.Node {
   let children : Array[@tmpx.Node] = []
-  children.push(@tmpx.input_([
-    @tmpx.type_("hidden"),
-    @tmpx.name_("state"),
-    @tmpx.value_(state),
-  ]))
-  children.push(@tmpx.input_([
-    @tmpx.type_("hidden"),
-    @tmpx.name_("transition"),
-    @tmpx.value_(tr.id),
-  ]))
+  children.push(
+    @tmpx.input_([
+      @tmpx.type_("hidden"),
+      @tmpx.name_("state"),
+      @tmpx.value_(state),
+    ]),
+  )
+  children.push(
+    @tmpx.input_([
+      @tmpx.type_("hidden"),
+      @tmpx.name_("transition"),
+      @tmpx.value_(tr.id),
+    ]),
+  )
   match tr.input_schema {
     Some(schema_name) => {
       children.push(@tmpx.p([], [@tmpx.text("inputSchema: " + schema_name)]))
@@ -53,30 +55,40 @@ fn transition_node_v2(
     }
   }
   children.push(@tmpx.button([], [@tmpx.text("Validate")]))
-  let form_node = @tmpx.form([
-    @tmpx.data_attr("transition", tr.id),
-    @tmpx.mx_post("/v2/resource/validate"),
-    @tmpx.mx_target(".fwd-resource"),
-    @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
-    @tmpx.mx_trigger_submit(),
-  ], children)
+  let form_node = @tmpx.form(
+    [
+      @tmpx.data_attr("transition", tr.id),
+      @tmpx.mx_post("/v2/resource/validate"),
+      @tmpx.mx_target(".fwd-resource"),
+      @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
+      @tmpx.mx_trigger_submit(),
+    ],
+    children,
+  )
   if tr.can_execute {
     let payload_json = match tr.payload {
       Some(value) => value.stringify()
       None => "{}"
     }
-    let exec_vals =
-      "{\"state\":\"" + state + "\",\"transition\":\"" + tr.id +
-      "\",\"input\":" + payload_json + "}"
-    let exec_button = @tmpx.button([
-      @tmpx.data_attr("transition", tr.id),
-      @tmpx.mx_post("/v2/transition/execute"),
-      @tmpx.mx_target(".fwd-resource"),
-      @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
-      @tmpx.mx_vals(exec_vals),
-      @tmpx.mx_encoding("application/json"),
-      @tmpx.mx_trigger_click(),
-    ], [@tmpx.text("Execute")])
+    let exec_vals = "{\"state\":\"" +
+      state +
+      "\",\"transition\":\"" +
+      tr.id +
+      "\",\"input\":" +
+      payload_json +
+      "}"
+    let exec_button = @tmpx.button(
+      [
+        @tmpx.data_attr("transition", tr.id),
+        @tmpx.mx_post("/v2/transition/execute"),
+        @tmpx.mx_target(".fwd-resource"),
+        @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
+        @tmpx.mx_vals(exec_vals),
+        @tmpx.mx_encoding("application/json"),
+        @tmpx.mx_trigger_click(),
+      ],
+      [@tmpx.text("Execute")],
+    )
     return @tmpx.div([], [form_node, exec_button])
   }
   form_node
@@ -88,17 +100,10 @@ pub fn render_resource_html_v2(resource : @hypermedia.ResourceV2) -> String {
   for tr in resource.transitions {
     nodes.push(transition_node_v2(resource.state, tr))
   }
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-resource")],
-    [
-      @tmpx.section([
-        @tmpx.data_attr("section", "available"),
-      ], nodes),
-      @tmpx.section([
-        @tmpx.data_attr("section", "blocked"),
-      ], []),
-    ],
-  )
+  let root = @tmpx.div([@tmpx.class_("fwd-resource")], [
+    @tmpx.section([@tmpx.data_attr("section", "available")], nodes),
+    @tmpx.section([@tmpx.data_attr("section", "blocked")], []),
+  ])
   @tmpx.render(root)
 }
 

@@ -48,11 +48,7 @@ fn effect_kind_string(kind : @core.EffectKind) -> String {
 }
 
 ///|
-fn execution_transition_json(
-  id : String,
-  from : String,
-  to : String,
-) -> Json {
+fn execution_transition_json(id : String, from : String, to : String) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["id"] = Json::string(id)
   obj["from"] = Json::string(from)

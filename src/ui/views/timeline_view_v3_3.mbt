@@ -1,6 +1,5 @@
 ///|
 /// v3.3 timeline HTML projection with filter/paging UI.
-
 fn timeline_kind_label(kind : @timeline_v3.TimelineKind) -> String {
   match kind {
     @timeline_v3.TimelineKind::Transition => "Transition"
@@ -9,6 +8,7 @@ fn timeline_kind_label(kind : @timeline_v3.TimelineKind) -> String {
   }
 }
 
+///|
 fn timeline_reason_nodes_v3_3(reason : @core.Reason) -> Array[@tmpx.Node] {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(@tmpx.p([], [@tmpx.text(reason.message())]))
@@ -20,6 +20,7 @@ fn timeline_reason_nodes_v3_3(reason : @core.Reason) -> Array[@tmpx.Node] {
   nodes
 }
 
+///|
 fn event_node_v3_3(event : @timeline_v3.TimelineEvent) -> @tmpx.Node {
   let kind_text = timeline_kind_label(event.kind)
   let children : Array[@tmpx.Node] = []
@@ -31,47 +32,69 @@ fn event_node_v3_3(event : @timeline_v3.TimelineEvent) -> @tmpx.Node {
       children.push(node)
     }
   }
-  @tmpx.div([
-    @tmpx.data_attr("logical-time", event.logical_time.to_string()),
-    @tmpx.data_attr("sequence", event.sequence.to_string()),
-    @tmpx.data_attr("kind", kind_text),
-  ], children)
+  @tmpx.div(
+    [
+      @tmpx.data_attr("logical-time", event.logical_time.to_string()),
+      @tmpx.data_attr("sequence", event.sequence.to_string()),
+      @tmpx.data_attr("kind", kind_text),
+    ],
+    children,
+  )
 }
 
-fn filter_form(entity_id : String, kind : String?, limit : Int, cursor : String?) -> @tmpx.Node {
+///|
+fn filter_form(
+  entity_id : String,
+  kind : String?,
+  limit : Int,
+  cursor : String?,
+) -> @tmpx.Node {
   let children : Array[@tmpx.Node] = []
-  children.push(@tmpx.input_([
-    @tmpx.type_("hidden"),
-    @tmpx.name_("entityId"),
-    @tmpx.value_(entity_id),
-  ]))
-  match kind {
-    Some(value) => children.push(@tmpx.input_([
+  children.push(
+    @tmpx.input_([
       @tmpx.type_("hidden"),
-      @tmpx.name_("kind"),
-      @tmpx.value_(value),
-    ]))
+      @tmpx.name_("entityId"),
+      @tmpx.value_(entity_id),
+    ]),
+  )
+  match kind {
+    Some(value) =>
+      children.push(
+        @tmpx.input_([
+          @tmpx.type_("hidden"),
+          @tmpx.name_("kind"),
+          @tmpx.value_(value),
+        ]),
+      )
     None => ()
   }
-  children.push(@tmpx.input_([
-    @tmpx.type_("hidden"),
-    @tmpx.name_("limit"),
-    @tmpx.value_(limit.to_string()),
-  ]))
-  match cursor {
-    Some(value) => children.push(@tmpx.input_([
+  children.push(
+    @tmpx.input_([
       @tmpx.type_("hidden"),
-      @tmpx.name_("cursor"),
-      @tmpx.value_(value),
-    ]))
+      @tmpx.name_("limit"),
+      @tmpx.value_(limit.to_string()),
+    ]),
+  )
+  match cursor {
+    Some(value) =>
+      children.push(
+        @tmpx.input_([
+          @tmpx.type_("hidden"),
+          @tmpx.name_("cursor"),
+          @tmpx.value_(value),
+        ]),
+      )
     None => ()
   }
   children.push(@tmpx.button([], [@tmpx.text("Apply")]))
-  @tmpx.form([
-    @tmpx.mx_get("/v3.3/timeline"),
-    @tmpx.mx_target(".fwd-timeline"),
-    @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
-  ], children)
+  @tmpx.form(
+    [
+      @tmpx.mx_get("/v3.3/timeline"),
+      @tmpx.mx_target(".fwd-timeline"),
+      @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
+    ],
+    children,
+  )
 }
 
 ///|
@@ -98,9 +121,6 @@ pub fn render_timeline_html_v3_3(
   for node in nodes {
     all_nodes.push(node)
   }
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-timeline")],
-    all_nodes,
-  )
+  let root = @tmpx.div([@tmpx.class_("fwd-timeline")], all_nodes)
   @tmpx.render(root)
 }

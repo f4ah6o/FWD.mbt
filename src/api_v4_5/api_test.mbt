@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -25,11 +26,17 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 
 ///|
 test "api v4.5 metrics export jsonl" {
-  let expected = load_expected("examples/api_v4_5/metrics_export/expected.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_5/metrics_export/expected.jsonl",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/metrics/export.jsonl",
-    query: query_map([("entityId", "order-1"), ("fromLogicalTime", "10"), ("toLogicalTime", "12")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("fromLogicalTime", "10"),
+      ("toLogicalTime", "12"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -46,7 +53,11 @@ test "api v4.5 metrics export csv" {
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/metrics/export.csv",
-    query: query_map([("entityId", "order-1"), ("fromLogicalTime", "10"), ("toLogicalTime", "12")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("fromLogicalTime", "10"),
+      ("toLogicalTime", "12"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -59,7 +70,9 @@ test "api v4.5 metrics export csv" {
 
 ///|
 test "api v4.5 metrics export invalid query" {
-  let expected = load_expected("examples/api_v4_5/metrics_export/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v4_5/metrics_export/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/metrics/export.jsonl",
@@ -76,7 +89,9 @@ test "api v4.5 metrics export invalid query" {
 
 ///|
 test "api v4.5 timeline export page1 jsonl" {
-  let expected = load_expected("examples/api_v4_5/timeline_export/expected_page1.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_5/timeline_export/expected_page1.jsonl",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/timeline/export.jsonl",
@@ -94,11 +109,17 @@ test "api v4.5 timeline export page1 jsonl" {
 
 ///|
 test "api v4.5 timeline export page2 jsonl" {
-  let expected = load_expected("examples/api_v4_5/timeline_export/expected_page2.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_5/timeline_export/expected_page2.jsonl",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/timeline/export.jsonl",
-    query: query_map([("entityId", "order-1"), ("limit", "2"), ("cursor", "offset:2")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("limit", "2"),
+      ("cursor", "offset:2"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -112,7 +133,9 @@ test "api v4.5 timeline export page2 jsonl" {
 
 ///|
 test "api v4.5 timeline export invalid cursor" {
-  let expected = load_expected("examples/api_v4_5/timeline_export/expected_invalid_cursor.json")
+  let expected = load_expected(
+    "examples/api_v4_5/timeline_export/expected_invalid_cursor.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/timeline/export.jsonl",
@@ -129,7 +152,9 @@ test "api v4.5 timeline export invalid cursor" {
 
 ///|
 test "api v4.5 timeline export invalid query" {
-  let expected = load_expected("examples/api_v4_5/timeline_export/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v4_5/timeline_export/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.5/timeline/export.jsonl",

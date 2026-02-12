@@ -1,5 +1,8 @@
 ///|
-fn read_text_view_v3_4_mx(path : String, label : String) -> Result[String, String] {
+fn read_text_view_v3_4_mx(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -17,7 +20,9 @@ fn load_expected_v3_4_mx(path : String) -> String raise {
 
 ///|
 test "timeline v3.4 mx view fixture" {
-  let expected = load_expected_v3_4_mx("examples/v3_4/timeline_mx/expected.html")
+  let expected = load_expected_v3_4_mx(
+    "examples/v3_4/timeline_mx/expected.html",
+  )
   let events : Array[@timeline_v3.TimelineEvent] = [
     {
       entity_id: "order-1",

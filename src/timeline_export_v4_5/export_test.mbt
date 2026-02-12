@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn sample_events() -> Array[@timeline_v3.TimelineEvent] {
   @timeline_source_v4_5.events_for_entity("order-1")
 }

@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -59,7 +60,9 @@ test "api v4.2 metrics mx" {
 
 ///|
 test "api v4.2 metrics invalid query" {
-  let expected = load_expected("examples/api_v4_2/metrics/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v4_2/metrics/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.2/metrics",

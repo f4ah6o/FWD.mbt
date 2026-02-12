@@ -2,12 +2,16 @@
 /// Deterministic in-memory job store (v5.0).
 /// Poll-count retention is consumed ONLY by `step_job`.
 let store : Ref[Map[String, @export_job_v5.JobRecord]] = @ref.new(Map::new())
+
+///|
 let progress_total = 3
 
+///|
 fn job_id_value(id : @export_job_v5.JobId) -> String {
   id.value
 }
 
+///|
 fn cancel_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   {
     code: @export_job_v5.ReasonCode::JobCanceled,
@@ -18,6 +22,7 @@ fn cancel_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   }
 }
 
+///|
 fn expired_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   {
     code: @export_job_v5.ReasonCode::JobExpired,
@@ -28,7 +33,10 @@ fn expired_reason(job_id : String) -> @export_job_v5.ReasonV1 {
   }
 }
 
-fn advance_status(status : @export_job_v5.JobStatus) -> @export_job_v5.JobStatus {
+///|
+fn advance_status(
+  status : @export_job_v5.JobStatus,
+) -> @export_job_v5.JobStatus {
   match status {
     @export_job_v5.JobStatus::Queued => @export_job_v5.JobStatus::Running
     @export_job_v5.JobStatus::Running => @export_job_v5.JobStatus::Done
@@ -36,15 +44,21 @@ fn advance_status(status : @export_job_v5.JobStatus) -> @export_job_v5.JobStatus
   }
 }
 
-fn advance_progress(progress : @export_job_v5.JobProgress, status : @export_job_v5.JobStatus) -> @export_job_v5.JobProgress {
+///|
+fn advance_progress(
+  progress : @export_job_v5.JobProgress,
+  status : @export_job_v5.JobStatus,
+) -> @export_job_v5.JobProgress {
   match status {
     @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total }
     @export_job_v5.JobStatus::Running => { processed: 1, total: progress.total }
-    @export_job_v5.JobStatus::Done => { processed: progress.total, total: progress.total }
+    @export_job_v5.JobStatus::Done =>
+      { processed: progress.total, total: progress.total }
     _ => progress
   }
 }
 
+///|
 fn is_terminal(status : @export_job_v5.JobStatus) -> Bool {
   match status {
     @export_job_v5.JobStatus::Done => true
@@ -55,6 +69,7 @@ fn is_terminal(status : @export_job_v5.JobStatus) -> Bool {
   }
 }
 
+///|
 fn should_expire(job : @export_job_v5.JobRecord) -> Bool {
   job.poll_count >= job.retention.ttl_polls
 }
@@ -67,7 +82,10 @@ pub fn reset_for_test() -> Unit {
 
 ///|
 /// Seed deterministic state for fixture-driven tests.
-pub fn seed_for_test(next_id : Int, jobs : Array[@export_job_v5.JobRecord]) -> Unit {
+pub fn seed_for_test(
+  next_id : Int,
+  jobs : Array[@export_job_v5.JobRecord],
+) -> Unit {
   @export_job_v5.seed_id_for_test(next_id)
   let seeded : Map[String, @export_job_v5.JobRecord] = Map::new()
   for job in jobs {
@@ -77,7 +95,10 @@ pub fn seed_for_test(next_id : Int, jobs : Array[@export_job_v5.JobRecord]) -> U
 }
 
 ///|
-pub fn create_job(format : @export_job_v5.ResultFormat, retention : @export_job_v5.Retention) -> @export_job_v5.JobRecord {
+pub fn create_job(
+  format : @export_job_v5.ResultFormat,
+  retention : @export_job_v5.Retention,
+) -> @export_job_v5.JobRecord {
   let id = @export_job_v5.next_job_id()
   let id_value = id.value
   let job : @export_job_v5.JobRecord = {
@@ -99,6 +120,7 @@ pub fn get_job(id : String) -> @export_job_v5.JobRecord? {
 }
 
 ///|
+
 ///|
 /// Advances exactly one logical execution step and increments poll-count.
 pub fn step_job(id : String) -> @export_job_v5.JobRecord? {
@@ -123,7 +145,8 @@ pub fn step_job(id : String) -> @export_job_v5.JobRecord? {
       }
       let next_progress = advance_progress(job.progress, next_status)
       let next_reasons = match next_status {
-        @export_job_v5.JobStatus::Expired => [expired_reason(job_id_value(job.id))]
+        @export_job_v5.JobStatus::Expired =>
+          [expired_reason(job_id_value(job.id))]
         _ => job.reasons
       }
       let next : @export_job_v5.JobRecord = {
@@ -155,7 +178,8 @@ pub fn cancel_job(id : String) -> @export_job_v5.JobRecord? {
         _ => @export_job_v5.JobStatus::Canceled
       }
       let next_reasons = match next_status {
-        @export_job_v5.JobStatus::Canceled => [cancel_reason(job_id_value(job.id))]
+        @export_job_v5.JobStatus::Canceled =>
+          [cancel_reason(job_id_value(job.id))]
         _ => job.reasons
       }
       let next : @export_job_v5.JobRecord = {
@@ -176,7 +200,10 @@ pub fn cancel_job(id : String) -> @export_job_v5.JobRecord? {
 
 ///|
 /// Explicitly mark a job as failed (deterministic failure injection).
-pub fn fail_job(id : String, reason : @export_job_v5.ReasonV1) -> @export_job_v5.JobRecord? {
+pub fn fail_job(
+  id : String,
+  reason : @export_job_v5.ReasonV1,
+) -> @export_job_v5.JobRecord? {
   match store.val.get(id) {
     Some(job) => {
       let next_status = match job.status {
@@ -215,7 +242,8 @@ pub fn expire_job(id : String) -> @export_job_v5.JobRecord? {
         job.status
       }
       let next_reasons = match next_status {
-        @export_job_v5.JobStatus::Expired => [expired_reason(job_id_value(job.id))]
+        @export_job_v5.JobStatus::Expired =>
+          [expired_reason(job_id_value(job.id))]
         _ => job.reasons
       }
       let next : @export_job_v5.JobRecord = {

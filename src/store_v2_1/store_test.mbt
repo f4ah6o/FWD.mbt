@@ -16,20 +16,15 @@ fn make_payload(amount : Int) -> Json {
 
 ///|
 test "snapshot store fixture" {
-  let expected = match read_text_store(
-    "examples/store_v2_1/expected_snapshot.json",
-    "expected snapshot",
-  ) {
+  let expected = match
+    read_text_store(
+      "examples/store_v2_1/expected_snapshot.json", "expected snapshot",
+    ) {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
   let store = Store::new()
-  let snapshot = Snapshot::new(
-    "order-1",
-    "Draft",
-    Some(make_payload(10)),
-    1,
-  )
+  let snapshot = Snapshot::new("order-1", "Draft", Some(make_payload(10)), 1)
   store.save(snapshot)
   let loaded = match store.get("order-1") {
     Some(value) => value
@@ -44,10 +39,8 @@ test "snapshot store fixture" {
 
 ///|
 test "snapshot store list fixture" {
-  let expected = match read_text_store(
-    "examples/store_v2_1/expected_list.json",
-    "expected list",
-  ) {
+  let expected = match
+    read_text_store("examples/store_v2_1/expected_list.json", "expected list") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }

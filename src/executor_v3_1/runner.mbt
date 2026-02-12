@@ -1,14 +1,10 @@
 ///|
 /// Deterministic executor (v3.1) with injected transport.
-
 fn reason_runtime(code : String, message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", "runtime")],
-  )
+  @core.Reason::with_context(code, message, [("target", "runtime")])
 }
 
+///|
 fn reason_effect_fallback() -> @core.Reason {
   @core.Reason::with_context(
     "EFFECT_EXECUTION_FAILED",
@@ -17,6 +13,7 @@ fn reason_effect_fallback() -> @core.Reason {
   )
 }
 
+///|
 fn audit_executed(
   entity : String,
   transition : String,
@@ -33,6 +30,7 @@ fn audit_executed(
   }
 }
 
+///|
 fn audit_blocked(
   entity : String,
   transition : String,
@@ -50,6 +48,7 @@ fn audit_blocked(
   }
 }
 
+///|
 fn audit_failed(
   entity : String,
   transition : String,
@@ -74,10 +73,14 @@ fn audit_failed(
   }
 }
 
+///|
 fn attempt_failure_reason(
   allowlist : Array[String],
   effects : Array[@effects_v2_2.EffectItem],
-  send : (@effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason],
+  send : (@effects_exec_adapters_v2_2.HttpRequest) -> Result[
+    @effects_exec_adapters_v2_2.HttpResponse,
+    @core.Reason,
+  ],
 ) -> @core.Reason? {
   for effect in effects {
     match @effects_exec_adapters_v2_2.run_http_effect(allowlist, effect, send) {
@@ -89,7 +92,8 @@ fn attempt_failure_reason(
               None => return Some(reason_effect_fallback())
             }
           @effects_v2_2.ExecutionStatus::Executed => ()
-          @effects_v2_2.ExecutionStatus::Skipped => return Some(reason_effect_fallback())
+          @effects_v2_2.ExecutionStatus::Skipped =>
+            return Some(reason_effect_fallback())
         }
       Err(reason) => return Some(reason)
     }
@@ -104,7 +108,10 @@ pub fn execute_plan_detail(
   retry_policy : @retry_policy_v3.RetryPolicy,
   logical_time_start : Int,
   allowlist : Array[String],
-  send : (@effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason],
+  send : (@effects_exec_adapters_v2_2.HttpRequest) -> Result[
+    @effects_exec_adapters_v2_2.HttpResponse,
+    @core.Reason,
+  ],
 ) -> ExecutionDetail {
   let entity = plan.entity_id
   let transition = plan.transition_id
@@ -149,7 +156,12 @@ pub fn execute_plan_detail(
   }
   match plan.status {
     @effects_v2_2.PlanStatus::Skipped => {
-      let audit = audit_blocked(entity, transition, logical_time_start, plan.reasons)
+      let audit = audit_blocked(
+        entity,
+        transition,
+        logical_time_start,
+        plan.reasons,
+      )
       return {
         execution_version: execution_version_v3_1(),
         entity_id: entity,

@@ -7,7 +7,11 @@ fn empty_payload() -> Json {
 }
 
 ///|
-fn idempotency_key(entity_id : String, transition_id : String, effect_id : String) -> String {
+fn idempotency_key(
+  entity_id : String,
+  transition_id : String,
+  effect_id : String,
+) -> String {
   entity_id + ":" + transition_id + ":" + effect_id
 }
 
@@ -45,7 +49,7 @@ pub fn plan_from_execution(
         reasons: [],
       }
     }
-    @runtime.ExecutionOutcome::Blocked(blocked) => {
+    @runtime.ExecutionOutcome::Blocked(blocked) =>
       {
         plan_version: plan_version_v2_2(),
         entity_id,
@@ -54,6 +58,5 @@ pub fn plan_from_execution(
         items: [],
         reasons: blocked.reasons,
       }
-    }
   }
 }

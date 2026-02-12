@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -29,7 +30,11 @@ test "api v3.6 metrics json" {
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.6/metrics",
-    query: query_map([("entityId", "order-1"), ("fromLogicalTime", "10"), ("toLogicalTime", "12")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("fromLogicalTime", "10"),
+      ("toLogicalTime", "12"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -42,7 +47,9 @@ test "api v3.6 metrics json" {
 
 ///|
 test "api v3.6 metrics invalid query" {
-  let expected = load_expected("examples/api_v3_6/metrics/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v3_6/metrics/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.6/metrics",

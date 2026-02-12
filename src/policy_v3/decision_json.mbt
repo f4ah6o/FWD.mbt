@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for policy decisions (v3).
-
 fn decision_string(decision : PolicyDecisionKind) -> String {
   match decision {
     PolicyDecisionKind::Allow => "allow"

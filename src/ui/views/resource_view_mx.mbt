@@ -42,9 +42,7 @@ fn blocked_transition_node_mx(
       children.push(node)
     }
   }
-  @tmpx.div([
-    @tmpx.data_attr("transition", blocked.id),
-  ], children)
+  @tmpx.div([@tmpx.data_attr("transition", blocked.id)], children)
 }
 
 ///|
@@ -73,16 +71,9 @@ pub fn render_resource_html_mx(resource : @hypermedia.Resource) -> String {
   for tr in resource.blocked_transitions {
     blocked_nodes.push(blocked_transition_node_mx(tr))
   }
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-resource")],
-    [
-      @tmpx.section([
-        @tmpx.data_attr("section", "available"),
-      ], available_nodes),
-      @tmpx.section([
-        @tmpx.data_attr("section", "blocked"),
-      ], blocked_nodes),
-    ],
-  )
+  let root = @tmpx.div([@tmpx.class_("fwd-resource")], [
+    @tmpx.section([@tmpx.data_attr("section", "available")], available_nodes),
+    @tmpx.section([@tmpx.data_attr("section", "blocked")], blocked_nodes),
+  ])
   @tmpx.render(root)
 }

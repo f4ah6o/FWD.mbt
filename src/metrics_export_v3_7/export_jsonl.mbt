@@ -1,6 +1,5 @@
 ///|
 /// JSONL projection for metrics export (v3.7).
-
 fn kind_string(kind : @metrics_v3_6.MetricKind) -> String {
   match kind {
     @metrics_v3_6.MetricKind::Transition => "transition"
@@ -9,6 +8,7 @@ fn kind_string(kind : @metrics_v3_6.MetricKind) -> String {
   }
 }
 
+///|
 fn counts_json(counts : @metrics_v3_6.MetricCounts) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["ok"] = Json::number(counts.ok.to_double())
@@ -18,6 +18,7 @@ fn counts_json(counts : @metrics_v3_6.MetricCounts) -> Json {
   Json::object(obj)
 }
 
+///|
 fn option_number(value : Int?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
@@ -25,6 +26,7 @@ fn option_number(value : Int?) -> Json {
   }
 }
 
+///|
 fn window_json(window : @metrics_v3_6.MetricWindow) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["entityId"] = Json::string(window.entity_id)
@@ -33,6 +35,7 @@ fn window_json(window : @metrics_v3_6.MetricWindow) -> Json {
   Json::object(obj)
 }
 
+///|
 fn line_json_total(snapshot : @metrics_v3_6.MetricsSnapshot) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["type"] = Json::string("total")
@@ -41,7 +44,11 @@ fn line_json_total(snapshot : @metrics_v3_6.MetricsSnapshot) -> Json {
   Json::object(obj)
 }
 
-fn line_json_kind(item : @metrics_v3_6.MetricsByKind, window : @metrics_v3_6.MetricWindow) -> Json {
+///|
+fn line_json_kind(
+  item : @metrics_v3_6.MetricsByKind,
+  window : @metrics_v3_6.MetricWindow,
+) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["type"] = Json::string("kind")
   obj["window"] = window_json(window)

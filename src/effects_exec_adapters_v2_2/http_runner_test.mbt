@@ -12,9 +12,7 @@ test "http runner allowlist blocks" {
     idempotency_key: "k",
   }
   let result = run_http_effect(["https://allowed.example/"], effect, dummy_send)
-  guard result is Err(_) else {
-    fail("expected allowlist block")
-  }
+  guard result is Err(_) else { fail("expected allowlist block") }
 }
 
 ///|
@@ -22,13 +20,13 @@ test "http runner allowlist passes" {
   let effect : @effects_v2_2.EffectItem = {
     effect_id: "notify",
     kind: @core.EffectKind::Async,
-    payload: Json::object({ "url": Json::string("https://allowed.example/hook") }),
+    payload: Json::object({
+      "url": Json::string("https://allowed.example/hook"),
+    }),
     idempotency_key: "k",
   }
   let result = run_http_effect(["https://allowed.example/"], effect, dummy_send)
-  guard result is Ok(item) else {
-    fail("expected ok")
-  }
+  guard result is Ok(item) else { fail("expected ok") }
   inspect(item.effect_id, content="notify")
   match item.status {
     @effects_v2_2.ExecutionStatus::Executed => ()

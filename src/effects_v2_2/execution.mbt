@@ -54,7 +54,7 @@ pub fn execute_plan_stub(plan : EffectsPlan) -> ExecutionResult {
         reasons: [],
       }
     }
-    PlanStatus::Skipped => {
+    PlanStatus::Skipped =>
       {
         result_version: result_version_v2_2(),
         plan_version: plan.plan_version,
@@ -64,6 +64,5 @@ pub fn execute_plan_stub(plan : EffectsPlan) -> ExecutionResult {
         items: [],
         reasons: plan.reasons,
       }
-    }
   }
 }

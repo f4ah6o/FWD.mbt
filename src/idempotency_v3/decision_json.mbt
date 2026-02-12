@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for idempotency decisions (v3).
-
 fn decision_kind_string(kind : DecisionKind) -> String {
   match kind {
     DecisionKind::Reserved => "reserved"

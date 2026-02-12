@@ -72,14 +72,10 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
       @core.Reason::new("ParseFailure", msg)
     @compiler.CompileError::ResolveFailure(msg) =>
       if msg.has_prefix("rule name conflicts with builtin: ") {
-        @core.Reason::with_context(
-          "RESERVED_WORD_CONFLICT",
-          msg,
-          [
-            ("target", "rule"),
-            ("hint", "Builtin rule names are reserved"),
-          ],
-        )
+        @core.Reason::with_context("RESERVED_WORD_CONFLICT", msg, [
+          ("target", "rule"),
+          ("hint", "Builtin rule names are reserved"),
+        ])
       } else {
         @core.Reason::new("ResolveFailure", msg)
       }
@@ -129,7 +125,7 @@ pub fn run(args : Array[String]) -> Int {
         println(usage())
         return 1
       }
-    } else {
+    } nobreak {
 
     }
     let current_state = match state {
@@ -153,15 +149,19 @@ pub fn run(args : Array[String]) -> Int {
     let schema_text = match read_input_result(schema_path) {
       Ok(text) => text
       Err(err) => {
-        println(runtime_error_json(@core.Reason::with_context(
-          "ReadFailure",
-          "read error: " + err.to_string(),
-          [
-            ("target", "runtime"),
-            ("level", "error"),
-            ("hint", "Provide a valid schema path"),
-          ],
-        )).stringify(indent=2))
+        println(
+          runtime_error_json(
+            @core.Reason::with_context(
+              "ReadFailure",
+              "read error: " + err.to_string(),
+              [
+                ("target", "runtime"),
+                ("level", "error"),
+                ("hint", "Provide a valid schema path"),
+              ],
+            ),
+          ).stringify(indent=2),
+        )
         return 1
       }
     }
@@ -173,11 +173,8 @@ pub fn run(args : Array[String]) -> Int {
         return 1
       }
     }
-    let runtime_result = match @runtime.compute_available_transitions(
-      ir,
-      current_state,
-      rule_results,
-    ) {
+    let runtime_result = match
+      @runtime.compute_available_transitions(ir, current_state, rule_results) {
       Ok(value) => value
       Err(reason) => {
         println(runtime_error_json(reason).stringify(indent=2))
@@ -194,7 +191,10 @@ pub fn run(args : Array[String]) -> Int {
       println(usage())
       return 1
     }
-    if args[1] != "plan" && args[1] != "execute" && args[1] != "record" && args[1] != "run" {
+    if args[1] != "plan" &&
+      args[1] != "execute" &&
+      args[1] != "record" &&
+      args[1] != "run" {
       println(usage())
       return 1
     }
@@ -217,7 +217,7 @@ pub fn run(args : Array[String]) -> Int {
           println(usage())
           return 1
         }
-      } else {
+      } nobreak {
 
       }
       let plan_text = match plan_json {
@@ -281,7 +281,7 @@ pub fn run(args : Array[String]) -> Int {
           println(usage())
           return 1
         }
-      } else {
+      } nobreak {
 
       }
       let plan_file = match plan_path {
@@ -299,29 +299,33 @@ pub fn run(args : Array[String]) -> Int {
         }
       }
       if allowlist.length() == 0 {
-        println(runtime_error_json(@core.Reason::with_context(
-          "INPUT_MISSING",
-          "missing allowlist",
-          [
-            ("target", "runtime"),
-            ("level", "error"),
-            ("hint", "Provide --allow <prefix>"),
-          ],
-        )).stringify(indent=2))
+        println(
+          runtime_error_json(
+            @core.Reason::with_context("INPUT_MISSING", "missing allowlist", [
+              ("target", "runtime"),
+              ("level", "error"),
+              ("hint", "Provide --allow <prefix>"),
+            ]),
+          ).stringify(indent=2),
+        )
         return 2
       }
       let plan_text = match read_input_result(plan_file) {
         Ok(text) => text
         Err(err) => {
-          println(runtime_error_json(@core.Reason::with_context(
-            "ReadFailure",
-            "read error: " + err.to_string(),
-            [
-              ("target", "runtime"),
-              ("level", "error"),
-              ("hint", "Provide a valid plan path"),
-            ],
-          )).stringify(indent=2))
+          println(
+            runtime_error_json(
+              @core.Reason::with_context(
+                "ReadFailure",
+                "read error: " + err.to_string(),
+                [
+                  ("target", "runtime"),
+                  ("level", "error"),
+                  ("hint", "Provide a valid plan path"),
+                ],
+              ),
+            ).stringify(indent=2),
+          )
           return 2
         }
       }
@@ -333,15 +337,17 @@ pub fn run(args : Array[String]) -> Int {
         }
       }
       let (result, cassette) = @effects_exec_rr_v2_2.record_execute_plan(
-        plan,
-        allowlist,
-        record_send_stub,
+        plan, allowlist, record_send_stub,
       )
-      let cassette_json = @effects_exec_rr_v2_2.cassette_json(cassette).stringify(indent=2)
+      let cassette_json = @effects_exec_rr_v2_2.cassette_json(cassette).stringify(
+        indent=2,
+      )
       if !write_output(cassette_file, cassette_json) {
         return 1
       }
-      let exec_json = @effects_v2_2.execution_result_json(result).stringify(indent=2)
+      let exec_json = @effects_v2_2.execution_result_json(result).stringify(
+        indent=2,
+      )
       match out_path {
         Some(path) => if !write_output(path, exec_json) { return 1 }
         None => ()
@@ -384,7 +390,7 @@ pub fn run(args : Array[String]) -> Int {
           println(usage())
           return 1
         }
-      } else {
+      } nobreak {
 
       }
       let plan_file = match plan_path {
@@ -404,30 +410,38 @@ pub fn run(args : Array[String]) -> Int {
       let plan_text = match read_input_result(plan_file) {
         Ok(text) => text
         Err(err) => {
-          println(runtime_error_json(@core.Reason::with_context(
-            "ReadFailure",
-            "read error: " + err.to_string(),
-            [
-              ("target", "runtime"),
-              ("level", "error"),
-              ("hint", "Provide a valid plan path"),
-            ],
-          )).stringify(indent=2))
+          println(
+            runtime_error_json(
+              @core.Reason::with_context(
+                "ReadFailure",
+                "read error: " + err.to_string(),
+                [
+                  ("target", "runtime"),
+                  ("level", "error"),
+                  ("hint", "Provide a valid plan path"),
+                ],
+              ),
+            ).stringify(indent=2),
+          )
           return 2
         }
       }
       let config_text = match read_input_result(config_file) {
         Ok(text) => text
         Err(err) => {
-          println(runtime_error_json(@core.Reason::with_context(
-            "ReadFailure",
-            "read error: " + err.to_string(),
-            [
-              ("target", "runtime"),
-              ("level", "error"),
-              ("hint", "Provide a valid config path"),
-            ],
-          )).stringify(indent=2))
+          println(
+            runtime_error_json(
+              @core.Reason::with_context(
+                "ReadFailure",
+                "read error: " + err.to_string(),
+                [
+                  ("target", "runtime"),
+                  ("level", "error"),
+                  ("hint", "Provide a valid config path"),
+                ],
+              ),
+            ).stringify(indent=2),
+          )
           return 2
         }
       }
@@ -438,7 +452,8 @@ pub fn run(args : Array[String]) -> Int {
           return 2
         }
       }
-      let config = match @effects_exec_real_v2_2.parse_config_json(config_text) {
+      let config = match
+        @effects_exec_real_v2_2.parse_config_json(config_text) {
         Ok(value) => value
         Err(reason) => {
           println(runtime_error_json(reason).stringify(indent=2))
@@ -450,19 +465,24 @@ pub fn run(args : Array[String]) -> Int {
           let cassette_text = match read_input_result(path) {
             Ok(text) => text
             Err(err) => {
-              println(runtime_error_json(@core.Reason::with_context(
-                "ReadFailure",
-                "read error: " + err.to_string(),
-                [
-                  ("target", "runtime"),
-                  ("level", "error"),
-                  ("hint", "Provide a valid cassette path"),
-                ],
-              )).stringify(indent=2))
+              println(
+                runtime_error_json(
+                  @core.Reason::with_context(
+                    "ReadFailure",
+                    "read error: " + err.to_string(),
+                    [
+                      ("target", "runtime"),
+                      ("level", "error"),
+                      ("hint", "Provide a valid cassette path"),
+                    ],
+                  ),
+                ).stringify(indent=2),
+              )
               return 2
             }
           }
-          let cassette = match @effects_exec_rr_v2_2.parse_cassette_json(cassette_text) {
+          let cassette = match
+            @effects_exec_rr_v2_2.parse_cassette_json(cassette_text) {
             Ok(value) => value
             Err(reason) => {
               println(runtime_error_json(reason).stringify(indent=2))
@@ -474,11 +494,11 @@ pub fn run(args : Array[String]) -> Int {
         None => record_send_stub
       }
       let result = @effects_exec_real_v2_2.execute_with_transport(
-        plan,
-        config,
-        send,
+        plan, config, send,
       )
-      let output = @effects_v2_2.execution_result_json(result).stringify(indent=2)
+      let output = @effects_v2_2.execution_result_json(result).stringify(
+        indent=2,
+      )
       println(output)
       match result.status {
         @effects_v2_2.ExecutionStatus::Failed => return 1
@@ -524,7 +544,7 @@ pub fn run(args : Array[String]) -> Int {
         println(usage())
         return 1
       }
-    } else {
+    } nobreak {
 
     }
     let entity = match entity_id {
@@ -562,15 +582,19 @@ pub fn run(args : Array[String]) -> Int {
     let schema_text = match read_input_result(schema_path) {
       Ok(text) => text
       Err(err) => {
-        println(runtime_error_json(@core.Reason::with_context(
-          "ReadFailure",
-          "read error: " + err.to_string(),
-          [
-            ("target", "runtime"),
-            ("level", "error"),
-            ("hint", "Provide a valid schema path"),
-          ],
-        )).stringify(indent=2))
+        println(
+          runtime_error_json(
+            @core.Reason::with_context(
+              "ReadFailure",
+              "read error: " + err.to_string(),
+              [
+                ("target", "runtime"),
+                ("level", "error"),
+                ("hint", "Provide a valid schema path"),
+              ],
+            ),
+          ).stringify(indent=2),
+        )
         return 1
       }
     }
@@ -582,12 +606,10 @@ pub fn run(args : Array[String]) -> Int {
         return 1
       }
     }
-    return match @runtime.execute_transition(
-      ir,
-      current_state,
-      transition_name,
-      rule_results,
-    ) {
+    return match
+      @runtime.execute_transition(
+        ir, current_state, transition_name, rule_results,
+      ) {
       Ok(outcome) => {
         let plan = @effects_v2_2.plan_from_execution(entity, outcome)
         println(@effects_v2_2.effect_plan_json(plan).stringify(indent=2))
@@ -638,7 +660,7 @@ pub fn run(args : Array[String]) -> Int {
         println(usage())
         return 1
       }
-    } else {
+    } nobreak {
 
     }
     let input_result = read_input_result(input_path)
@@ -767,136 +789,134 @@ pub fn run(args : Array[String]) -> Int {
         1
       }
     }
-  } else {
-    if args[0] == "runtime" {
-      if args.length() < 4 {
-        println(usage())
-        return 1
-      }
-      let subcommand = args[1]
-      if subcommand != "available" && subcommand != "execute" {
-        println(usage())
-        return 1
-      }
-      let schema_path = args[2]
-      let mut state : String? = None
-      let mut input_json : String? = None
-      let mut transition_id : String? = None
-      for i = 3; i < args.length(); {
-        let arg = args[i]
-        if arg == "--state" {
-          if i + 1 >= args.length() {
-            println(usage())
-            return 1
-          }
-          state = Some(args[i + 1])
-          continue i + 2
-        } else if arg == "--transition" {
-          if i + 1 >= args.length() {
-            println(usage())
-            return 1
-          }
-          transition_id = Some(args[i + 1])
-          continue i + 2
-        } else if arg == "--input" {
-          if i + 1 >= args.length() {
-            println(usage())
-            return 1
-          }
-          input_json = Some(args[i + 1])
-          continue i + 2
-        } else {
+  } else if args[0] == "runtime" {
+    if args.length() < 4 {
+      println(usage())
+      return 1
+    }
+    let subcommand = args[1]
+    if subcommand != "available" && subcommand != "execute" {
+      println(usage())
+      return 1
+    }
+    let schema_path = args[2]
+    let mut state : String? = None
+    let mut input_json : String? = None
+    let mut transition_id : String? = None
+    for i = 3; i < args.length(); {
+      let arg = args[i]
+      if arg == "--state" {
+        if i + 1 >= args.length() {
           println(usage())
           return 1
         }
+        state = Some(args[i + 1])
+        continue i + 2
+      } else if arg == "--transition" {
+        if i + 1 >= args.length() {
+          println(usage())
+          return 1
+        }
+        transition_id = Some(args[i + 1])
+        continue i + 2
+      } else if arg == "--input" {
+        if i + 1 >= args.length() {
+          println(usage())
+          return 1
+        }
+        input_json = Some(args[i + 1])
+        continue i + 2
       } else {
-
+        println(usage())
+        return 1
       }
-      let current_state = match state {
+    } nobreak {
+
+    }
+    let current_state = match state {
+      Some(value) => value
+      None => {
+        println(usage())
+        return 1
+      }
+    }
+    if subcommand == "execute" && transition_id is None {
+      println(usage())
+      return 1
+    }
+    let rule_results = match input_json {
+      Some(text) =>
+        match parse_rule_results(text) {
+          Ok(values) => values
+          Err(reason) => {
+            println(runtime_error_json(reason).stringify(indent=2))
+            return 2
+          }
+        }
+      None => Map::new()
+    }
+    let schema_text = match read_input_result(schema_path) {
+      Ok(text) => text
+      Err(err) => {
+        println(
+          runtime_error_json(
+            @core.Reason::with_context(
+              "ReadFailure",
+              "read error: " + err.to_string(),
+              [
+                ("target", "runtime"),
+                ("level", "error"),
+                ("hint", "Provide a valid schema path"),
+              ],
+            ),
+          ).stringify(indent=2),
+        )
+        return 1
+      }
+    }
+    let ir = match @compiler.compile_yaml(schema_text) {
+      Ok(value) => value
+      Err(err) => {
+        let reason = reason_from_compile_error(err)
+        println(runtime_error_json(reason).stringify(indent=2))
+        return 1
+      }
+    }
+    if subcommand == "available" {
+      match
+        @runtime.compute_available_transitions(ir, current_state, rule_results) {
+        Ok(result) => {
+          println(runtime_output_json(result).stringify(indent=2))
+          0
+        }
+        Err(reason) => {
+          println(runtime_error_json(reason).stringify(indent=2))
+          1
+        }
+      }
+    } else {
+      let transition_name = match transition_id {
         Some(value) => value
         None => {
           println(usage())
           return 1
         }
       }
-      if subcommand == "execute" && transition_id is None {
-        println(usage())
-        return 1
-      }
-      let rule_results = match input_json {
-        Some(text) =>
-          match parse_rule_results(text) {
-            Ok(values) => values
-            Err(reason) => {
-              println(runtime_error_json(reason).stringify(indent=2))
-              return 2
-            }
-          }
-        None => Map::new()
-      }
-      let schema_text = match read_input_result(schema_path) {
-        Ok(text) => text
-        Err(err) => {
-          println(runtime_error_json(@core.Reason::with_context(
-            "ReadFailure",
-            "read error: " + err.to_string(),
-            [
-              ("target", "runtime"),
-              ("level", "error"),
-              ("hint", "Provide a valid schema path"),
-            ],
-          )).stringify(indent=2))
-          return 1
+      match
+        @runtime.execute_transition(
+          ir, current_state, transition_name, rule_results,
+        ) {
+        Ok(outcome) => {
+          println(runtime_execute_json(outcome).stringify(indent=2))
+          0
         }
-      }
-      let ir = match @compiler.compile_yaml(schema_text) {
-        Ok(value) => value
-        Err(err) => {
-          let reason = reason_from_compile_error(err)
+        Err(reason) => {
           println(runtime_error_json(reason).stringify(indent=2))
-          return 1
+          1
         }
       }
-      if subcommand == "available" {
-        match @runtime.compute_available_transitions(
-          ir,
-          current_state,
-          rule_results,
-        ) {
-          Ok(result) => {
-            println(runtime_output_json(result).stringify(indent=2))
-            0
-          }
-          Err(reason) => {
-            println(runtime_error_json(reason).stringify(indent=2))
-            1
-          }
-        }
-      } else {
-        let transition_name = match transition_id {
-          Some(value) => value
-          None => {
-            println(usage())
-            return 1
-          }
-        }
-        match @runtime.execute_transition(
-          ir,
-          current_state,
-          transition_name,
-          rule_results,
-        ) {
-          Ok(outcome) => {
-            println(runtime_execute_json(outcome).stringify(indent=2))
-            0
-          }
-          Err(reason) => {
-            println(runtime_error_json(reason).stringify(indent=2))
-            1
-          }
-        }
-      }
-    } else {
+    }
+  } else {
     let input_path = args[0]
     let output_path = if args.length() > 1 { Some(args[1]) } else { None }
     let input_opt = read_input(input_path)
@@ -920,7 +940,6 @@ pub fn run(args : Array[String]) -> Int {
           }
         }
       None => 1
-    }
     }
   }
 }

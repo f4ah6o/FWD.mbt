@@ -1,14 +1,23 @@
 ///|
 /// Deterministic in-memory job store (v4.7).
-
 let counter : Ref[Int] = @ref.new(0)
+
+///|
 let store : Ref[Map[String, @export_job_v4_7.JobRecord]] = @ref.new(Map::new())
 
+///|
 let ttl_seconds = 120
+
+///|
 let ttl_polls = 5
+
+///|
 let progress_total = 3
 
-fn next_status(status : @export_job_v4_7.JobStatus) -> @export_job_v4_7.JobStatus {
+///|
+fn next_status(
+  status : @export_job_v4_7.JobStatus,
+) -> @export_job_v4_7.JobStatus {
   match status {
     @export_job_v4_7.JobStatus::Queued => @export_job_v4_7.JobStatus::Running
     @export_job_v4_7.JobStatus::Running => @export_job_v4_7.JobStatus::Done
@@ -17,11 +26,18 @@ fn next_status(status : @export_job_v4_7.JobStatus) -> @export_job_v4_7.JobStatu
   }
 }
 
-fn next_progress(progress : @export_job_v4_7.JobProgress, status : @export_job_v4_7.JobStatus) -> @export_job_v4_7.JobProgress {
+///|
+fn next_progress(
+  progress : @export_job_v4_7.JobProgress,
+  status : @export_job_v4_7.JobStatus,
+) -> @export_job_v4_7.JobProgress {
   match status {
-    @export_job_v4_7.JobStatus::Queued => { processed: 0, total: progress.total }
-    @export_job_v4_7.JobStatus::Running => { processed: 1, total: progress.total }
-    @export_job_v4_7.JobStatus::Done => { processed: progress.total, total: progress.total }
+    @export_job_v4_7.JobStatus::Queued =>
+      { processed: 0, total: progress.total }
+    @export_job_v4_7.JobStatus::Running =>
+      { processed: 1, total: progress.total }
+    @export_job_v4_7.JobStatus::Done =>
+      { processed: progress.total, total: progress.total }
     @export_job_v4_7.JobStatus::Failed => progress
   }
 }
@@ -53,6 +69,7 @@ pub fn create_job(
   job
 }
 
+///|
 fn is_expired(job : @export_job_v4_7.JobRecord) -> Bool {
   job.poll_count >= ttl_polls
 }
@@ -90,7 +107,10 @@ pub fn get_job_and_step(id : String) -> (@export_job_v4_7.JobRecord?, Bool) {
 }
 
 ///|
-pub fn cancel_job(id : String, reason : @core.Reason) -> (@export_job_v4_7.JobRecord?, Bool) {
+pub fn cancel_job(
+  id : String,
+  reason : @core.Reason,
+) -> (@export_job_v4_7.JobRecord?, Bool) {
   match store.val.get(id) {
     Some(job) => {
       let expired = is_expired(job)

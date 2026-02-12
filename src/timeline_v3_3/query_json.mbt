@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for timeline query/cursor (v3.3).
-
 fn option_number(value : Int?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
@@ -8,6 +7,7 @@ fn option_number(value : Int?) -> Json {
   }
 }
 
+///|
 fn option_string(value : String?) -> Json {
   match value {
     Some(v) => Json::string(v)
@@ -44,6 +44,7 @@ pub fn encode_cursor(cursor : TimelineCursor) -> String {
   "offset:" + cursor.offset.to_string()
 }
 
+///|
 fn parse_uint_from(value : String, start : Int) -> Int? {
   if start >= value.length() {
     return None

@@ -3,15 +3,11 @@
 
 ///|
 fn replay_miss_reason() -> @core.Reason {
-  @core.Reason::with_context(
-    "EFFECT_REPLAY_MISS",
-    "cassette entry not found",
-    [
-      ("target", "effect"),
-      ("level", "error"),
-      ("hint", "Record a cassette entry for this request"),
-    ],
-  )
+  @core.Reason::with_context("EFFECT_REPLAY_MISS", "cassette entry not found", [
+    ("target", "effect"),
+    ("level", "error"),
+    ("hint", "Record a cassette entry for this request"),
+  ])
 }
 
 ///|
@@ -45,14 +41,16 @@ fn requests_match(
 ///|
 pub fn replay_transport(
   cassette : Cassette,
-) -> (@effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-  fn transport(req : @effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+) -> (@effects_exec_adapters_v2_2.HttpRequest) -> Result[
+  @effects_exec_adapters_v2_2.HttpResponse,
+  @core.Reason,
+] {
+  fn transport(
+    req : @effects_exec_adapters_v2_2.HttpRequest,
+  ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
     for entry in cassette.entries {
       if requests_match(entry, req) {
-        return Ok({
-          status: entry.response.status,
-          body: entry.response.body,
-        })
+        return Ok({ status: entry.response.status, body: entry.response.body })
       }
     }
     Err(replay_miss_reason())

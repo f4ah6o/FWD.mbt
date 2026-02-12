@@ -42,8 +42,5 @@ pub fn resource_from_runtime(result : @runtime.RuntimeResult) -> Resource {
   }
   available.sort_by((a, b) => compare_string(a.id, b.id))
   blocked.sort_by((a, b) => compare_string(a.id, b.id))
-  {
-    available_transitions: available,
-    blocked_transitions: blocked,
-  }
+  { available_transitions: available, blocked_transitions: blocked }
 }

@@ -15,6 +15,7 @@ fn load_expected_v4(path : String) -> String raise {
   }
 }
 
+///|
 fn reason_v4(message : String, hint : String?) -> V4ReasonView {
   { message, hint }
 }
@@ -28,7 +29,10 @@ test "v4 resource html fixture" {
     field_errors: [
       {
         path: "/reason",
-        reason: reason_v4("reason is required", Some("Provide a non-empty reason")),
+        reason: reason_v4(
+          "reason is required",
+          Some("Provide a non-empty reason"),
+        ),
       },
     ],
     policy: {
@@ -38,7 +42,12 @@ test "v4 resource html fixture" {
     effects: {
       plan_status: "planned",
       execution_status: "skipped",
-      reasons: [reason_v4("Rule not satisfied", Some("Provide rule result true for this transition"))],
+      reasons: [
+        reason_v4(
+          "Rule not satisfied",
+          Some("Provide rule result true for this transition"),
+        ),
+      ],
     },
     timeline: {
       cursor: "offset:0",
@@ -69,7 +78,10 @@ test "v4 resource mx html fixture" {
     field_errors: [
       {
         path: "/reason",
-        reason: reason_v4("reason is required", Some("Provide a non-empty reason")),
+        reason: reason_v4(
+          "reason is required",
+          Some("Provide a non-empty reason"),
+        ),
       },
     ],
     policy: {
@@ -79,7 +91,12 @@ test "v4 resource mx html fixture" {
     effects: {
       plan_status: "planned",
       execution_status: "skipped",
-      reasons: [reason_v4("Rule not satisfied", Some("Provide rule result true for this transition"))],
+      reasons: [
+        reason_v4(
+          "Rule not satisfied",
+          Some("Provide rule result true for this transition"),
+        ),
+      ],
     },
     timeline: {
       cursor: "offset:0",

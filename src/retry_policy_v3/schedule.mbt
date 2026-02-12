@@ -1,6 +1,5 @@
 ///|
 /// Deterministic retry schedule (v3).
-
 fn pow_int(base : Int, exp : Int) -> Int {
   let mut acc = 1
   for _i in 0..<exp {
@@ -9,12 +8,12 @@ fn pow_int(base : Int, exp : Int) -> Int {
   acc
 }
 
+///|
 fn backoff_delay(backoff : BackoffPolicy, attempt_index : Int) -> Int {
   match backoff.kind {
     BackoffKind::Fixed => backoff.delay_ms
-    BackoffKind::Exponential => {
+    BackoffKind::Exponential =>
       backoff.delay_ms * pow_int(backoff.factor, attempt_index - 1)
-    }
   }
 }
 

@@ -22,28 +22,20 @@ fn response_json(status : Int, body : String) -> ApiResponse {
 
 ///|
 fn invalid_body_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide a JSON object body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide a JSON object body"),
+  ])
 }
 
 ///|
 fn missing_field_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_MISSING",
-    "missing field: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide field '" + name + "' in JSON body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_MISSING", "missing field: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide field '" + name + "' in JSON body"),
+  ])
 }
 
 ///|
@@ -60,14 +52,10 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
       @core.Reason::new("ParseFailure", msg)
     @compiler.CompileError::ResolveFailure(msg) =>
       if msg.has_prefix("rule name conflicts with builtin: ") {
-        @core.Reason::with_context(
-          "RESERVED_WORD_CONFLICT",
-          msg,
-          [
-            ("target", "rule"),
-            ("hint", "Builtin rule names are reserved"),
-          ],
-        )
+        @core.Reason::with_context("RESERVED_WORD_CONFLICT", msg, [
+          ("target", "rule"),
+          ("hint", "Builtin rule names are reserved"),
+        ])
       } else {
         @core.Reason::new("ResolveFailure", msg)
       }
@@ -104,7 +92,9 @@ fn extract_string_field(
 }
 
 ///|
-fn extract_input_field(obj : Map[String, Json]) -> Result[Map[String, Bool], @core.Reason] {
+fn extract_input_field(
+  obj : Map[String, Json],
+) -> Result[Map[String, Bool], @core.Reason] {
   match obj.get("input") {
     None => Ok(Map::new())
     Some(value) => @hypermedia.parse_rule_results(value.stringify())
@@ -133,7 +123,11 @@ fn execute_response(result : @effects_v2_2.ExecutionResult) -> String {
 fn handle_plan(req : ApiRequest) -> ApiResponse {
   let body = match req.body {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_field_reason("body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_field_reason("body")),
+      )
   }
   let obj = match extract_body_json(body) {
     Ok(value) => value
@@ -161,7 +155,11 @@ fn handle_plan(req : ApiRequest) -> ApiResponse {
   }
   let ir = match @compiler.compile_yaml(schema_text) {
     Ok(value) => value
-    Err(err) => return response_json(400, error_envelope_json(reason_from_compile_error(err)))
+    Err(err) =>
+      return response_json(
+        400,
+        error_envelope_json(reason_from_compile_error(err)),
+      )
   }
   match @runtime.execute_transition(ir, state, transition_id, input) {
     Ok(outcome) => {
@@ -176,7 +174,11 @@ fn handle_plan(req : ApiRequest) -> ApiResponse {
 fn handle_execute(req : ApiRequest) -> ApiResponse {
   let body = match req.body {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_field_reason("body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_field_reason("body")),
+      )
   }
   let obj = match extract_body_json(body) {
     Ok(value) => value
@@ -204,14 +206,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v2.2/effects"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

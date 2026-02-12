@@ -22,7 +22,7 @@ pub(all) struct Attempt {
   sequence : Int
   status : AttemptStatus
   delay_ms : Int
-  reason : Option[@core.Reason]
+  reason : @core.Reason?
 }
 
 ///|

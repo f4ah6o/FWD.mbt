@@ -1,8 +1,0 @@
-{
-  "import": [
-    {
-      "path": "f4ah6o/mhx/core",
-      "alias": "mhx_core"
-    }
-  ]
-}

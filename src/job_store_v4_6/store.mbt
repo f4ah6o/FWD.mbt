@@ -1,10 +1,14 @@
 ///|
 /// Deterministic in-memory job store (v4.6).
-
 let counter : Ref[Int] = @ref.new(0)
+
+///|
 let store : Ref[Map[String, @export_job_v4_6.JobRecord]] = @ref.new(Map::new())
 
-fn next_status(status : @export_job_v4_6.JobStatus) -> @export_job_v4_6.JobStatus {
+///|
+fn next_status(
+  status : @export_job_v4_6.JobStatus,
+) -> @export_job_v4_6.JobStatus {
   match status {
     @export_job_v4_6.JobStatus::Queued => @export_job_v4_6.JobStatus::Running
     @export_job_v4_6.JobStatus::Running => @export_job_v4_6.JobStatus::Done

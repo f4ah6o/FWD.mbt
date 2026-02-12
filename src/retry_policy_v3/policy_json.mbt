@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for retry policy schedule (v3).
-
 fn backoff_kind_string(kind : BackoffKind) -> String {
   match kind {
     BackoffKind::Fixed => "fixed"
@@ -8,13 +7,13 @@ fn backoff_kind_string(kind : BackoffKind) -> String {
   }
 }
 
+///|
 fn backoff_json(backoff : BackoffPolicy) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["kind"] = Json::string(backoff_kind_string(backoff.kind))
   match backoff.kind {
-    BackoffKind::Fixed => {
+    BackoffKind::Fixed =>
       obj["delayMs"] = Json::number(backoff.delay_ms.to_double())
-    }
     BackoffKind::Exponential => {
       obj["baseDelayMs"] = Json::number(backoff.delay_ms.to_double())
       obj["factor"] = Json::number(backoff.factor.to_double())

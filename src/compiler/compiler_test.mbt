@@ -216,7 +216,9 @@ test "validation json output" {
       ("candidate", "Reviewing"),
       ("baseline", "Draft"),
       ("target", "transition"),
-      ("hint", "Transition modified; review compatibility and add migration if needed"),
+      (
+        "hint", "Transition modified; review compatibility and add migration if needed",
+      ),
     ]),
   )
   reasons.push(
@@ -254,10 +256,7 @@ test "validation json output" {
     #|    }
     #|  ]
     #|}
-  inspect(
-    output,
-    content=expected,
-  )
+  inspect(output, content=expected)
 }
 
 ///|

@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -25,7 +26,9 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 
 ///|
 test "api v3.8 timeline event list page1" {
-  let expected = load_expected("examples/api_v3_8/timeline_event_list/expected_page1.html")
+  let expected = load_expected(
+    "examples/api_v3_8/timeline_event_list/expected_page1.html",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.8/timeline/events",
@@ -42,11 +45,17 @@ test "api v3.8 timeline event list page1" {
 
 ///|
 test "api v3.8 timeline event list page2" {
-  let expected = load_expected("examples/api_v3_8/timeline_event_list/expected_page2.html")
+  let expected = load_expected(
+    "examples/api_v3_8/timeline_event_list/expected_page2.html",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.8/timeline/events",
-    query: query_map([("entityId", "order-1"), ("limit", "2"), ("cursor", "offset:2")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("limit", "2"),
+      ("cursor", "offset:2"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -59,7 +68,9 @@ test "api v3.8 timeline event list page2" {
 
 ///|
 test "api v3.8 timeline event list invalid query" {
-  let expected = load_expected("examples/api_v3_8/timeline_event_list/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v3_8/timeline_event_list/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.8/timeline/events",

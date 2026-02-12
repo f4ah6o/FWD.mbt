@@ -39,17 +39,14 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn invalid_query_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check query parameters"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check query parameters"),
+  ])
 }
 
+///|
 fn parse_format(value : String) -> String? {
   if value == "html" || value == "mx" {
     Some(value)
@@ -58,12 +55,16 @@ fn parse_format(value : String) -> String? {
   }
 }
 
+///|
 fn metrics_view() -> @views.V4MetricsView {
   {
     window: { entity_id: "order-1", from_logical_time: 10, to_logical_time: 12 },
     total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
     by_kind: [
-      { kind: "transition", counts: { ok: 1, failed: 0, blocked: 0, denied: 0 } },
+      {
+        kind: "transition",
+        counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+      },
       { kind: "policy", counts: { ok: 0, failed: 0, blocked: 0, denied: 1 } },
       { kind: "effect", counts: { ok: 0, failed: 1, blocked: 0, denied: 0 } },
     ],
@@ -74,13 +75,21 @@ fn metrics_view() -> @views.V4MetricsView {
 fn handle_metrics(req : ApiRequest) -> ApiResponse {
   let format = match req.query.get("format") {
     None => "html"
-    Some(value) => match parse_format(value) {
-      Some(kind) => kind
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid format")))
-    }
+    Some(value) =>
+      match parse_format(value) {
+        Some(kind) => kind
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid format")),
+          )
+      }
   }
   if format == "mx" {
-    return response_html(200, @views.render_metrics_html_v4_2_mx(metrics_view()))
+    return response_html(
+      200,
+      @views.render_metrics_html_v4_2_mx(metrics_view()),
+    )
   }
   response_html(200, @views.render_metrics_html_v4_2(metrics_view()))
 }
@@ -92,14 +101,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v4.2/metrics"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

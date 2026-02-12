@@ -1,5 +1,8 @@
 ///|
-fn read_text_view_v4_timeline(path : String, label : String) -> Result[String, String] {
+fn read_text_view_v4_timeline(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -17,7 +20,9 @@ fn load_expected_v4_timeline(path : String) -> String raise {
 
 ///|
 test "v4 timeline list html fixture" {
-  let expected = load_expected_v4_timeline("examples/v4/html/timeline_list_expected.html")
+  let expected = load_expected_v4_timeline(
+    "examples/v4/html/timeline_list_expected.html",
+  )
   let view : V4TimelineListView = {
     cursor: "offset:0",
     next_cursor: Some("offset:2"),
@@ -47,7 +52,9 @@ test "v4 timeline list html fixture" {
 
 ///|
 test "v4 timeline list mx html fixture" {
-  let expected = load_expected_v4_timeline("examples/v4/html/timeline_list_mx_expected.html")
+  let expected = load_expected_v4_timeline(
+    "examples/v4/html/timeline_list_mx_expected.html",
+  )
   let view : V4TimelineListView = {
     cursor: "offset:0",
     next_cursor: Some("offset:2"),

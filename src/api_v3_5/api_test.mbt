@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -25,7 +26,9 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 
 ///|
 test "api v3.5 timeline export jsonl" {
-  let expected = load_expected("examples/api_v3_5/timeline_export/expected.jsonl")
+  let expected = load_expected(
+    "examples/api_v3_5/timeline_export/expected.jsonl",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.5/timeline/export.jsonl",
@@ -42,7 +45,9 @@ test "api v3.5 timeline export jsonl" {
 
 ///|
 test "api v3.5 timeline export invalid query" {
-  let expected = load_expected("examples/api_v3_5/timeline_export/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v3_5/timeline_export/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.5/timeline/export.jsonl",

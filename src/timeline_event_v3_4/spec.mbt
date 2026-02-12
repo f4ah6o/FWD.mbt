@@ -15,6 +15,7 @@ pub(all) struct TimelineEventDetail {
   event : @timeline_v3.TimelineEvent
 }
 
+///|
 fn kind_string(kind : @timeline_v3.TimelineKind) -> String {
   match kind {
     @timeline_v3.TimelineKind::Transition => "transition"
@@ -23,6 +24,7 @@ fn kind_string(kind : @timeline_v3.TimelineKind) -> String {
   }
 }
 
+///|
 fn parse_kind(value : String) -> String? {
   if value == "transition" || value == "effect" || value == "policy" {
     Some(value)
@@ -31,6 +33,7 @@ fn parse_kind(value : String) -> String? {
   }
 }
 
+///|
 fn split_colon(value : String) -> Array[String] {
   let parts : Array[String] = []
   let mut sb = StringBuilder::new()
@@ -46,6 +49,7 @@ fn split_colon(value : String) -> Array[String] {
   parts
 }
 
+///|
 fn parse_uint_from(value : String, start : Int) -> Int? {
   if start >= value.length() {
     return None
@@ -63,7 +67,13 @@ fn parse_uint_from(value : String, start : Int) -> Int? {
 
 ///|
 pub fn event_id(event : @timeline_v3.TimelineEvent) -> String {
-  event.entity_id + ":" + event.logical_time.to_string() + ":" + event.sequence.to_string() + ":" + kind_string(event.kind)
+  event.entity_id +
+  ":" +
+  event.logical_time.to_string() +
+  ":" +
+  event.sequence.to_string() +
+  ":" +
+  kind_string(event.kind)
 }
 
 ///|
@@ -77,20 +87,20 @@ pub fn parse_event_id(value : String) -> EventIdParts? {
   let sequence = parse_uint_from(parts[2], 0)
   let kind = parse_kind(parts[3])
   match (logical_time, sequence, kind) {
-    (Some(time), Some(seq), Some(kind_value)) => Some({
-      entity_id: entity,
-      logical_time: time,
-      sequence: seq,
-      kind: kind_value,
-    })
+    (Some(time), Some(seq), Some(kind_value)) =>
+      Some({
+        entity_id: entity,
+        logical_time: time,
+        sequence: seq,
+        kind: kind_value,
+      })
     _ => None
   }
 }
 
 ///|
-pub fn detail_from_event(event : @timeline_v3.TimelineEvent) -> TimelineEventDetail {
-  {
-    event_id: event_id(event),
-    event,
-  }
+pub fn detail_from_event(
+  event : @timeline_v3.TimelineEvent,
+) -> TimelineEventDetail {
+  { event_id: event_id(event), event }
 }

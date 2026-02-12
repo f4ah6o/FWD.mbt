@@ -67,14 +67,7 @@ pub fn resource_v2_validation(
   {
     state,
     transitions: [
-      {
-        id: transition_id,
-        to,
-        input_schema,
-        payload,
-        errors,
-        can_execute,
-      },
+      { id: transition_id, to, input_schema, payload, errors, can_execute },
     ],
   }
 }

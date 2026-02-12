@@ -2,7 +2,9 @@
 /// v4.5 timeline source (same event set as v4 timeline list).
 
 ///|
-pub fn events_for_entity(entity_id : String) -> Array[@timeline_v3.TimelineEvent] {
+pub fn events_for_entity(
+  entity_id : String,
+) -> Array[@timeline_v3.TimelineEvent] {
   [
     {
       entity_id,
@@ -21,11 +23,9 @@ pub fn events_for_entity(entity_id : String) -> Array[@timeline_v3.TimelineEvent
       ref_id: "policy:submit",
       status: "deny",
       reasons: [
-        @core.Reason::with_context(
-          "POLICY_DENY",
-          "Policy denied execution",
-          [("target", "transition")],
-        ),
+        @core.Reason::with_context("POLICY_DENY", "Policy denied execution", [
+          ("target", "transition"),
+        ]),
       ],
     },
     {

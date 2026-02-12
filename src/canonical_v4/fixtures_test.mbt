@@ -15,8 +15,9 @@ fn load_fixture(path : String) -> String raise {
   }
 }
 
+///|
 fn parse_json_or_fail(text : String, label : String) -> Json raise {
-  try @json.parse(text) catch {
+  @json.parse(text) catch {
     err => fail(label + ": parse failed: " + err.to_string())
   }
 }

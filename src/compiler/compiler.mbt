@@ -47,10 +47,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
       @core.Reason::with_context(
         "missing_fwd_version",
         "fwdVersion is required",
-        [
-          ("target", "schema"),
-          ("hint", "Set fwdVersion"),
-        ],
+        [("target", "schema"), ("hint", "Set fwdVersion")],
       ),
     )
   }
@@ -59,23 +56,16 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
       @core.Reason::with_context(
         "missing_schema_version",
         "schemaVersion is required",
-        [
-          ("target", "schema"),
-          ("hint", "Set schemaVersion"),
-        ],
+        [("target", "schema"), ("hint", "Set schemaVersion")],
       ),
     )
   }
   if schema.states.length() == 0 {
     return Err(
-      @core.Reason::with_context(
-        "no_states",
-        "states must not be empty",
-        [
-          ("target", "schema"),
-          ("hint", "Define at least one state"),
-        ],
-      ),
+      @core.Reason::with_context("no_states", "states must not be empty", [
+        ("target", "schema"),
+        ("hint", "Define at least one state"),
+      ]),
     )
   }
   if schema.transitions.length() == 0 {
@@ -83,10 +73,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
       @core.Reason::with_context(
         "no_transitions",
         "transitions must not be empty",
-        [
-          ("target", "schema"),
-          ("hint", "Define at least one transition"),
-        ],
+        [("target", "schema"), ("hint", "Define at least one transition")],
       ),
     )
   }
@@ -97,10 +84,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
         @core.Reason::with_context(
           "empty_state_name",
           "state name is required",
-          [
-            ("target", "state"),
-            ("hint", "Set a non-empty state name"),
-          ],
+          [("target", "state"), ("hint", "Set a non-empty state name")],
         ),
       )
     }
@@ -167,10 +151,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
         @core.Reason::with_context(
           "empty_entity_name",
           "entity name is required",
-          [
-            ("target", "schema"),
-            ("hint", "Set a non-empty entity name"),
-          ],
+          [("target", "schema"), ("hint", "Set a non-empty entity name")],
         ),
       )
     }
@@ -193,10 +174,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
         @core.Reason::with_context(
           "empty_entity_state",
           "entity initialState is required",
-          [
-            ("target", "schema"),
-            ("hint", "Set entity.initialState"),
-          ],
+          [("target", "schema"), ("hint", "Set entity.initialState")],
         ),
       )
     }
@@ -208,10 +186,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
         @core.Reason::with_context(
           "empty_effect_name",
           "effect name is required",
-          [
-            ("target", "effect"),
-            ("hint", "Set a non-empty effect name"),
-          ],
+          [("target", "effect"), ("hint", "Set a non-empty effect name")],
         ),
       )
     }
@@ -234,14 +209,10 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
   for rule in schema.rules {
     if rule.name.length() == 0 {
       return Err(
-        @core.Reason::with_context(
-          "empty_rule_name",
-          "rule name is required",
-          [
-            ("target", "rule"),
-            ("hint", "Set a non-empty rule name"),
-          ],
-        ),
+        @core.Reason::with_context("empty_rule_name", "rule name is required", [
+          ("target", "rule"),
+          ("hint", "Set a non-empty rule name"),
+        ]),
       )
     }
     if rule_set.contains(rule.name) {
@@ -266,10 +237,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
         @core.Reason::with_context(
           "empty_reason_code",
           "reason code is required",
-          [
-            ("target", "schema"),
-            ("hint", "Set a non-empty reason code"),
-          ],
+          [("target", "schema"), ("hint", "Set a non-empty reason code")],
         ),
       )
     }
@@ -295,10 +263,7 @@ pub fn validate_schema(resolved : ResolvedSchema) -> Result[Unit, @core.Reason] 
         @core.Reason::with_context(
           "empty_boundary_name",
           "boundary name is required",
-          [
-            ("target", "schema"),
-            ("hint", "Set a non-empty boundary name"),
-          ],
+          [("target", "schema"), ("hint", "Set a non-empty boundary name")],
         ),
       )
     }

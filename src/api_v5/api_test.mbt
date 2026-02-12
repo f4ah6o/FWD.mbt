@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -23,13 +24,18 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   map
 }
 
+///|
 fn parse_json_or_fail(text : String, label : String) -> Json raise {
-  try @json.parse(text) catch {
+  @json.parse(text) catch {
     err => fail("parse failed: " + label + ": " + err.to_string())
   }
 }
 
-fn expect_response_json(res : ApiResponse, expected_path : String) -> Unit raise {
+///|
+fn expect_response_json(
+  res : ApiResponse,
+  expected_path : String,
+) -> Unit raise {
   let expected_text = load_expected(expected_path)
   let expected_json = parse_json_or_fail(expected_text, expected_path)
   let expected_obj = match expected_json {
@@ -49,7 +55,8 @@ fn expect_response_json(res : ApiResponse, expected_path : String) -> Unit raise
     let key = pair.0
     let value = pair.1
     match value {
-      String(text) => inspect(res.headers.get(key), content="Some(\"" + text + "\")")
+      String(text) =>
+        inspect(res.headers.get(key), content="Some(\"" + text + "\")")
       _ => fail("expected header must be string: " + key)
     }
   }
@@ -58,10 +65,17 @@ fn expect_response_json(res : ApiResponse, expected_path : String) -> Unit raise
     None => fail("missing body: " + expected_path)
   }
   let actual_body_json = parse_json_or_fail(res.body, "response body")
-  inspect(actual_body_json.stringify(indent=2), content=expected_body.stringify(indent=2))
+  inspect(
+    actual_body_json.stringify(indent=2),
+    content=expected_body.stringify(indent=2),
+  )
 }
 
-fn expect_audit_no_sensitive_fields(res : ApiResponse, expected_path : String) -> Unit raise {
+///|
+fn expect_audit_no_sensitive_fields(
+  res : ApiResponse,
+  expected_path : String,
+) -> Unit raise {
   expect_response_json(res, expected_path)
   let actual_body_json = parse_json_or_fail(res.body, "response body")
   let obj = match actual_body_json {
@@ -77,13 +91,20 @@ fn expect_audit_no_sensitive_fields(res : ApiResponse, expected_path : String) -
       Object(value) => value
       _ => fail("expected entry object")
     }
-    if entry_obj.get("query") != None || entry_obj.get("payload") != None || entry_obj.get("request") != None || entry_obj.get("childSpecs") != None {
+    if entry_obj.get("query") != None ||
+      entry_obj.get("payload") != None ||
+      entry_obj.get("request") != None ||
+      entry_obj.get("childSpecs") != None {
       fail("audit entry contains forbidden fields")
     }
   }
 }
 
-fn expect_response_text(res : ApiResponse, expected_path : String) -> Unit raise {
+///|
+fn expect_response_text(
+  res : ApiResponse,
+  expected_path : String,
+) -> Unit raise {
   let expected = load_expected(expected_path)
   let mut output = res.body
   if expected.has_suffix("\n") && !output.has_suffix("\n") {
@@ -99,7 +120,9 @@ test "api v5 create job queued" {
     http_method: "POST",
     path: "/v5/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+    ),
   }
   let res = handle_request(req)
   expect_response_json(res, "fixtures/v5/jobs/create/case_001.response.json")
@@ -108,12 +131,16 @@ test "api v5 create job queued" {
 ///|
 test "api v5 get job queued" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v5/export/jobs/job-1",
@@ -126,12 +153,16 @@ test "api v5 get job queued" {
 ///|
 test "api v5 get job running no wall-clock" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   ignore(@job_store_v5.step_job("job-1"))
   let res = handle_request({
     http_method: "GET",
@@ -139,18 +170,24 @@ test "api v5 get job running no wall-clock" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/jobs/get/case_no_wall_clock.response.json")
+  expect_response_json(
+    res, "fixtures/v5/jobs/get/case_no_wall_clock.response.json",
+  )
 }
 
 ///|
 test "api v5 cancel job" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "POST",
     path: "/v5/export/jobs/job-1/cancel",
@@ -163,12 +200,16 @@ test "api v5 cancel job" {
 ///|
 test "api v5 result not ready" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v5/export/jobs/job-1/result",
@@ -181,12 +222,16 @@ test "api v5 result not ready" {
 ///|
 test "api v5 result jsonl" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   ignore(@job_store_v5.step_job("job-1"))
   ignore(@job_store_v5.step_job("job-1"))
   let res = handle_request({
@@ -201,12 +246,16 @@ test "api v5 result jsonl" {
 ///|
 test "api v5 result csv" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"csv\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"csv\"}",
+      ),
+    }),
+  )
   ignore(@job_store_v5.step_job("job-1"))
   ignore(@job_store_v5.step_job("job-1"))
   let res = handle_request({
@@ -221,36 +270,48 @@ test "api v5 result csv" {
 ///|
 test "api v5 result canceled" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs/job-1/cancel",
-    query: query_map([]),
-    body: None,
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs/job-1/cancel",
+      query: query_map([]),
+      body: None,
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v5/export/jobs/job-1/result",
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/jobs/result/case_canceled.response.json")
+  expect_response_json(
+    res, "fixtures/v5/jobs/result/case_canceled.response.json",
+  )
 }
 
 ///|
 test "api v5 result expired" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   ignore(@job_store_v5.step_job("job-1"))
   ignore(@job_store_v5.step_job("job-1"))
   ignore(@job_store_v5.step_job("job-1"))
@@ -260,18 +321,24 @@ test "api v5 result expired" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/jobs/result/case_expired.response.json")
+  expect_response_json(
+    res, "fixtures/v5/jobs/result/case_expired.response.json",
+  )
 }
 
 ///|
 test "api v5 get expired" {
   @job_store_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/jobs",
-    query: query_map([]),
-    body: Some("{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12,\"format\":\"jsonl\"}",
+      ),
+    }),
+  )
   ignore(@job_store_v5.step_job("job-1"))
   ignore(@job_store_v5.step_job("job-1"))
   ignore(@job_store_v5.step_job("job-1"))
@@ -305,7 +372,9 @@ test "api v5 create invalid format" {
     query: query_map([]),
     body: Some("{\"entityId\":\"order-1\",\"format\":\"bad\"}"),
   })
-  expect_response_json(res, "fixtures/v5/jobs/create/case_invalid.response.json")
+  expect_response_json(
+    res, "fixtures/v5/jobs/create/case_invalid.response.json",
+  )
 }
 
 ///|
@@ -317,26 +386,36 @@ test "api v5 create missing entity" {
     query: query_map([]),
     body: Some("{\"format\":\"jsonl\"}"),
   })
-  expect_response_json(res, "fixtures/v5/jobs/create/case_missing_entity.response.json")
+  expect_response_json(
+    res, "fixtures/v5/jobs/create/case_missing_entity.response.json",
+  )
 }
 
 ///|
 test "api v5 shared counter batch then single" {
   @job_store_v5.reset_for_test()
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "POST",
     path: "/v5/export/jobs",
     query: query_map([]),
-    body: Some("{\"entityId\":\"order-3\",\"fromLogicalTime\":30,\"toLogicalTime\":33,\"format\":\"jsonl\"}"),
+    body: Some(
+      "{\"entityId\":\"order-3\",\"fromLogicalTime\":30,\"toLogicalTime\":33,\"format\":\"jsonl\"}",
+    ),
   })
-  expect_response_json(res, "fixtures/v5/jobs/create/case_shared_counter.response.json")
+  expect_response_json(
+    res, "fixtures/v5/jobs/create/case_shared_counter.response.json",
+  )
 }
 
 ///|
@@ -346,7 +425,9 @@ test "api v5 batch create queued" {
     http_method: "POST",
     path: "/v5/export/batch/jobs",
     query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
+    body: Some(
+      "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+    ),
   }
   let res = handle_request(req)
   expect_response_json(res, "fixtures/v5/batch/create/case_001.response.json")
@@ -355,12 +436,16 @@ test "api v5 batch create queued" {
 ///|
 test "api v5 batch get queued" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v5/export/batch/jobs/job-1",
@@ -373,12 +458,16 @@ test "api v5 batch get queued" {
 ///|
 test "api v5 batch cancel" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "POST",
     path: "/v5/export/batch/jobs/job-1/cancel",
@@ -391,12 +480,16 @@ test "api v5 batch cancel" {
 ///|
 test "api v5 batch result not ready" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v5/export/batch/jobs/job-1/result",
@@ -409,12 +502,16 @@ test "api v5 batch result not ready" {
 ///|
 test "api v5 batch result jsonl" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
@@ -431,12 +528,16 @@ test "api v5 batch result jsonl" {
 ///|
 test "api v5 batch result csv" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"csv\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"csv\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
@@ -453,36 +554,48 @@ test "api v5 batch result csv" {
 ///|
 test "api v5 batch result canceled" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs/job-1/cancel",
-    query: query_map([]),
-    body: None,
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs/job-1/cancel",
+      query: query_map([]),
+      body: None,
+    }),
+  )
   let res = handle_request({
     http_method: "GET",
     path: "/v5/export/batch/jobs/job-1/result",
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/batch/result/case_canceled.response.json")
+  expect_response_json(
+    res, "fixtures/v5/batch/result/case_canceled.response.json",
+  )
 }
 
 ///|
 test "api v5 batch result expired" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
@@ -495,18 +608,24 @@ test "api v5 batch result expired" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/batch/result/case_expired.response.json")
+  expect_response_json(
+    res, "fixtures/v5/batch/result/case_expired.response.json",
+  )
 }
 
 ///|
 test "api v5 batch get expired" {
   @export_job_batch_v5.reset_for_test()
-  ignore(handle_request({
-    http_method: "POST",
-    path: "/v5/export/batch/jobs",
-    query: query_map([]),
-    body: Some("{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}"),
-  }))
+  ignore(
+    handle_request({
+      http_method: "POST",
+      path: "/v5/export/batch/jobs",
+      query: query_map([]),
+      body: Some(
+        "{\"format\":\"jsonl\",\"jobs\":[{\"entityId\":\"order-1\",\"fromLogicalTime\":10,\"toLogicalTime\":12},{\"entityId\":\"order-2\",\"fromLogicalTime\":20,\"toLogicalTime\":22}]}",
+      ),
+    }),
+  )
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
   ignore(@export_job_batch_v5.step_batch("job-1"))
@@ -531,7 +650,9 @@ test "api v5 batch get not found" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/batch/get/case_not_found.response.json")
+  expect_response_json(
+    res, "fixtures/v5/batch/get/case_not_found.response.json",
+  )
 }
 
 ///|
@@ -543,7 +664,9 @@ test "api v5 batch result not found" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/batch/result/case_not_found.response.json")
+  expect_response_json(
+    res, "fixtures/v5/batch/result/case_not_found.response.json",
+  )
 }
 
 ///|
@@ -555,7 +678,9 @@ test "api v5 batch create invalid format" {
     query: query_map([]),
     body: Some("{\"format\":\"bad\",\"jobs\":[{\"entityId\":\"order-1\"}]}"),
   })
-  expect_response_json(res, "fixtures/v5/batch/create/case_invalid.response.json")
+  expect_response_json(
+    res, "fixtures/v5/batch/create/case_invalid.response.json",
+  )
 }
 
 ///|
@@ -567,7 +692,9 @@ test "api v5 batch create missing jobs" {
     query: query_map([]),
     body: Some("{\"format\":\"jsonl\"}"),
   })
-  expect_response_json(res, "fixtures/v5/batch/create/case_missing_jobs.response.json")
+  expect_response_json(
+    res, "fixtures/v5/batch/create/case_missing_jobs.response.json",
+  )
 }
 
 ///|
@@ -578,7 +705,9 @@ test "api v5 observability metrics summary" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/observability/metrics_summary/case_001.response.json")
+  expect_response_json(
+    res, "fixtures/v5/observability/metrics_summary/case_001.response.json",
+  )
 }
 
 ///|
@@ -589,7 +718,9 @@ test "api v5 observability export audit" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/observability/export_audit/case_001.response.json")
+  expect_response_json(
+    res, "fixtures/v5/observability/export_audit/case_001.response.json",
+  )
 }
 
 ///|
@@ -600,7 +731,9 @@ test "api v5 observability export audit excludes query payload" {
     query: query_map([]),
     body: None,
   })
-  expect_audit_no_sensitive_fields(res, "fixtures/v5/observability/export_audit/case_forbidden_fields.response.json")
+  expect_audit_no_sensitive_fields(
+    res, "fixtures/v5/observability/export_audit/case_forbidden_fields.response.json",
+  )
 }
 
 ///|
@@ -633,7 +766,9 @@ test "api v5 policy missing action" {
     query: query_map([]),
     body: Some("{}"),
   })
-  expect_response_json(res, "fixtures/v5/policy/check/case_missing_action.response.json")
+  expect_response_json(
+    res, "fixtures/v5/policy/check/case_missing_action.response.json",
+  )
 }
 
 ///|
@@ -644,7 +779,9 @@ test "api v5 policy invalid action type" {
     query: query_map([]),
     body: Some("{\"action\":1}"),
   })
-  expect_response_json(res, "fixtures/v5/policy/check/case_invalid_action.response.json")
+  expect_response_json(
+    res, "fixtures/v5/policy/check/case_invalid_action.response.json",
+  )
 }
 
 ///|
@@ -655,5 +792,7 @@ test "api v5 policy missing body" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5/policy/check/case_missing_body.response.json")
+  expect_response_json(
+    res, "fixtures/v5/policy/check/case_missing_body.response.json",
+  )
 }

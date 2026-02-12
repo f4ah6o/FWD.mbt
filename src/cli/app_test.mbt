@@ -101,9 +101,8 @@ test "run presets" {
 test "run runtime invalid input" {
   inspect(
     run([
-      "runtime", "available", "examples/runtime_available/model.yaml",
-      "--state", "Draft",
-      "--input", "true",
+      "runtime", "available", "examples/runtime_available/model.yaml", "--state",
+      "Draft", "--input", "true",
     ]),
     content="2",
   )
@@ -113,10 +112,8 @@ test "run runtime invalid input" {
 test "run runtime execute" {
   inspect(
     run([
-      "runtime", "execute", "examples/runtime_execute/model.yaml",
-      "--state", "Draft",
-      "--transition", "approve",
-      "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
+      "runtime", "execute", "examples/runtime_execute/model.yaml", "--state", "Draft",
+      "--transition", "approve", "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
     ]),
     content="0",
   )
@@ -126,10 +123,8 @@ test "run runtime execute" {
 test "run runtime execute invalid input" {
   inspect(
     run([
-      "runtime", "execute", "examples/runtime_execute/model.yaml",
-      "--state", "Draft",
-      "--transition", "approve",
-      "--input", "true",
+      "runtime", "execute", "examples/runtime_execute/model.yaml", "--state", "Draft",
+      "--transition", "approve", "--input", "true",
     ]),
     content="2",
   )
@@ -139,10 +134,8 @@ test "run runtime execute invalid input" {
 test "run runtime execute not found" {
   inspect(
     run([
-      "runtime", "execute", "examples/runtime_execute/model.yaml",
-      "--state", "Draft",
-      "--transition", "missing",
-      "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
+      "runtime", "execute", "examples/runtime_execute/model.yaml", "--state", "Draft",
+      "--transition", "missing", "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
     ]),
     content="1",
   )
@@ -152,10 +145,8 @@ test "run runtime execute not found" {
 test "run runtime execute not available" {
   inspect(
     run([
-      "runtime", "execute", "examples/runtime_execute/model.yaml",
-      "--state", "Approved",
-      "--transition", "reject",
-      "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
+      "runtime", "execute", "examples/runtime_execute/model.yaml", "--state", "Approved",
+      "--transition", "reject", "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
     ]),
     content="1",
   )
@@ -165,8 +156,7 @@ test "run runtime execute not available" {
 test "run hypermedia show fixture" {
   inspect(
     run([
-      "hypermedia", "show", "examples/hypermedia_show/model.yaml",
-      "--state", "Draft",
+      "hypermedia", "show", "examples/hypermedia_show/model.yaml", "--state", "Draft",
       "--input", "{\"rules\": {\"canApprove\": true, \"canReject\": false}}",
     ]),
     content="0",
@@ -177,8 +167,7 @@ test "run hypermedia show fixture" {
 test "run hypermedia invalid input" {
   inspect(
     run([
-      "hypermedia", "show", "examples/hypermedia_show/model.yaml",
-      "--state", "Draft",
+      "hypermedia", "show", "examples/hypermedia_show/model.yaml", "--state", "Draft",
       "--input", "true",
     ]),
     content="2",
@@ -189,11 +178,8 @@ test "run hypermedia invalid input" {
 test "run effects plan planned" {
   inspect(
     run([
-      "effects", "plan", "examples/effects_v2_2/model.yaml",
-      "--entity", "order-1",
-      "--state", "Draft",
-      "--transition", "submit",
-      "--input", "{\"rules\": {\"canSubmit\": true}}",
+      "effects", "plan", "examples/effects_v2_2/model.yaml", "--entity", "order-1",
+      "--state", "Draft", "--transition", "submit", "--input", "{\"rules\": {\"canSubmit\": true}}",
     ]),
     content="0",
   )
@@ -203,11 +189,8 @@ test "run effects plan planned" {
 test "run effects plan skipped" {
   inspect(
     run([
-      "effects", "plan", "examples/effects_v2_2/model.yaml",
-      "--entity", "order-1",
-      "--state", "Draft",
-      "--transition", "submit",
-      "--input", "{\"rules\": {\"canSubmit\": false}}",
+      "effects", "plan", "examples/effects_v2_2/model.yaml", "--entity", "order-1",
+      "--state", "Draft", "--transition", "submit", "--input", "{\"rules\": {\"canSubmit\": false}}",
     ]),
     content="0",
   )
@@ -217,11 +200,8 @@ test "run effects plan skipped" {
 test "run effects plan invalid input" {
   inspect(
     run([
-      "effects", "plan", "examples/effects_v2_2/model.yaml",
-      "--entity", "order-1",
-      "--state", "Draft",
-      "--transition", "submit",
-      "--input", "true",
+      "effects", "plan", "examples/effects_v2_2/model.yaml", "--entity", "order-1",
+      "--state", "Draft", "--transition", "submit", "--input", "true",
     ]),
     content="2",
   )
@@ -231,11 +211,8 @@ test "run effects plan invalid input" {
 test "run effects plan not found" {
   inspect(
     run([
-      "effects", "plan", "examples/effects_v2_2/model.yaml",
-      "--entity", "order-1",
-      "--state", "Draft",
-      "--transition", "missing",
-      "--input", "{\"rules\": {\"canSubmit\": true}}",
+      "effects", "plan", "examples/effects_v2_2/model.yaml", "--entity", "order-1",
+      "--state", "Draft", "--transition", "missing", "--input", "{\"rules\": {\"canSubmit\": true}}",
     ]),
     content="1",
   )
@@ -244,43 +221,30 @@ test "run effects plan not found" {
 ///|
 test "run effects execute executed" {
   let plan = read_text_cli(
-    "examples/effects_v2_2/execute/plan_planned.json",
-    "plan",
+    "examples/effects_v2_2/execute/plan_planned.json", "plan",
   )
-  inspect(
-    run(["effects", "execute", "--plan", plan]),
-    content="0",
-  )
+  inspect(run(["effects", "execute", "--plan", plan]), content="0")
 }
 
 ///|
 test "run effects execute skipped" {
   let plan = read_text_cli(
-    "examples/effects_v2_2/execute/plan_skipped.json",
-    "plan",
+    "examples/effects_v2_2/execute/plan_skipped.json", "plan",
   )
-  inspect(
-    run(["effects", "execute", "--plan", plan]),
-    content="0",
-  )
+  inspect(run(["effects", "execute", "--plan", plan]), content="0")
 }
 
 ///|
 test "run effects execute invalid input" {
-  inspect(
-    run(["effects", "execute", "--plan", "true"]),
-    content="2",
-  )
+  inspect(run(["effects", "execute", "--plan", "true"]), content="2")
 }
 
 ///|
 test "run effects run with cassette" {
   inspect(
     run([
-      "effects", "run",
-      "--plan", "examples/effects_v2_2/record_cli/plan.json",
-      "--config", "examples/effects_v2_2/real_runner/config.json",
-      "--cassette", "examples/effects_v2_2/record_cli/expected_cassette.json",
+      "effects", "run", "--plan", "examples/effects_v2_2/record_cli/plan.json", "--config",
+      "examples/effects_v2_2/real_runner/config.json", "--cassette", "examples/effects_v2_2/record_cli/expected_cassette.json",
     ]),
     content="0",
   )

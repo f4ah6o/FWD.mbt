@@ -1,5 +1,8 @@
 ///|
-fn read_text_metrics_v4_2(path : String, label : String) -> Result[String, String] {
+fn read_text_metrics_v4_2(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -15,10 +18,17 @@ fn load_expected_metrics_v4_2(path : String) -> String raise {
   }
 }
 
-fn counts_view_v4_2(ok : Int, failed : Int, blocked : Int, denied : Int) -> V4MetricsCountsView {
+///|
+fn counts_view_v4_2(
+  ok : Int,
+  failed : Int,
+  blocked : Int,
+  denied : Int,
+) -> V4MetricsCountsView {
   { ok, failed, blocked, denied }
 }
 
+///|
 fn sample_view_v4_2() -> V4MetricsView {
   {
     window: { entity_id: "order-1", from_logical_time: 10, to_logical_time: 12 },
@@ -33,7 +43,9 @@ fn sample_view_v4_2() -> V4MetricsView {
 
 ///|
 test "v4.2 metrics html fixture" {
-  let expected = load_expected_metrics_v4_2("examples/v4_2/metrics/expected.html")
+  let expected = load_expected_metrics_v4_2(
+    "examples/v4_2/metrics/expected.html",
+  )
   let mut output = render_metrics_html_v4_2(sample_view_v4_2())
   if expected.has_suffix("\n") {
     output = output + "\n"
@@ -43,7 +55,9 @@ test "v4.2 metrics html fixture" {
 
 ///|
 test "v4.2 metrics mx html fixture" {
-  let expected = load_expected_metrics_v4_2("examples/v4_2/metrics/expected_mx.html")
+  let expected = load_expected_metrics_v4_2(
+    "examples/v4_2/metrics/expected_mx.html",
+  )
   let mut output = render_metrics_html_v4_2_mx(sample_view_v4_2())
   if expected.has_suffix("\n") {
     output = output + "\n"

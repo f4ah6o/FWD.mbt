@@ -15,12 +15,9 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn reason(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
 ///|
@@ -46,9 +43,7 @@ test "policy deny fixture" {
     entity_id: "order-1",
     transition_id: "submit",
     decision: PolicyDecisionKind::Deny,
-    reasons: [
-      reason("POLICY_DENY", "Policy denied execution", "transition"),
-    ],
+    reasons: [reason("POLICY_DENY", "Policy denied execution", "transition")],
   }
   let mut output = policy_decision_json(decision).stringify(indent=2)
   if expected.has_suffix("\n") {

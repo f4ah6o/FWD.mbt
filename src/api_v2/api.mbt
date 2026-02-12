@@ -51,11 +51,7 @@ fn effect_kind_string(kind : @core.EffectKind) -> String {
 }
 
 ///|
-fn execution_transition_json(
-  id : String,
-  from : String,
-  to : String,
-) -> Json {
+fn execution_transition_json(id : String, from : String, to : String) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["id"] = Json::string(id)
   obj["from"] = Json::string(from)
@@ -115,28 +111,20 @@ fn missing_query_reason(name : String) -> @core.Reason {
 
 ///|
 fn missing_field_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_MISSING",
-    "missing field: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide field '" + name + "' in JSON body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_MISSING", "missing field: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide field '" + name + "' in JSON body"),
+  ])
 }
 
 ///|
 fn invalid_body_reason(msg : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    msg,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide a JSON object body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", msg, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide a JSON object body"),
+  ])
 }
 
 ///|
@@ -146,14 +134,10 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
       @core.Reason::new("ParseFailure", msg)
     @compiler.CompileError::ResolveFailure(msg) =>
       if msg.has_prefix("rule name conflicts with builtin: ") {
-        @core.Reason::with_context(
-          "RESERVED_WORD_CONFLICT",
-          msg,
-          [
-            ("target", "rule"),
-            ("hint", "Builtin rule names are reserved"),
-          ],
-        )
+        @core.Reason::with_context("RESERVED_WORD_CONFLICT", msg, [
+          ("target", "rule"),
+          ("hint", "Builtin rule names are reserved"),
+        ])
       } else {
         @core.Reason::new("ResolveFailure", msg)
       }
@@ -206,7 +190,11 @@ fn transitions_from_state(
     if tr.from != state_tag {
       continue
     }
-    transitions.push({ id: tr.name, to: tr.to.value(), input_schema: tr.input_schema })
+    transitions.push({
+      id: tr.name,
+      to: tr.to.value(),
+      input_schema: tr.input_schema,
+    })
   }
   transitions
 }
@@ -245,17 +233,10 @@ fn handle_resource(schema_text : String, req : ApiRequest) -> ApiResponse {
     None => "json"
   }
   if format == "form" {
-    let runtime_result = match @runtime.compute_available_transitions(
-      ir,
-      state,
-      Map::new(),
-    ) {
+    let runtime_result = match
+      @runtime.compute_available_transitions(ir, state, Map::new()) {
       Ok(value) => value
-      Err(reason) =>
-        return response_json(
-          400,
-          error_envelope_json(reason),
-        )
+      Err(reason) => return response_json(400, error_envelope_json(reason))
     }
     let transitions = transitions_from_state(ir, state)
     let blocked = blocked_map_from_runtime(runtime_result)
@@ -268,17 +249,10 @@ fn handle_resource(schema_text : String, req : ApiRequest) -> ApiResponse {
     let resource_v2 = @hypermedia.resource_v2_from_ir(ir, state)
     return render_resource_v2(resource_v2, format)
   }
-  let runtime_result = match @runtime.compute_available_transitions(
-    ir,
-    state,
-    Map::new(),
-  ) {
+  let runtime_result = match
+    @runtime.compute_available_transitions(ir, state, Map::new()) {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let resource = @hypermedia.resource_from_runtime(runtime_result)
   render_resource(resource, format)
@@ -337,15 +311,11 @@ fn extract_payload_field(
 
 ///|
 fn payload_required_reason() -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_MISSING",
-    "payload is required",
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide payload object"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_MISSING", "payload is required", [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide payload object"),
+  ])
 }
 
 ///|
@@ -373,35 +343,19 @@ fn handle_execute(schema_text : String, req : ApiRequest) -> ApiResponse {
   }
   let body_obj = match extract_body_json(body) {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let state = match extract_string_field(body_obj, "state") {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let transition = match extract_string_field(body_obj, "transition") {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let rule_results = match extract_input_field(body_obj) {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let ir = match @compiler.compile_yaml(schema_text) {
     Ok(value) => value
@@ -429,35 +383,19 @@ fn handle_validate(schema_text : String, req : ApiRequest) -> ApiResponse {
   }
   let body_obj = match extract_body_json(body) {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let state = match extract_string_field(body_obj, "state") {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let transition = match extract_string_field(body_obj, "transition") {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let payload = match extract_payload_field(body_obj) {
     Ok(value) => value
-    Err(reason) =>
-      return response_json(
-        400,
-        error_envelope_json(reason),
-      )
+    Err(reason) => return response_json(400, error_envelope_json(reason))
   }
   let ir = match @compiler.compile_yaml(schema_text) {
     Ok(value) => value
@@ -484,11 +422,13 @@ fn handle_validate(schema_text : String, req : ApiRequest) -> ApiResponse {
   if tr.from != state_tag {
     return response_json(
       400,
-      error_envelope_json(@runtime.transition_not_available_reason(
-        transition,
-        state,
-        tr.from.value(),
-      )),
+      error_envelope_json(
+        @runtime.transition_not_available_reason(
+          transition,
+          state,
+          tr.from.value(),
+        ),
+      ),
     )
   }
   let payload_json = match payload {
@@ -547,14 +487,12 @@ pub fn handle_request(schema_text : String, req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v2/resource or /v2/transition/execute"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

@@ -1,6 +1,5 @@
 ///|
 /// Metrics export contract (v4.5).
-
 fn kind_string(kind : @metrics_v3_6.MetricKind) -> String {
   match kind {
     @metrics_v3_6.MetricKind::Transition => "transition"
@@ -9,6 +8,7 @@ fn kind_string(kind : @metrics_v3_6.MetricKind) -> String {
   }
 }
 
+///|
 fn counts_json(counts : @metrics_v3_6.MetricCounts) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["ok"] = Json::number(counts.ok.to_double())
@@ -18,6 +18,7 @@ fn counts_json(counts : @metrics_v3_6.MetricCounts) -> Json {
   Json::object(obj)
 }
 
+///|
 fn option_number(value : Int?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
@@ -25,6 +26,7 @@ fn option_number(value : Int?) -> Json {
   }
 }
 
+///|
 fn window_json(window : @metrics_v3_6.MetricWindow) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["entityId"] = Json::string(window.entity_id)
@@ -33,6 +35,7 @@ fn window_json(window : @metrics_v3_6.MetricWindow) -> Json {
   Json::object(obj)
 }
 
+///|
 fn line_json_total(snapshot : @metrics_v3_6.MetricsSnapshot) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["type"] = Json::string("total")
@@ -41,7 +44,11 @@ fn line_json_total(snapshot : @metrics_v3_6.MetricsSnapshot) -> Json {
   Json::object(obj)
 }
 
-fn line_json_kind(item : @metrics_v3_6.MetricsByKind, window : @metrics_v3_6.MetricWindow) -> Json {
+///|
+fn line_json_kind(
+  item : @metrics_v3_6.MetricsByKind,
+  window : @metrics_v3_6.MetricWindow,
+) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["type"] = Json::string("kind")
   obj["window"] = window_json(window)
@@ -61,6 +68,7 @@ pub fn export_jsonl(snapshot : @metrics_v3_6.MetricsSnapshot) -> String {
   sb.to_string()
 }
 
+///|
 fn csv_cell(value : String) -> String {
   if value.contains(",") || value.contains("\n") || value.contains("\"") {
     let escaped = value.replace(old="\"", new="\"\"")
@@ -70,6 +78,7 @@ fn csv_cell(value : String) -> String {
   }
 }
 
+///|
 fn option_to_string(value : Int?) -> String {
   match value {
     Some(v) => v.to_string()
@@ -77,6 +86,7 @@ fn option_to_string(value : Int?) -> String {
   }
 }
 
+///|
 fn counts_row(counts : @metrics_v3_6.MetricCounts) -> Array[String] {
   [
     counts.ok.to_string(),
@@ -86,6 +96,7 @@ fn counts_row(counts : @metrics_v3_6.MetricCounts) -> Array[String] {
   ]
 }
 
+///|
 fn csv_line(fields : Array[String]) -> String {
   let sb = StringBuilder::new()
   for i in 0..<fields.length() {
@@ -97,6 +108,7 @@ fn csv_line(fields : Array[String]) -> String {
   sb.to_string()
 }
 
+///|
 fn append_all(target : Array[String], items : Array[String]) -> Unit {
   for item in items {
     target.push(item)
@@ -106,7 +118,9 @@ fn append_all(target : Array[String], items : Array[String]) -> Unit {
 ///|
 pub fn export_csv(snapshot : @metrics_v3_6.MetricsSnapshot) -> String {
   let sb = StringBuilder::new()
-  sb.write_view("type,entityId,fromLogicalTime,toLogicalTime,kind,ok,failed,blocked,denied")
+  sb.write_view(
+    "type,entityId,fromLogicalTime,toLogicalTime,kind,ok,failed,blocked,denied",
+  )
   sb.write_char('\n')
   let window = snapshot.window
   let total_row : Array[String] = []

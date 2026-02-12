@@ -1,5 +1,8 @@
 ///|
-fn read_text_entity_view(path : String, label : String) -> Result[String, String] {
+fn read_text_entity_view(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -16,10 +19,10 @@ fn load_snapshot() -> @store_v2_1.Snapshot {
 
 ///|
 test "entity html fixture" {
-  let expected = match read_text_entity_view(
-    "examples/api_v2_1/entity_html/expected.html",
-    "expected entity html",
-  ) {
+  let expected = match
+    read_text_entity_view(
+      "examples/api_v2_1/entity_html/expected.html", "expected entity html",
+    ) {
     Ok(text) => text
     Err(msg) => fail(msg)
   }

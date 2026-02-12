@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for metrics (v3.6).
-
 fn kind_string(kind : MetricKind) -> String {
   match kind {
     MetricKind::Transition => "transition"
@@ -9,6 +8,7 @@ fn kind_string(kind : MetricKind) -> String {
   }
 }
 
+///|
 fn counts_json(counts : MetricCounts) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["ok"] = Json::number(counts.ok.to_double())
@@ -18,6 +18,7 @@ fn counts_json(counts : MetricCounts) -> Json {
   Json::object(obj)
 }
 
+///|
 fn option_number(value : Int?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
@@ -25,6 +26,7 @@ fn option_number(value : Int?) -> Json {
   }
 }
 
+///|
 fn window_json(window : MetricWindow) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["entityId"] = Json::string(window.entity_id)
@@ -33,6 +35,7 @@ fn window_json(window : MetricWindow) -> Json {
   Json::object(obj)
 }
 
+///|
 fn by_kind_json(item : MetricsByKind) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["kind"] = Json::string(kind_string(item.kind))

@@ -48,6 +48,7 @@ pub(all) struct JobRecord {
   reasons : Array[@core.Reason]
 }
 
+///|
 fn status_string(status : JobStatus) -> String {
   match status {
     JobStatus::Queued => "queued"
@@ -57,6 +58,7 @@ fn status_string(status : JobStatus) -> String {
   }
 }
 
+///|
 fn kind_string(kind : JobKind) -> String {
   match kind {
     JobKind::Metrics => "metrics"
@@ -64,6 +66,7 @@ fn kind_string(kind : JobKind) -> String {
   }
 }
 
+///|
 fn reasons_json(reasons : Array[@core.Reason]) -> Json {
   let items : Array[Json] = []
   for reason in reasons {

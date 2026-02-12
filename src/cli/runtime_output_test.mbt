@@ -9,24 +9,18 @@ fn read_text_runtime(path : String, label : String) -> Result[String, String] {
 
 ///|
 test "runtime available fixture" {
-  let schema_text = match read_text_runtime(
-    "examples/runtime_available/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_runtime("examples/runtime_available/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let rules_text = match read_text_runtime(
-    "examples/runtime_available/rules.json",
-    "rules",
-  ) {
+  let rules_text = match
+    read_text_runtime("examples/runtime_available/rules.json", "rules") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let expected = match read_text_runtime(
-    "examples/runtime_available/expected.json",
-    "expected",
-  ) {
+  let expected = match
+    read_text_runtime("examples/runtime_available/expected.json", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -38,11 +32,8 @@ test "runtime available fixture" {
     Ok(values) => values
     Err(reason) => fail(reason.message())
   }
-  let result = match @runtime.compute_available_transitions(
-    ir,
-    "Draft",
-    rule_results,
-  ) {
+  let result = match
+    @runtime.compute_available_transitions(ir, "Draft", rule_results) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
   }
@@ -55,10 +46,10 @@ test "runtime available fixture" {
 
 ///|
 test "runtime invalid input json" {
-  let expected = match read_text_runtime(
-    "examples/runtime_available/invalid_input.json",
-    "invalid expected",
-  ) {
+  let expected = match
+    read_text_runtime(
+      "examples/runtime_available/invalid_input.json", "invalid expected",
+    ) {
     Ok(text) => text
     Err(msg) => fail(msg)
   }

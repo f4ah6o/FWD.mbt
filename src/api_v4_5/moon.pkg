@@ -1,0 +1,15 @@
+import {
+  "fwd/core",
+  "fwd/compiler",
+  "fwd/metrics_export_v4_5",
+  "fwd/metrics_snapshot_v4_5",
+  "fwd/timeline_export_v4_5",
+  "fwd/timeline_source_v4_5",
+  "fwd/timeline_event_v3_8",
+  "fwd/timeline_v3",
+  "moonbitlang/core/json",
+}
+
+import {
+  "moonbitlang/x/fs",
+} for "test"

@@ -42,15 +42,13 @@ fn exec_fixture(plan_path : String, expected_path : String) -> Unit raise {
 ///|
 test "effects execute fixture (executed)" {
   exec_fixture(
-    "examples/effects_v2_2/execute/plan_planned.json",
-    "examples/effects_v2_2/execute/expected_executed.json",
+    "examples/effects_v2_2/execute/plan_planned.json", "examples/effects_v2_2/execute/expected_executed.json",
   )
 }
 
 ///|
 test "effects execute fixture (skipped)" {
   exec_fixture(
-    "examples/effects_v2_2/execute/plan_skipped.json",
-    "examples/effects_v2_2/execute/expected_skipped.json",
+    "examples/effects_v2_2/execute/plan_skipped.json", "examples/effects_v2_2/execute/expected_skipped.json",
   )
 }

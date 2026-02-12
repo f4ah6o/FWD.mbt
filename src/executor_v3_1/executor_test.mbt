@@ -15,14 +15,12 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn reason(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
+///|
 fn retry_policy_fixed() -> @retry_policy_v3.RetryPolicy {
   {
     policy_version: @retry_policy_v3.policy_version_v3(),
@@ -35,6 +33,7 @@ fn retry_policy_fixed() -> @retry_policy_v3.RetryPolicy {
   }
 }
 
+///|
 fn plan_with_url() -> @effects_v2_2.EffectsPlan {
   let payload_obj : Map[String, Json] = Map::new()
   payload_obj["url"] = Json::string("https://api.example.com/notify")
@@ -56,7 +55,12 @@ fn plan_with_url() -> @effects_v2_2.EffectsPlan {
   }
 }
 
-fn audit_executed(entity : String, transition : String, logical_time : Int) -> @execution_audit_v3.AuditEvent {
+///|
+fn audit_executed(
+  entity : String,
+  transition : String,
+  logical_time : Int,
+) -> @execution_audit_v3.AuditEvent {
   {
     entity_id: entity,
     transition_id: transition,
@@ -68,7 +72,13 @@ fn audit_executed(entity : String, transition : String, logical_time : Int) -> @
   }
 }
 
-fn audit_failed(entity : String, transition : String, logical_time : Int, reason : @core.Reason) -> @execution_audit_v3.AuditEvent {
+///|
+fn audit_failed(
+  entity : String,
+  transition : String,
+  logical_time : Int,
+  reason : @core.Reason,
+) -> @execution_audit_v3.AuditEvent {
   {
     entity_id: entity,
     transition_id: transition,
@@ -92,7 +102,9 @@ test "executor executed fixture" {
   let expected = load_expected("examples/v3_1/executor/expected_executed.json")
   let plan = plan_with_url()
   let allowlist : Array[String] = ["https://api.example.com/"]
-  fn send(_req : @effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+  fn send(
+    _req : @effects_exec_adapters_v2_2.HttpRequest,
+  ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
     Ok({ status: 200, body: "" })
   }
   let detail : ExecutionDetail = {
@@ -137,11 +149,15 @@ test "executor executed fixture" {
 
 ///|
 test "executor retry then success fixture" {
-  let expected = load_expected("examples/v3_1/executor/expected_retry_then_success.json")
+  let expected = load_expected(
+    "examples/v3_1/executor/expected_retry_then_success.json",
+  )
   let plan = plan_with_url()
   let allowlist : Array[String] = ["https://api.example.com/"]
   let mut calls = 0
-  fn send(_req : @effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+  fn send(
+    _req : @effects_exec_adapters_v2_2.HttpRequest,
+  ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
     calls = calls + 1
     if calls == 1 {
       Err(reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect"))
@@ -161,7 +177,9 @@ test "executor retry then success fixture" {
         sequence: 1,
         status: AttemptStatus::Failed,
         delay_ms: 0,
-        reason: Some(reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect")),
+        reason: Some(
+          reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect"),
+        ),
       },
       {
         attempt: 2,
@@ -199,10 +217,14 @@ test "executor retry then success fixture" {
 
 ///|
 test "executor idempotent duplicate fixture" {
-  let expected = load_expected("examples/v3_1/executor/expected_idempotent_duplicate.json")
+  let expected = load_expected(
+    "examples/v3_1/executor/expected_idempotent_duplicate.json",
+  )
   let plan = plan_with_url()
   let allowlist : Array[String] = ["https://api.example.com/"]
-  fn send(_req : @effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+  fn send(
+    _req : @effects_exec_adapters_v2_2.HttpRequest,
+  ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
     Ok({ status: 200, body: "" })
   }
   let detail : ExecutionDetail = {

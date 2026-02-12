@@ -1,5 +1,8 @@
 ///|
-fn read_text_export_v4_3(path : String, label : String) -> Result[String, String] {
+fn read_text_export_v4_3(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -15,6 +18,7 @@ fn load_expected_export_v4_3(path : String) -> String raise {
   }
 }
 
+///|
 fn build_snapshot_v4_3() -> @metrics_v3_6.MetricsSnapshot {
   {
     window: {
@@ -22,12 +26,7 @@ fn build_snapshot_v4_3() -> @metrics_v3_6.MetricsSnapshot {
       from_logical_time: Some(10),
       to_logical_time: Some(12),
     },
-    total: {
-      ok: 1,
-      failed: 1,
-      blocked: 0,
-      denied: 1,
-    },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
     by_kind: [
       {
         kind: @metrics_v3_6.MetricKind::Transition,
@@ -47,7 +46,9 @@ fn build_snapshot_v4_3() -> @metrics_v3_6.MetricsSnapshot {
 
 ///|
 test "metrics export v4.3 jsonl" {
-  let expected = load_expected_export_v4_3("examples/v4_3/metrics_export/expected.jsonl")
+  let expected = load_expected_export_v4_3(
+    "examples/v4_3/metrics_export/expected.jsonl",
+  )
   let mut output = export_jsonl(build_snapshot_v4_3())
   if expected.has_suffix("\n") {
     output = output + "\n"
@@ -57,7 +58,9 @@ test "metrics export v4.3 jsonl" {
 
 ///|
 test "metrics export v4.3 csv" {
-  let expected = load_expected_export_v4_3("examples/v4_3/metrics_export/expected.csv")
+  let expected = load_expected_export_v4_3(
+    "examples/v4_3/metrics_export/expected.csv",
+  )
   let mut output = export_csv(build_snapshot_v4_3())
   if expected.has_suffix("\n") {
     output = output + "\n"

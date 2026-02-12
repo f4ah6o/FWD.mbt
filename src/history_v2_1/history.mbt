@@ -86,7 +86,10 @@ fn compare_event_id(a : HistoryEvent, b : HistoryEvent) -> Int {
 }
 
 ///|
-pub fn HistoryStore::get(self : HistoryStore, entity_id : String) -> Array[HistoryEvent] {
+pub fn HistoryStore::get(
+  self : HistoryStore,
+  entity_id : String,
+) -> Array[HistoryEvent] {
   let list = match self.entries.get(entity_id) {
     Some(value) => value
     None => []

@@ -6,31 +6,23 @@ pub fn rule_not_satisfied_reason(
   transition_id : String,
   rule : String,
 ) -> @core.Reason {
-  @core.Reason::with_context(
-    "RULE_NOT_SATISFIED",
-    "Rule not satisfied",
-    [
-      ("rule", rule),
-      ("transition", transition_id),
-      ("target", "rule"),
-      ("level", "info"),
-      ("hint", "Provide rule result true for this transition"),
-    ],
-  )
+  @core.Reason::with_context("RULE_NOT_SATISFIED", "Rule not satisfied", [
+    ("rule", rule),
+    ("transition", transition_id),
+    ("target", "rule"),
+    ("level", "info"),
+    ("hint", "Provide rule result true for this transition"),
+  ])
 }
 
 ///|
 pub fn state_not_found_reason(state : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "STATE_NOT_FOUND",
-    "state not found in IR",
-    [
-      ("state", state),
-      ("target", "state"),
-      ("level", "error"),
-      ("hint", "Provide a valid current state"),
-    ],
-  )
+  @core.Reason::with_context("STATE_NOT_FOUND", "state not found in IR", [
+    ("state", state),
+    ("target", "state"),
+    ("level", "error"),
+    ("hint", "Provide a valid current state"),
+  ])
 }
 
 ///|

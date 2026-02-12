@@ -17,7 +17,9 @@ fn load_expected(path : String) -> String raise {
 
 ///|
 test "timeline cursor fixture" {
-  let expected = load_expected("examples/v3_3/timeline_query/expected_cursor.json")
+  let expected = load_expected(
+    "examples/v3_3/timeline_query/expected_cursor.json",
+  )
   let query : TimelineQuery = {
     entity_id: "order-1",
     from_logical_time: Some(10),

@@ -1,0 +1,8 @@
+import {
+  "fwd/ui/client",
+}
+
+options(
+  is_main: true,
+  targets: { "main.mbt": [ "js" ], "main_stub.mbt": [ "not", "js" ] },
+)

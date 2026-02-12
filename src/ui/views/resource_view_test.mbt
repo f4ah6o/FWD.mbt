@@ -9,24 +9,18 @@ fn read_text_plain(path : String, label : String) -> Result[String, String] {
 
 ///|
 test "resource html fixture" {
-  let schema_text = match read_text_plain(
-    "examples/hypermedia_show/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_plain("examples/hypermedia_show/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let rules_text = match read_text_plain(
-    "examples/hypermedia_show/rules.json",
-    "rules",
-  ) {
+  let rules_text = match
+    read_text_plain("examples/hypermedia_show/rules.json", "rules") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let expected = match read_text_plain(
-    "examples/hypermedia_show/expected.html",
-    "expected",
-  ) {
+  let expected = match
+    read_text_plain("examples/hypermedia_show/expected.html", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -38,11 +32,8 @@ test "resource html fixture" {
     Ok(values) => values
     Err(reason) => fail(reason.message())
   }
-  let runtime_result = match @runtime.compute_available_transitions(
-    ir,
-    "Draft",
-    rule_results,
-  ) {
+  let runtime_result = match
+    @runtime.compute_available_transitions(ir, "Draft", rule_results) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
   }

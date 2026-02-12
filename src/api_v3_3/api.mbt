@@ -39,30 +39,23 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn invalid_query_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check query parameters"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check query parameters"),
+  ])
 }
 
 ///|
 fn missing_query_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_MISSING",
-    "missing query: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide query '" + name + "'"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_MISSING", "missing query: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide query '" + name + "'"),
+  ])
 }
 
+///|
 fn parse_int(value : String) -> Int? {
   if value.length() == 0 {
     return None
@@ -78,6 +71,7 @@ fn parse_int(value : String) -> Int? {
   Some(acc)
 }
 
+///|
 fn parse_kind(value : String) -> String? {
   if value == "transition" || value == "effect" || value == "policy" {
     Some(value)
@@ -86,6 +80,7 @@ fn parse_kind(value : String) -> String? {
   }
 }
 
+///|
 fn apply_filter(
   events : Array[@timeline_v3.TimelineEvent],
   kind : String?,
@@ -94,19 +89,20 @@ fn apply_filter(
   for event in events {
     match kind {
       None => filtered.push(event)
-      Some(value) => {
+      Some(value) =>
         match (value, event.kind) {
-          ("transition", @timeline_v3.TimelineKind::Transition) => filtered.push(event)
+          ("transition", @timeline_v3.TimelineKind::Transition) =>
+            filtered.push(event)
           ("effect", @timeline_v3.TimelineKind::Effect) => filtered.push(event)
           ("policy", @timeline_v3.TimelineKind::Policy) => filtered.push(event)
           _ => ()
         }
-      }
     }
   }
   filtered
 }
 
+///|
 fn events_for_entity(entity : String) -> Array[@timeline_v3.TimelineEvent] {
   [
     {
@@ -126,11 +122,9 @@ fn events_for_entity(entity : String) -> Array[@timeline_v3.TimelineEvent] {
       ref_id: "policy:submit",
       status: "deny",
       reasons: [
-        @core.Reason::with_context(
-          "POLICY_DENY",
-          "Policy denied execution",
-          [("target", "transition")],
-        ),
+        @core.Reason::with_context("POLICY_DENY", "Policy denied execution", [
+          ("target", "transition"),
+        ]),
       ],
     },
     {
@@ -162,24 +156,49 @@ fn handle_timeline(req : ApiRequest) -> ApiResponse {
       )
   }
   let kind = match req.query.get("kind") {
-    Some(value) => match parse_kind(value) {
-      Some(kind) => Some(kind)
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid kind")))
-    }
+    Some(value) =>
+      match parse_kind(value) {
+        Some(kind) => Some(kind)
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid kind")),
+          )
+      }
     None => None
   }
   let limit = match req.query.get("limit") {
-    Some(value) => match parse_int(value) {
-      Some(v) => if v > 0 { v } else { return response_json(400, error_envelope_json(invalid_query_reason("limit must be positive"))) }
-      None => return response_json(400, error_envelope_json(invalid_query_reason("limit must be integer")))
-    }
+    Some(value) =>
+      match parse_int(value) {
+        Some(v) =>
+          if v > 0 {
+            v
+          } else {
+            return response_json(
+              400,
+              error_envelope_json(
+                invalid_query_reason("limit must be positive"),
+              ),
+            )
+          }
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("limit must be integer")),
+          )
+      }
     None => 2
   }
   let cursor_offset = match req.query.get("cursor") {
-    Some(value) => match @timeline_v3_3.decode_cursor(value) {
-      Some(v) => v
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid cursor")))
-    }
+    Some(value) =>
+      match @timeline_v3_3.decode_cursor(value) {
+        Some(v) => v
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid cursor")),
+          )
+      }
     None => 0
   }
   let events = apply_filter(events_for_entity(entity), kind)
@@ -192,14 +211,21 @@ fn handle_timeline(req : ApiRequest) -> ApiResponse {
     idx = idx + 1
   }
   let next_cursor = if cursor_offset + limit < events.length() {
-    Some(@timeline_v3_3.encode_cursor(@timeline_v3_3.cursor_from_query({
-      entity_id: entity,
-      from_logical_time: None,
-      to_logical_time: None,
-      kind,
-      limit,
-      cursor: None,
-    }, cursor_offset + limit)))
+    Some(
+      @timeline_v3_3.encode_cursor(
+        @timeline_v3_3.cursor_from_query(
+          {
+            entity_id: entity,
+            from_logical_time: None,
+            to_logical_time: None,
+            kind,
+            limit,
+            cursor: None,
+          },
+          cursor_offset + limit,
+        ),
+      ),
+    )
   } else {
     None
   }
@@ -216,14 +242,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v3.3/timeline"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

@@ -1,6 +1,5 @@
 ///|
 /// JSONL projection for timeline export (v4.5).
-
 fn kind_string(kind : @timeline_v3.TimelineKind) -> String {
   match kind {
     @timeline_v3.TimelineKind::Transition => "transition"
@@ -9,6 +8,7 @@ fn kind_string(kind : @timeline_v3.TimelineKind) -> String {
   }
 }
 
+///|
 fn compare_string(a : String, b : String) -> Int {
   if a < b {
     -1
@@ -19,7 +19,11 @@ fn compare_string(a : String, b : String) -> Int {
   }
 }
 
-fn compare_event(a : @timeline_v3.TimelineEvent, b : @timeline_v3.TimelineEvent) -> Int {
+///|
+fn compare_event(
+  a : @timeline_v3.TimelineEvent,
+  b : @timeline_v3.TimelineEvent,
+) -> Int {
   let by_entity = compare_string(a.entity_id, b.entity_id)
   if by_entity != 0 {
     return by_entity
@@ -37,10 +41,18 @@ fn compare_event(a : @timeline_v3.TimelineEvent, b : @timeline_v3.TimelineEvent)
   0
 }
 
+///|
 fn event_id(event : @timeline_v3.TimelineEvent) -> String {
-  event.entity_id + ":" + event.logical_time.to_string() + ":" + event.sequence.to_string() + ":" + kind_string(event.kind)
+  event.entity_id +
+  ":" +
+  event.logical_time.to_string() +
+  ":" +
+  event.sequence.to_string() +
+  ":" +
+  kind_string(event.kind)
 }
 
+///|
 fn line_json(event : @timeline_v3.TimelineEvent) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["eventId"] = Json::string(event_id(event))

@@ -25,28 +25,20 @@ fn response_json(status : Int, body : String) -> ApiResponse {
 
 ///|
 fn invalid_body_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide a JSON object body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide a JSON object body"),
+  ])
 }
 
 ///|
 fn missing_field_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_MISSING",
-    "missing field: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide field '" + name + "' in JSON body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_MISSING", "missing field: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide field '" + name + "' in JSON body"),
+  ])
 }
 
 ///|
@@ -97,7 +89,9 @@ fn extract_int_field(
 }
 
 ///|
-fn extract_allowlist(obj : Map[String, Json]) -> Result[Array[String], @core.Reason] {
+fn extract_allowlist(
+  obj : Map[String, Json],
+) -> Result[Array[String], @core.Reason] {
   match obj.get("allowlist") {
     Some(Array(values)) => {
       let list : Array[String] = []
@@ -118,7 +112,9 @@ fn extract_allowlist(obj : Map[String, Json]) -> Result[Array[String], @core.Rea
 }
 
 ///|
-fn extract_plan(obj : Map[String, Json]) -> Result[@effects_v2_2.EffectsPlan, @core.Reason] {
+fn extract_plan(
+  obj : Map[String, Json],
+) -> Result[@effects_v2_2.EffectsPlan, @core.Reason] {
   match obj.get("plan") {
     Some(value) => @effects_v2_2.parse_plan_json(value.stringify(indent=2))
     None => Err(missing_field_reason("plan"))
@@ -126,7 +122,9 @@ fn extract_plan(obj : Map[String, Json]) -> Result[@effects_v2_2.EffectsPlan, @c
 }
 
 ///|
-fn extract_idempotency(obj : Map[String, Json]) -> Result[@idempotency_v3.Decision, @core.Reason] {
+fn extract_idempotency(
+  obj : Map[String, Json],
+) -> Result[@idempotency_v3.Decision, @core.Reason] {
   let key = match extract_string_field(obj, "key") {
     Ok(value) => value
     Err(reason) => return Err(reason)
@@ -155,13 +153,7 @@ fn extract_idempotency(obj : Map[String, Json]) -> Result[@idempotency_v3.Decisi
     "already_done" => @idempotency_v3.DecisionKind::AlreadyDone
     _ => return Err(invalid_body_reason("unknown idempotency kind"))
   }
-  Ok({
-    key,
-    kind,
-    logical_time,
-    reserved_at,
-    result_ref,
-  })
+  Ok({ key, kind, logical_time, reserved_at, result_ref })
 }
 
 ///|
@@ -181,7 +173,11 @@ fn fixed_retry_policy() -> @retry_policy_v3.RetryPolicy {
 fn handle_execute(req : ApiRequest) -> ApiResponse {
   let body = match req.body {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_field_reason("body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_field_reason("body")),
+      )
   }
   let obj = match extract_body_json(body) {
     Ok(value) => value
@@ -197,8 +193,16 @@ fn handle_execute(req : ApiRequest) -> ApiResponse {
   }
   let idempotency_obj = match obj.get("idempotency") {
     Some(Object(map)) => map
-    Some(_) => return response_json(400, error_envelope_json(invalid_body_reason("idempotency must be object")))
-    None => return response_json(400, error_envelope_json(missing_field_reason("idempotency")))
+    Some(_) =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_body_reason("idempotency must be object")),
+      )
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_field_reason("idempotency")),
+      )
   }
   let idempotency = match extract_idempotency(idempotency_obj) {
     Ok(value) => value
@@ -211,14 +215,26 @@ fn handle_execute(req : ApiRequest) -> ApiResponse {
   let fail_first = match obj.get("failFirst") {
     Some(True) => true
     Some(False) => false
-    Some(_) => return response_json(400, error_envelope_json(invalid_body_reason("failFirst must be boolean")))
+    Some(_) =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_body_reason("failFirst must be boolean")),
+      )
     None => false
   }
   let mut calls = 0
-  fn send(_req : @effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+  fn send(
+    _req : @effects_exec_adapters_v2_2.HttpRequest,
+  ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
     calls = calls + 1
     if fail_first && calls == 1 {
-      Err(@core.Reason::with_context("EFFECT_HTTP_FAILED", "HTTP request failed", [("target", "effect")]))
+      Err(
+        @core.Reason::with_context(
+          "EFFECT_HTTP_FAILED",
+          "HTTP request failed",
+          [("target", "effect")],
+        ),
+      )
     } else {
       Ok({ status: 200, body: "" })
     }
@@ -231,7 +247,10 @@ fn handle_execute(req : ApiRequest) -> ApiResponse {
     allowlist,
     send,
   )
-  response_json(200, @executor_v3_1.execution_detail_json(detail).stringify(indent=2))
+  response_json(
+    200,
+    @executor_v3_1.execution_detail_json(detail).stringify(indent=2),
+  )
 }
 
 ///|
@@ -241,14 +260,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v3.1/effects/execute"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

@@ -11,6 +11,8 @@ pub(all) struct BatchChildSpec {
 ///|
 /// Default retention constants for batch jobs (v5.0).
 pub let default_ttl_polls : Int = 6
+
+///|
 pub let default_ttl_seconds : Int = 240
 
 ///|

@@ -1,5 +1,8 @@
 ///|
-fn read_text_effects_cli(path : String, label : String) -> Result[String, String] {
+fn read_text_effects_cli(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -12,10 +15,8 @@ fn load_effects_fixture(
   rules_path : String,
   expected_path : String,
 ) -> Unit raise {
-  let schema_text = match read_text_effects_cli(
-    "examples/effects_v2_2/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_effects_cli("examples/effects_v2_2/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -35,12 +36,8 @@ fn load_effects_fixture(
     Ok(values) => values
     Err(reason) => fail(reason.message())
   }
-  let outcome = match @runtime.execute_transition(
-    ir,
-    "Draft",
-    "submit",
-    rule_results,
-  ) {
+  let outcome = match
+    @runtime.execute_transition(ir, "Draft", "submit", rule_results) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
   }
@@ -55,15 +52,13 @@ fn load_effects_fixture(
 ///|
 test "effects plan cli fixture (planned)" {
   load_effects_fixture(
-    "examples/effects_v2_2/rules_planned.json",
-    "examples/effects_v2_2/cli_planned/expected.json",
+    "examples/effects_v2_2/rules_planned.json", "examples/effects_v2_2/cli_planned/expected.json",
   )
 }
 
 ///|
 test "effects plan cli fixture (skipped)" {
   load_effects_fixture(
-    "examples/effects_v2_2/rules_blocked.json",
-    "examples/effects_v2_2/cli_skipped/expected.json",
+    "examples/effects_v2_2/rules_blocked.json", "examples/effects_v2_2/cli_skipped/expected.json",
   )
 }

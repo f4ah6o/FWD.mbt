@@ -17,7 +17,9 @@ fn load_expected(path : String) -> String raise {
 
 ///|
 fn load_cassette() -> Cassette raise {
-  let text = load_expected("examples/effects_v2_2/record_replay/cassette_example.json")
+  let text = load_expected(
+    "examples/effects_v2_2/record_replay/cassette_example.json",
+  )
   match parse_cassette_json(text) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
@@ -25,7 +27,9 @@ fn load_cassette() -> Cassette raise {
 }
 
 ///|
-fn to_execution_result(item : @effects_v2_2.ExecutionItem) -> @effects_v2_2.ExecutionResult {
+fn to_execution_result(
+  item : @effects_v2_2.ExecutionItem,
+) -> @effects_v2_2.ExecutionResult {
   {
     result_version: @effects_v2_2.result_version_v2_2(),
     plan_version: "2.2",
@@ -44,7 +48,9 @@ test "replay transport matches cassette" {
   let effect : @effects_v2_2.EffectItem = {
     effect_id: "notify",
     kind: @core.EffectKind::Async,
-    payload: Json::object({ "url": Json::string("https://allowed.example/hook") }),
+    payload: Json::object({
+      "url": Json::string("https://allowed.example/hook"),
+    }),
     idempotency_key: "order-1:submit:notify",
   }
   let result = @effects_exec_adapters_v2_2.run_http_effect(
@@ -52,12 +58,14 @@ test "replay transport matches cassette" {
     effect,
     transport,
   )
-  guard result is Ok(item) else {
-    fail("expected replayed response")
-  }
+  guard result is Ok(item) else { fail("expected replayed response") }
   let exec_result = to_execution_result(item)
-  let expected = load_expected("examples/effects_v2_2/record_replay/expected_executed.json")
-  let mut output = @effects_v2_2.execution_result_json(exec_result).stringify(indent=2)
+  let expected = load_expected(
+    "examples/effects_v2_2/record_replay/expected_executed.json",
+  )
+  let mut output = @effects_v2_2.execution_result_json(exec_result).stringify(
+    indent=2,
+  )
   if expected.has_suffix("\n") {
     output = output + "\n"
   }

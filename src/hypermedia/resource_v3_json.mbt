@@ -1,10 +1,10 @@
 ///|
 /// JSON projection for Hypermedia Resource (v3).
-
 fn reason_json_v3(reason : @core.Reason) -> Json {
   @compiler.reason_json(reason)
 }
 
+///|
 fn option_string_json(value : String?) -> Json {
   match value {
     Some(v) => Json::string(v)
@@ -12,6 +12,7 @@ fn option_string_json(value : String?) -> Json {
   }
 }
 
+///|
 fn option_json(value : Json?) -> Json {
   match value {
     Some(v) => v
@@ -19,6 +20,7 @@ fn option_json(value : Json?) -> Json {
   }
 }
 
+///|
 fn policy_json(decision : @policy_v3.PolicyDecision?) -> Json {
   match decision {
     Some(value) => @policy_v3.policy_decision_json(value)
@@ -26,6 +28,7 @@ fn policy_json(decision : @policy_v3.PolicyDecision?) -> Json {
   }
 }
 
+///|
 fn effects_json(plan : @effects_v2_2.EffectsPlan?) -> Json {
   match plan {
     Some(value) => @effects_v2_2.effect_plan_json(value)

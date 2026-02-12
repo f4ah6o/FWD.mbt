@@ -1,0 +1,10 @@
+import {
+  "fwd/core",
+  "fwd/compiler",
+  "fwd/ui/views",
+  "moonbitlang/core/json",
+}
+
+import {
+  "moonbitlang/x/fs",
+} for "test"

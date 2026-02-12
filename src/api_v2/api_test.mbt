@@ -146,7 +146,11 @@ fn execute_request_body(state : String, transition : String) -> String {
 }
 
 ///|
-fn validate_request_body(state : String, transition : String, payload : Json) -> String {
+fn validate_request_body(
+  state : String,
+  transition : String,
+  payload : Json,
+) -> String {
   let obj : Map[String, Json] = Map::new()
   obj["state"] = Json::string(state)
   obj["transition"] = Json::string(transition)
@@ -187,12 +191,16 @@ test "api v2 resource validate invalid payload" {
 ///|
 test "api v2 resource validate ok" {
   let schema_text = load_schema("examples/api_v2/input_form/model.yaml")
-  let expected = load_expected("examples/api_v2/input_form/expected_validate_ok.html")
+  let expected = load_expected(
+    "examples/api_v2/input_form/expected_validate_ok.html",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v2/resource/validate",
     query: Map::new(),
-    body: Some(validate_request_body("Draft", "submit", Json::object(Map::new()))),
+    body: Some(
+      validate_request_body("Draft", "submit", Json::object(Map::new())),
+    ),
   }
   let resp = handle_request(schema_text, req)
   inspect(resp.status, content="200")
@@ -232,7 +240,9 @@ test "api v2 execute blocked" {
 ///|
 test "api v2 execute not found" {
   let schema_text = load_schema("examples/runtime_execute/model.yaml")
-  let expected = load_expected("examples/api_v2/execute/expected_not_found.json")
+  let expected = load_expected(
+    "examples/api_v2/execute/expected_not_found.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v2/transition/execute",
@@ -247,7 +257,9 @@ test "api v2 execute not found" {
 ///|
 test "api v2 execute not available" {
   let schema_text = load_schema("examples/runtime_execute/model.yaml")
-  let expected = load_expected("examples/api_v2/execute/expected_not_available.json")
+  let expected = load_expected(
+    "examples/api_v2/execute/expected_not_available.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v2/transition/execute",

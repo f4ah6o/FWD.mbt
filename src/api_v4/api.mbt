@@ -39,43 +39,32 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn invalid_query_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check query parameters"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check query parameters"),
+  ])
 }
 
 ///|
 fn missing_query_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_MISSING",
-    "missing query: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide query '" + name + "'"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_MISSING", "missing query: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide query '" + name + "'"),
+  ])
 }
 
 ///|
 fn invalid_event_id_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "EVENT_ID_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Use event id in the form entity:logical:sequence:kind"),
-    ],
-  )
+  @core.Reason::with_context("EVENT_ID_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Use event id in the form entity:logical:sequence:kind"),
+  ])
 }
 
+///|
 fn parse_format(value : String) -> String? {
   if value == "json" || value == "html" || value == "mx" {
     Some(value)
@@ -84,6 +73,7 @@ fn parse_format(value : String) -> String? {
   }
 }
 
+///|
 fn resource_view() -> @views.V4ResourceView {
   {
     entity: { id: "order-1", state: "Draft", logical_time: 12 },
@@ -91,7 +81,10 @@ fn resource_view() -> @views.V4ResourceView {
     field_errors: [
       {
         path: "/reason",
-        reason: { message: "reason is required", hint: Some("Provide a non-empty reason") },
+        reason: {
+          message: "reason is required",
+          hint: Some("Provide a non-empty reason"),
+        },
       },
     ],
     policy: {
@@ -101,7 +94,12 @@ fn resource_view() -> @views.V4ResourceView {
     effects: {
       plan_status: "planned",
       execution_status: "skipped",
-      reasons: [{ message: "Rule not satisfied", hint: Some("Provide rule result true for this transition") }],
+      reasons: [
+        {
+          message: "Rule not satisfied",
+          hint: Some("Provide rule result true for this transition"),
+        },
+      ],
     },
     timeline: {
       cursor: "offset:0",
@@ -118,6 +116,7 @@ fn resource_view() -> @views.V4ResourceView {
   }
 }
 
+///|
 fn resource_json() -> String {
   let obj : Map[String, Json] = Map::new()
   obj["resourceVersion"] = Json::string("4.0")
@@ -217,6 +216,7 @@ fn resource_json() -> String {
   Json::object(obj).stringify(indent=2)
 }
 
+///|
 fn timeline_list_view() -> @views.V4TimelineListView {
   let events = @timeline_source_v4_5.events_for_entity("order-1")
   let page : Array[@timeline_v3.TimelineEvent] = []
@@ -245,13 +245,10 @@ fn timeline_list_view() -> @views.V4TimelineListView {
       reasons,
     })
   }
-  {
-    cursor: "offset:0",
-    next_cursor: Some("offset:2"),
-    events: view_events,
-  }
+  { cursor: "offset:0", next_cursor: Some("offset:2"), events: view_events }
 }
 
+///|
 fn timeline_list_json() -> String {
   let obj : Map[String, Json] = Map::new()
   obj["timelineVersion"] = Json::string("4.0")
@@ -277,26 +274,31 @@ fn timeline_list_json() -> String {
     for reason in event.reasons {
       reasons.push(@compiler.reason_json(reason))
     }
-    items.push(Json::object({
-      "eventId": Json::string(@timeline_event_v3_4.event_id(event)),
-      "entityId": Json::string(event.entity_id),
-      "logicalTime": Json::number(event.logical_time.to_double()),
-      "sequence": Json::number(event.sequence.to_double()),
-      "kind": Json::string(match event.kind {
-        @timeline_v3.TimelineKind::Transition => "transition"
-        @timeline_v3.TimelineKind::Effect => "effect"
-        @timeline_v3.TimelineKind::Policy => "policy"
+    items.push(
+      Json::object({
+        "eventId": Json::string(@timeline_event_v3_4.event_id(event)),
+        "entityId": Json::string(event.entity_id),
+        "logicalTime": Json::number(event.logical_time.to_double()),
+        "sequence": Json::number(event.sequence.to_double()),
+        "kind": Json::string(
+          match event.kind {
+            @timeline_v3.TimelineKind::Transition => "transition"
+            @timeline_v3.TimelineKind::Effect => "effect"
+            @timeline_v3.TimelineKind::Policy => "policy"
+          },
+        ),
+        "refId": Json::string(event.ref_id),
+        "status": Json::string(event.status),
+        "reasons": Json::array(reasons),
       }),
-      "refId": Json::string(event.ref_id),
-      "status": Json::string(event.status),
-      "reasons": Json::array(reasons),
-    }))
+    )
   }
   obj["events"] = Json::array(items)
   obj["nextCursor"] = Json::string("offset:2")
   Json::object(obj).stringify(indent=2)
 }
 
+///|
 fn timeline_detail_view() -> @views.V4TimelineDetailView {
   {
     event_id: "order-1:11:1:policy",
@@ -309,6 +311,7 @@ fn timeline_detail_view() -> @views.V4TimelineDetailView {
   }
 }
 
+///|
 fn timeline_detail_json() -> String {
   let obj : Map[String, Json] = Map::new()
   obj["timelineVersion"] = Json::string("4.0")
@@ -335,6 +338,7 @@ fn timeline_detail_json() -> String {
   Json::object(obj).stringify(indent=2)
 }
 
+///|
 fn substring_from(value : String, start : Int) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
@@ -348,20 +352,32 @@ fn substring_from(value : String, start : Int) -> String {
 fn handle_resource(req : ApiRequest) -> ApiResponse {
   let _entity = match req.query.get("entityId") {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_query_reason("entityId")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_query_reason("entityId")),
+      )
   }
   let format = match req.query.get("format") {
     None => "json"
-    Some(value) => match parse_format(value) {
-      Some(kind) => kind
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid format")))
-    }
+    Some(value) =>
+      match parse_format(value) {
+        Some(kind) => kind
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid format")),
+          )
+      }
   }
   if format == "json" {
     return response_json(200, resource_json())
   }
   if format == "mx" {
-    return response_html(200, @views.render_resource_html_v4_mx(resource_view()))
+    return response_html(
+      200,
+      @views.render_resource_html_v4_mx(resource_view()),
+    )
   }
   response_html(200, @views.render_resource_html_v4(resource_view()))
 }
@@ -370,24 +386,42 @@ fn handle_resource(req : ApiRequest) -> ApiResponse {
 fn handle_timeline(req : ApiRequest) -> ApiResponse {
   let _entity = match req.query.get("entityId") {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_query_reason("entityId")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_query_reason("entityId")),
+      )
   }
   match req.query.get("cursor") {
-    Some(value) => if value != "offset:0" { return response_json(400, error_envelope_json(invalid_query_reason("invalid cursor"))) }
+    Some(value) =>
+      if value != "offset:0" {
+        return response_json(
+          400,
+          error_envelope_json(invalid_query_reason("invalid cursor")),
+        )
+      }
     None => ()
   }
   let format = match req.query.get("format") {
     None => "json"
-    Some(value) => match parse_format(value) {
-      Some(kind) => kind
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid format")))
-    }
+    Some(value) =>
+      match parse_format(value) {
+        Some(kind) => kind
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid format")),
+          )
+      }
   }
   if format == "json" {
     return response_json(200, timeline_list_json())
   }
   if format == "mx" {
-    return response_html(200, @views.render_timeline_list_html_v4_mx(timeline_list_view()))
+    return response_html(
+      200,
+      @views.render_timeline_list_html_v4_mx(timeline_list_view()),
+    )
   }
   response_html(200, @views.render_timeline_list_html_v4(timeline_list_view()))
 }
@@ -395,33 +429,52 @@ fn handle_timeline(req : ApiRequest) -> ApiResponse {
 ///|
 fn handle_timeline_event(req : ApiRequest, event_id : String) -> ApiResponse {
   if @timeline_event_v3_4.parse_event_id(event_id) is None {
-    return response_json(400, error_envelope_json(invalid_event_id_reason("invalid event id")))
+    return response_json(
+      400,
+      error_envelope_json(invalid_event_id_reason("invalid event id")),
+    )
   }
   let format = match req.query.get("format") {
     None => "json"
-    Some(value) => match parse_format(value) {
-      Some(kind) => kind
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid format")))
-    }
+    Some(value) =>
+      match parse_format(value) {
+        Some(kind) => kind
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid format")),
+          )
+      }
   }
   if event_id != "order-1:11:1:policy" {
-    return response_json(404, error_envelope_json(@core.Reason::with_context(
-      "EVENT_NOT_FOUND",
-      "event not found: " + event_id,
-      [
-        ("target", "runtime"),
-        ("level", "error"),
-        ("hint", "Provide a valid event id"),
-      ],
-    )))
+    return response_json(
+      404,
+      error_envelope_json(
+        @core.Reason::with_context(
+          "EVENT_NOT_FOUND",
+          "event not found: " + event_id,
+          [
+            ("target", "runtime"),
+            ("level", "error"),
+            ("hint", "Provide a valid event id"),
+          ],
+        ),
+      ),
+    )
   }
   if format == "json" {
     return response_json(200, timeline_detail_json())
   }
   if format == "mx" {
-    return response_html(200, @views.render_timeline_detail_html_v4_mx(timeline_detail_view()))
+    return response_html(
+      200,
+      @views.render_timeline_detail_html_v4_mx(timeline_detail_view()),
+    )
   }
-  response_html(200, @views.render_timeline_detail_html_v4(timeline_detail_view()))
+  response_html(
+    200,
+    @views.render_timeline_detail_html_v4(timeline_detail_view()),
+  )
 }
 
 ///|
@@ -436,20 +489,21 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" && req.path.has_prefix(prefix) {
     let event_id = substring_from(req.path, prefix.length())
     if event_id.length() == 0 {
-      return response_json(400, error_envelope_json(invalid_event_id_reason("missing event id")))
+      return response_json(
+        400,
+        error_envelope_json(invalid_event_id_reason("missing event id")),
+      )
     }
     return handle_timeline_event(req, event_id)
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v4/resource or /v4/timeline"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

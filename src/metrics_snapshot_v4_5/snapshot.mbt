@@ -13,12 +13,7 @@ pub fn build_snapshot(
       from_logical_time: from_time,
       to_logical_time: to_time,
     },
-    total: {
-      ok: 1,
-      failed: 1,
-      blocked: 0,
-      denied: 1,
-    },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
     by_kind: [
       {
         kind: @metrics_v3_6.MetricKind::Transition,

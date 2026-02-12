@@ -1,0 +1,11 @@
+import {
+  "fwd/core",
+  "fwd/compiler",
+  "fwd/metrics_v3_6",
+  "fwd/metrics_export_v4_3",
+  "moonbitlang/core/json",
+}
+
+import {
+  "moonbitlang/x/fs",
+} for "test"

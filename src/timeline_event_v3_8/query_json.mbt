@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for timeline event list query/cursor (v3.8).
-
 fn option_number(value : Int?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
@@ -8,6 +7,7 @@ fn option_number(value : Int?) -> Json {
   }
 }
 
+///|
 fn option_string(value : String?) -> Json {
   match value {
     Some(v) => Json::string(v)
@@ -16,7 +16,10 @@ fn option_string(value : String?) -> Json {
 }
 
 ///|
-pub fn cursor_from_query(query : TimelineEventQuery, offset : Int) -> TimelineEventCursor {
+pub fn cursor_from_query(
+  query : TimelineEventQuery,
+  offset : Int,
+) -> TimelineEventCursor {
   {
     entity_id: query.entity_id,
     offset,
@@ -39,6 +42,7 @@ pub fn cursor_json(cursor : TimelineEventCursor) -> Json {
   Json::object(obj)
 }
 
+///|
 fn parse_uint_from(value : String, start : Int) -> Int? {
   if start >= value.length() {
     return None

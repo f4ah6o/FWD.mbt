@@ -109,8 +109,9 @@ fn compare_string(a : String, b : String) -> Int {
 ///|
 fn reason_rank(reason : @core.Reason) -> Int {
   let code = reason.code()
-  if code == "STATE_REMOVED" || code == "TRANSITION_REMOVED" ||
-      code == "TRANSITION_MODIFIED" {
+  if code == "STATE_REMOVED" ||
+    code == "TRANSITION_REMOVED" ||
+    code == "TRANSITION_MODIFIED" {
     0
   } else if code == "MIGRATION_REQUIRED" {
     1
@@ -234,9 +235,7 @@ fn migration_required(
   ctx.push(("subject", subject))
   ctx.push(("scope", scope))
   ctx.push(("target", "baseline"))
-  ctx.push(
-    ("hint", "Breaking changes detected; provide migration definitions"),
-  )
+  ctx.push(("hint", "Breaking changes detected; provide migration definitions"))
   append_reasons_context(ctx, extra)
   @core.Reason::with_context(
     "MIGRATION_REQUIRED", "breaking change requires migration", ctx,
@@ -308,7 +307,9 @@ fn diff_transitions(
           ("kind", "transitionRemoved"),
           ("subject", transition.name),
           ("target", "transition"),
-          ("hint", "Transition removed; re-add transition or define migration mapping"),
+          (
+            "hint", "Transition removed; re-add transition or define migration mapping",
+          ),
         ]),
       )
       if !has_global {
@@ -345,16 +346,22 @@ fn diff_transitions(
         candidate_from + "->" + candidate_to
       }
       reasons.push(
-        @core.Reason::with_context("TRANSITION_MODIFIED", "transition modified", [
-          ("transition", transition.name),
-          ("field", field),
-          ("baseline", baseline_value),
-          ("candidate", candidate_value),
-          ("kind", "transitionModified"),
-          ("subject", transition.name),
-          ("target", "transition"),
-          ("hint", "Transition modified; review compatibility and add migration if needed"),
-        ]),
+        @core.Reason::with_context(
+          "TRANSITION_MODIFIED",
+          "transition modified",
+          [
+            ("transition", transition.name),
+            ("field", field),
+            ("baseline", baseline_value),
+            ("candidate", candidate_value),
+            ("kind", "transitionModified"),
+            ("subject", transition.name),
+            ("target", "transition"),
+            (
+              "hint", "Transition modified; review compatibility and add migration if needed",
+            ),
+          ],
+        ),
       )
       let effects = candidate_transition_effects[transition.name]
       if !has_migrate_effect(effects) {

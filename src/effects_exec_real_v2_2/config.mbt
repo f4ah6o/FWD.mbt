@@ -9,26 +9,25 @@ pub(all) struct RunnerConfig {
 
 ///|
 fn invalid_config_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide valid runner config JSON"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide valid runner config JSON"),
+  ])
 }
 
 ///|
-fn extract_allowlist(obj : Map[String, Json]) -> Result[Array[String], @core.Reason] {
+fn extract_allowlist(
+  obj : Map[String, Json],
+) -> Result[Array[String], @core.Reason] {
   match obj.get("allowlist") {
     Some(Array(values)) => {
       let list : Array[String] = []
       for value in values {
         match value {
           String(v) => list.push(v)
-          _ => return Err(invalid_config_reason("allowlist must be string array"))
+          _ =>
+            return Err(invalid_config_reason("allowlist must be string array"))
         }
       }
       if list.length() == 0 {
@@ -50,11 +49,16 @@ fn extract_timeout(obj : Map[String, Json]) -> Int? {
 }
 
 ///|
-pub fn parse_config_json(input_json : String) -> Result[RunnerConfig, @core.Reason] {
+pub fn parse_config_json(
+  input_json : String,
+) -> Result[RunnerConfig, @core.Reason] {
   let parsed : Result[Json, @json.ParseError] = try? @json.parse(input_json)
   let value = match parsed {
     Ok(v) => v
-    Err(err) => return Err(invalid_config_reason("input json parse error: " + err.to_string()))
+    Err(err) =>
+      return Err(
+        invalid_config_reason("input json parse error: " + err.to_string()),
+      )
   }
   let obj = match value {
     Object(m) => m

@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for execution audit events (v3).
-
 fn audit_status_string(status : AuditStatus) -> String {
   match status {
     AuditStatus::Executed => "executed"
@@ -9,6 +8,7 @@ fn audit_status_string(status : AuditStatus) -> String {
   }
 }
 
+///|
 fn item_status_string(status : ItemStatus) -> String {
   match status {
     ItemStatus::Executed => "executed"
@@ -16,6 +16,7 @@ fn item_status_string(status : ItemStatus) -> String {
   }
 }
 
+///|
 fn audit_item_json(item : AuditItem) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["effectId"] = Json::string(item.effect_id)

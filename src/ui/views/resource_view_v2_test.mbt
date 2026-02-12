@@ -9,10 +9,8 @@ fn read_text_v2_view(path : String, label : String) -> Result[String, String] {
 
 ///|
 fn load_resource_v2(state : String) -> @hypermedia.ResourceV2 raise {
-  let schema_text = match read_text_v2_view(
-    "examples/api_v2/input_form/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_v2_view("examples/api_v2/input_form/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -25,10 +23,8 @@ fn load_resource_v2(state : String) -> @hypermedia.ResourceV2 raise {
 
 ///|
 test "resource v2 html fixture" {
-  let expected = match read_text_v2_view(
-    "examples/resource_v2/expected.html",
-    "expected",
-  ) {
+  let expected = match
+    read_text_v2_view("examples/resource_v2/expected.html", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -42,10 +38,8 @@ test "resource v2 html fixture" {
 
 ///|
 test "resource v2 mx fixture" {
-  let expected = match read_text_v2_view(
-    "examples/resource_v2/expected_mx.html",
-    "expected",
-  ) {
+  let expected = match
+    read_text_v2_view("examples/resource_v2/expected_mx.html", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }

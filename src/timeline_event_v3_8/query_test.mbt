@@ -17,7 +17,9 @@ fn load_expected(path : String) -> String raise {
 
 ///|
 test "timeline event cursor json fixture" {
-  let expected = load_expected("examples/v3_8/timeline_event_list/expected_cursor.json")
+  let expected = load_expected(
+    "examples/v3_8/timeline_event_list/expected_cursor.json",
+  )
   let cursor : TimelineEventCursor = {
     entity_id: "order-1",
     offset: 2,

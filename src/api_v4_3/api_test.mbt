@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -25,11 +26,17 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 
 ///|
 test "api v4.3 metrics export jsonl" {
-  let expected = load_expected("examples/api_v4_3/metrics_export/expected.jsonl")
+  let expected = load_expected(
+    "examples/api_v4_3/metrics_export/expected.jsonl",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.3/metrics/export.jsonl",
-    query: query_map([("entityId", "order-1"), ("fromLogicalTime", "10"), ("toLogicalTime", "12")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("fromLogicalTime", "10"),
+      ("toLogicalTime", "12"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -46,7 +53,11 @@ test "api v4.3 metrics export csv" {
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.3/metrics/export.csv",
-    query: query_map([("entityId", "order-1"), ("fromLogicalTime", "10"), ("toLogicalTime", "12")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("fromLogicalTime", "10"),
+      ("toLogicalTime", "12"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -59,7 +70,9 @@ test "api v4.3 metrics export csv" {
 
 ///|
 test "api v4.3 metrics export invalid query" {
-  let expected = load_expected("examples/api_v4_3/metrics_export/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v4_3/metrics_export/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4.3/metrics/export.jsonl",

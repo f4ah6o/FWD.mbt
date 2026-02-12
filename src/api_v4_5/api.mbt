@@ -31,7 +31,11 @@ fn response_jsonl(status : Int, body : String) -> ApiResponse {
 }
 
 ///|
-fn response_jsonl_with_cursor(status : Int, body : String, next_cursor : String?) -> ApiResponse {
+fn response_jsonl_with_cursor(
+  status : Int,
+  body : String,
+  next_cursor : String?,
+) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/jsonl"
   match next_cursor {
@@ -57,30 +61,23 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn invalid_query_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check query parameters"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check query parameters"),
+  ])
 }
 
 ///|
 fn missing_query_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_MISSING",
-    "missing query: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide query '" + name + "'"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_MISSING", "missing query: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide query '" + name + "'"),
+  ])
 }
 
+///|
 fn parse_int(value : String) -> Int? {
   if value.length() == 0 {
     return None
@@ -96,6 +93,7 @@ fn parse_int(value : String) -> Int? {
   Some(acc)
 }
 
+///|
 fn apply_time_filter(
   events : Array[@timeline_v3.TimelineEvent],
   from_time : Int?,
@@ -118,25 +116,48 @@ fn apply_time_filter(
   filtered
 }
 
+///|
 fn parse_time_value(name : String, value : String) -> Result[Int, ApiResponse] {
   match parse_int(value) {
     Some(v) => Ok(v)
-    None => Err(response_json(400, error_envelope_json(invalid_query_reason(name + " must be integer"))))
+    None =>
+      Err(
+        response_json(
+          400,
+          error_envelope_json(invalid_query_reason(name + " must be integer")),
+        ),
+      )
   }
 }
 
+///|
 fn parse_limit(value : String) -> Result[Int, ApiResponse] {
   match parse_int(value) {
-    Some(v) => {
+    Some(v) =>
       if v <= 0 {
-        Err(response_json(400, error_envelope_json(invalid_query_reason("limit must be positive"))))
+        Err(
+          response_json(
+            400,
+            error_envelope_json(invalid_query_reason("limit must be positive")),
+          ),
+        )
       } else if v > 1000 {
-        Err(response_json(400, error_envelope_json(invalid_query_reason("limit must be <= 1000"))))
+        Err(
+          response_json(
+            400,
+            error_envelope_json(invalid_query_reason("limit must be <= 1000")),
+          ),
+        )
       } else {
         Ok(v)
       }
-    }
-    None => Err(response_json(400, error_envelope_json(invalid_query_reason("limit must be integer"))))
+    None =>
+      Err(
+        response_json(
+          400,
+          error_envelope_json(invalid_query_reason("limit must be integer")),
+        ),
+      )
   }
 }
 
@@ -144,23 +165,31 @@ fn parse_limit(value : String) -> Result[Int, ApiResponse] {
 fn handle_metrics_export_jsonl(req : ApiRequest) -> ApiResponse {
   let entity = match req.query.get("entityId") {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_query_reason("entityId")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_query_reason("entityId")),
+      )
   }
   let from_time = match req.query.get("fromLogicalTime") {
-    Some(value) => match parse_time_value("fromLogicalTime", value) {
-      Ok(v) => Some(v)
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_time_value("fromLogicalTime", value) {
+        Ok(v) => Some(v)
+        Err(res) => return res
+      }
     None => None
   }
   let to_time = match req.query.get("toLogicalTime") {
-    Some(value) => match parse_time_value("toLogicalTime", value) {
-      Ok(v) => Some(v)
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_time_value("toLogicalTime", value) {
+        Ok(v) => Some(v)
+        Err(res) => return res
+      }
     None => None
   }
-  let snapshot = @metrics_snapshot_v4_5.build_snapshot(entity, from_time, to_time)
+  let snapshot = @metrics_snapshot_v4_5.build_snapshot(
+    entity, from_time, to_time,
+  )
   response_jsonl(200, @metrics_export_v4_5.export_jsonl(snapshot))
 }
 
@@ -168,23 +197,31 @@ fn handle_metrics_export_jsonl(req : ApiRequest) -> ApiResponse {
 fn handle_metrics_export_csv(req : ApiRequest) -> ApiResponse {
   let entity = match req.query.get("entityId") {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_query_reason("entityId")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_query_reason("entityId")),
+      )
   }
   let from_time = match req.query.get("fromLogicalTime") {
-    Some(value) => match parse_time_value("fromLogicalTime", value) {
-      Ok(v) => Some(v)
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_time_value("fromLogicalTime", value) {
+        Ok(v) => Some(v)
+        Err(res) => return res
+      }
     None => None
   }
   let to_time = match req.query.get("toLogicalTime") {
-    Some(value) => match parse_time_value("toLogicalTime", value) {
-      Ok(v) => Some(v)
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_time_value("toLogicalTime", value) {
+        Ok(v) => Some(v)
+        Err(res) => return res
+      }
     None => None
   }
-  let snapshot = @metrics_snapshot_v4_5.build_snapshot(entity, from_time, to_time)
+  let snapshot = @metrics_snapshot_v4_5.build_snapshot(
+    entity, from_time, to_time,
+  )
   response_csv(200, @metrics_export_v4_5.export_csv(snapshot))
 }
 
@@ -192,34 +229,46 @@ fn handle_metrics_export_csv(req : ApiRequest) -> ApiResponse {
 fn handle_timeline_export(req : ApiRequest) -> ApiResponse {
   let entity = match req.query.get("entityId") {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_query_reason("entityId")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_query_reason("entityId")),
+      )
   }
   let from_time = match req.query.get("fromLogicalTime") {
-    Some(value) => match parse_time_value("fromLogicalTime", value) {
-      Ok(v) => Some(v)
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_time_value("fromLogicalTime", value) {
+        Ok(v) => Some(v)
+        Err(res) => return res
+      }
     None => None
   }
   let to_time = match req.query.get("toLogicalTime") {
-    Some(value) => match parse_time_value("toLogicalTime", value) {
-      Ok(v) => Some(v)
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_time_value("toLogicalTime", value) {
+        Ok(v) => Some(v)
+        Err(res) => return res
+      }
     None => None
   }
   let limit = match req.query.get("limit") {
-    Some(value) => match parse_limit(value) {
-      Ok(v) => v
-      Err(res) => return res
-    }
+    Some(value) =>
+      match parse_limit(value) {
+        Ok(v) => v
+        Err(res) => return res
+      }
     None => 100
   }
   let cursor_offset = match req.query.get("cursor") {
-    Some(value) => match @timeline_event_v3_8.decode_cursor(value) {
-      Some(v) => v
-      None => return response_json(400, error_envelope_json(invalid_query_reason("invalid cursor")))
-    }
+    Some(value) =>
+      match @timeline_event_v3_8.decode_cursor(value) {
+        Some(v) => v
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason("invalid cursor")),
+          )
+      }
     None => 0
   }
   let events = @timeline_source_v4_5.events_for_entity(entity)
@@ -233,18 +282,29 @@ fn handle_timeline_export(req : ApiRequest) -> ApiResponse {
     idx = idx + 1
   }
   let next_cursor = if cursor_offset + limit < filtered.length() {
-    Some(@timeline_event_v3_8.encode_cursor(@timeline_event_v3_8.cursor_from_query({
-      entity_id: entity,
-      kind: None,
-      from_logical_time: from_time,
-      to_logical_time: to_time,
-      limit,
-      cursor: None,
-    }, cursor_offset + limit)))
+    Some(
+      @timeline_event_v3_8.encode_cursor(
+        @timeline_event_v3_8.cursor_from_query(
+          {
+            entity_id: entity,
+            kind: None,
+            from_logical_time: from_time,
+            to_logical_time: to_time,
+            limit,
+            cursor: None,
+          },
+          cursor_offset + limit,
+        ),
+      ),
+    )
   } else {
     None
   }
-  response_jsonl_with_cursor(200, @timeline_export_v4_5.export_jsonl(page), next_cursor)
+  response_jsonl_with_cursor(
+    200,
+    @timeline_export_v4_5.export_jsonl(page),
+    next_cursor,
+  )
 }
 
 ///|
@@ -260,14 +320,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v4.5/metrics/export.jsonl"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

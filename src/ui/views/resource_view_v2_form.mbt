@@ -26,33 +26,38 @@ fn transition_form_node(
   transition : FormTransition,
 ) -> @tmpx.Node {
   let children : Array[@tmpx.Node] = []
-  children.push(@tmpx.input_([
-    @tmpx.type_("hidden"),
-    @tmpx.name_("state"),
-    @tmpx.value_(state),
-  ]))
-  children.push(@tmpx.input_([
-    @tmpx.type_("hidden"),
-    @tmpx.name_("transition"),
-    @tmpx.value_(transition.id),
-  ]))
+  children.push(
+    @tmpx.input_([
+      @tmpx.type_("hidden"),
+      @tmpx.name_("state"),
+      @tmpx.value_(state),
+    ]),
+  )
+  children.push(
+    @tmpx.input_([
+      @tmpx.type_("hidden"),
+      @tmpx.name_("transition"),
+      @tmpx.value_(transition.id),
+    ]),
+  )
   match transition.input_schema {
     Some(schema_name) => {
       children.push(@tmpx.p([], [@tmpx.text("inputSchema: " + schema_name)]))
-      children.push(@tmpx.textarea([
-        @tmpx.name_("payload"),
-      ], []))
+      children.push(@tmpx.textarea([@tmpx.name_("payload")], []))
     }
     None => ()
   }
   children.push(@tmpx.button([], [@tmpx.text("Validate")]))
-  @tmpx.form([
-    @tmpx.data_attr("transition", transition.id),
-    @tmpx.mx_post("/v2/resource/validate"),
-    @tmpx.mx_target(".fwd-resource"),
-    @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
-    @tmpx.mx_trigger_submit(),
-  ], children)
+  @tmpx.form(
+    [
+      @tmpx.data_attr("transition", transition.id),
+      @tmpx.mx_post("/v2/resource/validate"),
+      @tmpx.mx_target(".fwd-resource"),
+      @tmpx.mx_swap(@tmpx.MxSwap::OuterHTML),
+      @tmpx.mx_trigger_submit(),
+    ],
+    children,
+  )
 }
 
 ///|
@@ -66,9 +71,7 @@ fn blocked_reason_node(
       children.push(node)
     }
   }
-  @tmpx.div([
-    @tmpx.data_attr("transition", transition_id),
-  ], children)
+  @tmpx.div([@tmpx.data_attr("transition", transition_id)], children)
 }
 
 ///|
@@ -85,17 +88,10 @@ pub fn render_resource_html_v2_form(
   for entry in blocked.to_array() {
     blocked_nodes.push(blocked_reason_node(entry.0, entry.1))
   }
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-resource")],
-    [
-      @tmpx.section([
-        @tmpx.data_attr("section", "available"),
-      ], available_nodes),
-      @tmpx.section([
-        @tmpx.data_attr("section", "blocked"),
-      ], blocked_nodes),
-    ],
-  )
+  let root = @tmpx.div([@tmpx.class_("fwd-resource")], [
+    @tmpx.section([@tmpx.data_attr("section", "available")], available_nodes),
+    @tmpx.section([@tmpx.data_attr("section", "blocked")], blocked_nodes),
+  ])
   @tmpx.render(root)
 }
 
@@ -105,16 +101,17 @@ pub fn render_validation_result_html(
   transition_id : String,
   payload_json : String,
 ) -> String {
-  let exec_vals =
-    "{\"state\":\"" + state + "\",\"transition\":\"" +
-    transition_id + "\",\"input\":" + payload_json + "}"
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-resource")],
-    [
-      @tmpx.section([
-        @tmpx.data_attr("section", "available"),
-      ], [
-        @tmpx.button([
+  let exec_vals = "{\"state\":\"" +
+    state +
+    "\",\"transition\":\"" +
+    transition_id +
+    "\",\"input\":" +
+    payload_json +
+    "}"
+  let root = @tmpx.div([@tmpx.class_("fwd-resource")], [
+    @tmpx.section([@tmpx.data_attr("section", "available")], [
+      @tmpx.button(
+        [
           @tmpx.data_attr("transition", transition_id),
           @tmpx.mx_post("/v2/transition/execute"),
           @tmpx.mx_target(".fwd-resource"),
@@ -122,12 +119,11 @@ pub fn render_validation_result_html(
           @tmpx.mx_vals(exec_vals),
           @tmpx.mx_encoding("application/json"),
           @tmpx.mx_trigger_click(),
-        ], [@tmpx.text("Execute")]),
-      ]),
-      @tmpx.section([
-        @tmpx.data_attr("section", "blocked"),
-      ], []),
-    ],
-  )
+        ],
+        [@tmpx.text("Execute")],
+      ),
+    ]),
+    @tmpx.section([@tmpx.data_attr("section", "blocked")], []),
+  ])
   @tmpx.render(root)
 }

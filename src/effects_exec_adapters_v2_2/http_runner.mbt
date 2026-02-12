@@ -17,15 +17,11 @@ pub(all) struct HttpResponse {
 
 ///|
 fn http_reason(message : String, hint : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "EFFECT_EXECUTION_FAILED",
-    message,
-    [
-      ("target", "effect"),
-      ("level", "error"),
-      ("hint", hint),
-    ],
-  )
+  @core.Reason::with_context("EFFECT_EXECUTION_FAILED", message, [
+    ("target", "effect"),
+    ("level", "error"),
+    ("hint", hint),
+  ])
 }
 
 ///|
@@ -44,10 +40,15 @@ fn extract_url(payload : Json) -> Result[String, @core.Reason] {
     Object(m) =>
       match m.get("url") {
         Some(String(value)) => Ok(value)
-        Some(_) => Err(http_reason("payload.url must be string", "Use {\"url\": \"...\"}"))
-        None => Err(http_reason("missing payload.url", "Provide url in payload"))
+        Some(_) =>
+          Err(
+            http_reason("payload.url must be string", "Use {\"url\": \"...\"}"),
+          )
+        None =>
+          Err(http_reason("missing payload.url", "Provide url in payload"))
       }
-    _ => Err(http_reason("payload must be object", "Provide {\"url\": \"...\"}"))
+    _ =>
+      Err(http_reason("payload must be object", "Provide {\"url\": \"...\"}"))
   }
 }
 
@@ -77,15 +78,17 @@ pub fn run_http_effect(
     body: effect.payload.stringify(indent=2),
   }
   match send(req) {
-    Ok(_) => Ok({
-      effect_id: effect.effect_id,
-      status: @effects_v2_2.ExecutionStatus::Executed,
-      reason: None,
-    })
-    Err(reason) => Ok({
-      effect_id: effect.effect_id,
-      status: @effects_v2_2.ExecutionStatus::Failed,
-      reason: Some(reason),
-    })
+    Ok(_) =>
+      Ok({
+        effect_id: effect.effect_id,
+        status: @effects_v2_2.ExecutionStatus::Executed,
+        reason: None,
+      })
+    Err(reason) =>
+      Ok({
+        effect_id: effect.effect_id,
+        status: @effects_v2_2.ExecutionStatus::Failed,
+        reason: Some(reason),
+      })
   }
 }

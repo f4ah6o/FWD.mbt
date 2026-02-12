@@ -1,5 +1,8 @@
 ///|
-fn read_text_idempotency(path : String, label : String) -> Result[String, String] {
+fn read_text_idempotency(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -29,7 +32,9 @@ test "idempotency reserve fixture" {
 
 ///|
 test "idempotency conflict fixture" {
-  let expected = load_expected("examples/v3/idempotency/expected_duplicate.json")
+  let expected = load_expected(
+    "examples/v3/idempotency/expected_duplicate.json",
+  )
   let store = new_store()
   ignore(reserve(store, "k1", 10))
   let decision = reserve(store, "k1", 11)

@@ -24,12 +24,7 @@ test "metrics json fixture" {
       from_logical_time: Some(10),
       to_logical_time: Some(12),
     },
-    total: {
-      ok: 1,
-      failed: 1,
-      blocked: 0,
-      denied: 1,
-    },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
     by_kind: [
       {
         kind: MetricKind::Transition,

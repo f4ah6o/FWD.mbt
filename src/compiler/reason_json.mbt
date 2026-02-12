@@ -144,6 +144,7 @@ fn json_bool_value(value : Bool) -> String {
 }
 
 ///|
+
 ///|
 fn reason_json_string_output(reason : @core.Reason) -> String {
   let hint = reason_hint(reason)

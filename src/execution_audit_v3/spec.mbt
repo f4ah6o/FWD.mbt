@@ -19,7 +19,7 @@ pub(all) struct AuditItem {
   effect_id : String
   status : ItemStatus
   duration_ms : Int
-  reason : Option[@core.Reason]
+  reason : @core.Reason?
 }
 
 ///|

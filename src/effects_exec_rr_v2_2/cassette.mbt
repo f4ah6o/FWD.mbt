@@ -89,19 +89,18 @@ pub fn cassette_json(cassette : Cassette) -> Json {
 
 ///|
 fn invalid_cassette_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide a valid cassette JSON"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide a valid cassette JSON"),
+  ])
 }
 
 ///|
-fn extract_string(obj : Map[String, Json], name : String) -> Result[String, @core.Reason] {
+fn extract_string(
+  obj : Map[String, Json],
+  name : String,
+) -> Result[String, @core.Reason] {
   match obj.get(name) {
     Some(String(value)) => Ok(value)
     Some(_) => Err(invalid_cassette_reason("field must be string: " + name))
@@ -110,7 +109,10 @@ fn extract_string(obj : Map[String, Json], name : String) -> Result[String, @cor
 }
 
 ///|
-fn extract_headers(obj : Map[String, Json], name : String) -> Result[Map[String, String], @core.Reason] {
+fn extract_headers(
+  obj : Map[String, Json],
+  name : String,
+) -> Result[Map[String, String], @core.Reason] {
   match obj.get(name) {
     None => Ok(Map::new())
     Some(Object(m)) => {
@@ -118,7 +120,10 @@ fn extract_headers(obj : Map[String, Json], name : String) -> Result[Map[String,
       for entry in m.to_array() {
         match entry.1 {
           String(value) => headers[entry.0] = value
-          _ => return Err(invalid_cassette_reason("header must be string: " + entry.0))
+          _ =>
+            return Err(
+              invalid_cassette_reason("header must be string: " + entry.0),
+            )
         }
       }
       Ok(headers)
@@ -128,7 +133,9 @@ fn extract_headers(obj : Map[String, Json], name : String) -> Result[Map[String,
 }
 
 ///|
-fn parse_request(obj : Map[String, Json]) -> Result[CassetteRequest, @core.Reason] {
+fn parse_request(
+  obj : Map[String, Json],
+) -> Result[CassetteRequest, @core.Reason] {
   let http_method = match extract_string(obj, "method") {
     Ok(value) => value
     Err(reason) => return Err(reason)
@@ -149,7 +156,9 @@ fn parse_request(obj : Map[String, Json]) -> Result[CassetteRequest, @core.Reaso
 }
 
 ///|
-fn parse_response(obj : Map[String, Json]) -> Result[CassetteResponse, @core.Reason] {
+fn parse_response(
+  obj : Map[String, Json],
+) -> Result[CassetteResponse, @core.Reason] {
   let status = match obj.get("status") {
     Some(Number(value, ..)) => value.to_int()
     Some(_) => return Err(invalid_cassette_reason("status must be number"))
@@ -167,12 +176,16 @@ fn parse_response(obj : Map[String, Json]) -> Result[CassetteResponse, @core.Rea
 }
 
 ///|
-pub fn parse_cassette_json(input_json : String) -> Result[Cassette, @core.Reason] {
+pub fn parse_cassette_json(
+  input_json : String,
+) -> Result[Cassette, @core.Reason] {
   let parsed : Result[Json, @json.ParseError] = try? @json.parse(input_json)
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
-      return Err(invalid_cassette_reason("input json parse error: " + err.to_string()))
+      return Err(
+        invalid_cassette_reason("input json parse error: " + err.to_string()),
+      )
   }
   let obj = match value {
     Object(m) => m
@@ -193,12 +206,14 @@ pub fn parse_cassette_json(input_json : String) -> Result[Cassette, @core.Reason
       Object(m) => {
         let req_obj = match m.get("request") {
           Some(Object(v)) => v
-          Some(_) => return Err(invalid_cassette_reason("request must be object"))
+          Some(_) =>
+            return Err(invalid_cassette_reason("request must be object"))
           None => return Err(invalid_cassette_reason("missing field: request"))
         }
         let resp_obj = match m.get("response") {
           Some(Object(v)) => v
-          Some(_) => return Err(invalid_cassette_reason("response must be object"))
+          Some(_) =>
+            return Err(invalid_cassette_reason("response must be object"))
           None => return Err(invalid_cassette_reason("missing field: response"))
         }
         let request = match parse_request(req_obj) {

@@ -60,11 +60,9 @@ pub fn execute_transition(
   }
   let tr = ir.transitions[transition_id]
   if tr.from != state_tag {
-    return Err(transition_not_available_reason(
-      transition_id,
-      state,
-      tr.from.value(),
-    ))
+    return Err(
+      transition_not_available_reason(transition_id, state, tr.from.value()),
+    )
   }
   let reasons : Array[@core.Reason] = []
   for rule in tr.rule_refs {
@@ -74,18 +72,22 @@ pub fn execute_transition(
     }
   }
   if reasons.length() > 0 {
-    return Ok(ExecutionOutcome::Blocked({
+    return Ok(
+      ExecutionOutcome::Blocked({
+        id: tr.name,
+        from: tr.from.value(),
+        to: tr.to.value(),
+        reasons,
+      }),
+    )
+  }
+  let effects = collect_effects(ir, tr.effect_refs)
+  Ok(
+    ExecutionOutcome::Executed({
       id: tr.name,
       from: tr.from.value(),
       to: tr.to.value(),
-      reasons,
-    }))
-  }
-  let effects = collect_effects(ir, tr.effect_refs)
-  Ok(ExecutionOutcome::Executed({
-    id: tr.name,
-    from: tr.from.value(),
-    to: tr.to.value(),
-    effects,
-  }))
+      effects,
+    }),
+  )
 }

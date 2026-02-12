@@ -16,15 +16,21 @@ fn load_fixture(path : String) -> String raise {
 }
 
 ///|
-fn fake_send(_req : @effects_exec_adapters_v2_2.HttpRequest) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
+fn fake_send(
+  _req : @effects_exec_adapters_v2_2.HttpRequest,
+) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
   Ok({ status: 200, body: "{\"ok\":true}" })
 }
 
 ///|
 test "real runner uses config allowlist" {
   let plan_text = load_fixture("examples/effects_v2_2/record_cli/plan.json")
-  let config_text = load_fixture("examples/effects_v2_2/real_runner/config.json")
-  let expected = load_fixture("examples/effects_v2_2/real_runner/expected_execution.json")
+  let config_text = load_fixture(
+    "examples/effects_v2_2/real_runner/config.json",
+  )
+  let expected = load_fixture(
+    "examples/effects_v2_2/real_runner/expected_execution.json",
+  )
   let plan = match @effects_v2_2.parse_plan_json(plan_text) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
@@ -34,7 +40,9 @@ test "real runner uses config allowlist" {
     Err(reason) => fail(reason.message())
   }
   let result = execute_with_transport(plan, config, fake_send)
-  let mut output = @effects_v2_2.execution_result_json(result).stringify(indent=2)
+  let mut output = @effects_v2_2.execution_result_json(result).stringify(
+    indent=2,
+  )
   if expected.has_suffix("\n") {
     output = output + "\n"
   }

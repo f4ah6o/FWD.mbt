@@ -15,14 +15,12 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn reason(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
+///|
 fn build_resource_v3() -> ResourceV3 {
   let payload_obj : Map[String, Json] = Map::new()
   payload_obj["amount"] = Json::number(10.0)
@@ -31,9 +29,7 @@ fn build_resource_v3() -> ResourceV3 {
     entity_id: "order-1",
     transition_id: "submit",
     decision: @policy_v3.PolicyDecisionKind::Deny,
-    reasons: [
-      reason("POLICY_DENY", "Policy denied execution", "transition"),
-    ],
+    reasons: [reason("POLICY_DENY", "Policy denied execution", "transition")],
   }
   let plan : @effects_v2_2.EffectsPlan = {
     plan_version: @effects_v2_2.plan_version_v2_2(),

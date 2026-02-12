@@ -15,12 +15,9 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn reason(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
 ///|
@@ -34,9 +31,7 @@ test "timeline export jsonl fixture" {
       kind: @timeline_v3.TimelineKind::Effect,
       ref_id: "http:archive",
       status: "failed",
-      reasons: [
-        reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect"),
-      ],
+      reasons: [reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect")],
     },
     {
       entity_id: "order-1",
@@ -54,9 +49,7 @@ test "timeline export jsonl fixture" {
       kind: @timeline_v3.TimelineKind::Policy,
       ref_id: "policy:submit",
       status: "deny",
-      reasons: [
-        reason("POLICY_DENY", "Policy denied execution", "transition"),
-      ],
+      reasons: [reason("POLICY_DENY", "Policy denied execution", "transition")],
     },
   ]
   let mut output = export_jsonl(events)

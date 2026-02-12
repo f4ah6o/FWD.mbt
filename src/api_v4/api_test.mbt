@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -23,8 +24,9 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   map
 }
 
+///|
 fn parse_json_or_fail(text : String, label : String) -> Json raise {
-  try @json.parse(text) catch {
+  @json.parse(text) catch {
     err => fail(label + ": parse failed: " + err.to_string())
   }
 }
@@ -173,7 +175,9 @@ test "api v4 timeline detail html" {
 
 ///|
 test "api v4 timeline detail mx" {
-  let expected = load_expected("examples/api_v4/timeline_event/expected_mx.html")
+  let expected = load_expected(
+    "examples/api_v4/timeline_event/expected_mx.html",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4/timeline/event/order-1:11:1:policy",
@@ -190,7 +194,9 @@ test "api v4 timeline detail mx" {
 
 ///|
 test "api v4 resource missing entity" {
-  let expected = load_expected("examples/api_v4/resource/expected_missing_entity.json")
+  let expected = load_expected(
+    "examples/api_v4/resource/expected_missing_entity.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4/resource",
@@ -207,7 +213,9 @@ test "api v4 resource missing entity" {
 
 ///|
 test "api v4 timeline invalid cursor" {
-  let expected = load_expected("examples/api_v4/timeline/expected_invalid_cursor.json")
+  let expected = load_expected(
+    "examples/api_v4/timeline/expected_invalid_cursor.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4/timeline",
@@ -224,7 +232,9 @@ test "api v4 timeline invalid cursor" {
 
 ///|
 test "api v4 timeline invalid event id" {
-  let expected = load_expected("examples/api_v4/timeline_event/expected_invalid_id.json")
+  let expected = load_expected(
+    "examples/api_v4/timeline_event/expected_invalid_id.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v4/timeline/event/invalid",

@@ -15,17 +15,16 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn reason(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
 ///|
 test "audit executed fixture" {
-  let expected = load_expected("examples/v3/execution_audit/expected_executed.json")
+  let expected = load_expected(
+    "examples/v3/execution_audit/expected_executed.json",
+  )
   let event : AuditEvent = {
     entity_id: "order-1",
     transition_id: "submit",
@@ -51,7 +50,9 @@ test "audit executed fixture" {
 
 ///|
 test "audit blocked fixture" {
-  let expected = load_expected("examples/v3/execution_audit/expected_blocked.json")
+  let expected = load_expected(
+    "examples/v3/execution_audit/expected_blocked.json",
+  )
   let event : AuditEvent = {
     entity_id: "order-1",
     transition_id: "submit",
@@ -59,9 +60,7 @@ test "audit blocked fixture" {
     sequence: 1,
     status: AuditStatus::Blocked,
     items: [],
-    reasons: [
-      reason("RULE_NOT_SATISFIED", "Rule not satisfied", "runtime"),
-    ],
+    reasons: [reason("RULE_NOT_SATISFIED", "Rule not satisfied", "runtime")],
   }
   let mut output = audit_event_json(event).stringify(indent=2)
   if expected.has_suffix("\n") {
@@ -72,7 +71,9 @@ test "audit blocked fixture" {
 
 ///|
 test "audit partial failure fixture" {
-  let expected = load_expected("examples/v3/execution_audit/expected_partial_failed.json")
+  let expected = load_expected(
+    "examples/v3/execution_audit/expected_partial_failed.json",
+  )
   let event : AuditEvent = {
     entity_id: "order-1",
     transition_id: "submit",
@@ -90,7 +91,9 @@ test "audit partial failure fixture" {
         effect_id: "http:archive",
         status: ItemStatus::Failed,
         duration_ms: 300,
-        reason: Some(reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect")),
+        reason: Some(
+          reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect"),
+        ),
       },
     ],
     reasons: [],

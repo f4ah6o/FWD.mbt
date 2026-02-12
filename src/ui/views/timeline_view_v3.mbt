@@ -1,6 +1,5 @@
 ///|
 /// v3 timeline HTML projection.
-
 fn timeline_reason_nodes(reason : @core.Reason) -> Array[@tmpx.Node] {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(@tmpx.p([], [@tmpx.text(reason.message())]))
@@ -12,6 +11,7 @@ fn timeline_reason_nodes(reason : @core.Reason) -> Array[@tmpx.Node] {
   nodes
 }
 
+///|
 fn event_node_v3(event : @timeline_v3.TimelineEvent) -> @tmpx.Node {
   let children : Array[@tmpx.Node] = []
   let kind_text = match event.kind {
@@ -27,22 +27,24 @@ fn event_node_v3(event : @timeline_v3.TimelineEvent) -> @tmpx.Node {
       children.push(node)
     }
   }
-  @tmpx.div([
-    @tmpx.data_attr("logical-time", event.logical_time.to_string()),
-    @tmpx.data_attr("sequence", event.sequence.to_string()),
-    @tmpx.data_attr("kind", kind_text),
-  ], children)
+  @tmpx.div(
+    [
+      @tmpx.data_attr("logical-time", event.logical_time.to_string()),
+      @tmpx.data_attr("sequence", event.sequence.to_string()),
+      @tmpx.data_attr("kind", kind_text),
+    ],
+    children,
+  )
 }
 
 ///|
-pub fn render_timeline_html_v3(events : Array[@timeline_v3.TimelineEvent]) -> String {
+pub fn render_timeline_html_v3(
+  events : Array[@timeline_v3.TimelineEvent],
+) -> String {
   let nodes : Array[@tmpx.Node] = []
   for event in events {
     nodes.push(event_node_v3(event))
   }
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-timeline")],
-    nodes,
-  )
+  let root = @tmpx.div([@tmpx.class_("fwd-timeline")], nodes)
   @tmpx.render(root)
 }

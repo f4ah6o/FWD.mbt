@@ -9,17 +9,13 @@ fn read_text_v2(path : String, label : String) -> Result[String, String] {
 
 ///|
 test "resource v2 fixture" {
-  let schema_text = match read_text_v2(
-    "examples/api_v2/input_form/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_v2("examples/api_v2/input_form/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let expected = match read_text_v2(
-    "examples/resource_v2/expected.json",
-    "expected",
-  ) {
+  let expected = match
+    read_text_v2("examples/resource_v2/expected.json", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }

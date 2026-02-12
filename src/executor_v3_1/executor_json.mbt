@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for executor detail (v3.1).
-
 fn execution_status_string(status : ExecutionStatus) -> String {
   match status {
     ExecutionStatus::Executed => "executed"
@@ -9,6 +8,7 @@ fn execution_status_string(status : ExecutionStatus) -> String {
   }
 }
 
+///|
 fn attempt_status_string(status : AttemptStatus) -> String {
   match status {
     AttemptStatus::Executed => "executed"
@@ -17,6 +17,7 @@ fn attempt_status_string(status : AttemptStatus) -> String {
   }
 }
 
+///|
 fn attempt_json(attempt : Attempt) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["attempt"] = Json::number(attempt.attempt.to_double())
@@ -44,7 +45,9 @@ pub fn execution_detail_json(detail : ExecutionDetail) -> Json {
   }
   obj["attempts"] = Json::array(attempts)
   obj["idempotency"] = @idempotency_v3.decision_json(detail.idempotency)
-  obj["retryPolicy"] = @retry_policy_v3.retry_policy_schedule_json(detail.retry_policy)
+  obj["retryPolicy"] = @retry_policy_v3.retry_policy_schedule_json(
+    detail.retry_policy,
+  )
   obj["auditEvent"] = @execution_audit_v3.audit_event_json(detail.audit_event)
   Json::object(obj)
 }

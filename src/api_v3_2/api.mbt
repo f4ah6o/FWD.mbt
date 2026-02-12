@@ -39,15 +39,11 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn missing_query_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_MISSING",
-    "missing query: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide query '" + name + "'"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_MISSING", "missing query: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide query '" + name + "'"),
+  ])
 }
 
 ///|
@@ -70,11 +66,9 @@ fn timeline_events(entity : String) -> Array[@timeline_v3.TimelineEvent] {
       ref_id: "policy:submit",
       status: "deny",
       reasons: [
-        @core.Reason::with_context(
-          "POLICY_DENY",
-          "Policy denied execution",
-          [("target", "transition")],
-        ),
+        @core.Reason::with_context("POLICY_DENY", "Policy denied execution", [
+          ("target", "transition"),
+        ]),
       ],
     },
   ]
@@ -101,14 +95,12 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v3.2/timeline"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

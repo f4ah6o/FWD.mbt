@@ -15,17 +15,20 @@ fn load_expected_v3_3(path : String) -> String raise {
   }
 }
 
-fn timeline_reason_v3_3(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+///|
+fn timeline_reason_v3_3(
+  code : String,
+  message : String,
+  target : String,
+) -> @core.Reason {
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
 ///|
 test "timeline v3.3 html filtered fixture" {
-  let expected = load_expected_v3_3("examples/api_v3_3/timeline/expected_filtered.html")
+  let expected = load_expected_v3_3(
+    "examples/api_v3_3/timeline/expected_filtered.html",
+  )
   let events : Array[@timeline_v3.TimelineEvent] = [
     {
       entity_id: "order-1",
@@ -35,7 +38,9 @@ test "timeline v3.3 html filtered fixture" {
       ref_id: "policy:submit",
       status: "deny",
       reasons: [
-        timeline_reason_v3_3("POLICY_DENY", "Policy denied execution", "transition"),
+        timeline_reason_v3_3(
+          "POLICY_DENY", "Policy denied execution", "transition",
+        ),
       ],
     },
   ]

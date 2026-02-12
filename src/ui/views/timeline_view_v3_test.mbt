@@ -1,5 +1,8 @@
 ///|
-fn read_text_timeline_view(path : String, label : String) -> Result[String, String] {
+fn read_text_timeline_view(
+  path : String,
+  label : String,
+) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -15,12 +18,13 @@ fn load_expected_timeline(path : String) -> String raise {
   }
 }
 
-fn timeline_reason(code : String, message : String, target : String) -> @core.Reason {
-  @core.Reason::with_context(
-    code,
-    message,
-    [("target", target)],
-  )
+///|
+fn timeline_reason(
+  code : String,
+  message : String,
+  target : String,
+) -> @core.Reason {
+  @core.Reason::with_context(code, message, [("target", target)])
 }
 
 ///|

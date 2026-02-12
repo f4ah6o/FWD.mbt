@@ -31,7 +31,11 @@ fn response_jsonl(status : Int, body : String) -> ApiResponse {
 }
 
 ///|
-fn response_jsonl_with_cursor(status : Int, body : String, next_cursor : String?) -> ApiResponse {
+fn response_jsonl_with_cursor(
+  status : Int,
+  body : String,
+  next_cursor : String?,
+) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/jsonl"
   match next_cursor {
@@ -57,87 +61,67 @@ fn error_envelope_json(reason : @core.Reason) -> String {
 
 ///|
 fn invalid_query_reason(message : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_INVALID",
-    message,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check query parameters"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_INVALID", message, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check query parameters"),
+  ])
 }
 
 ///|
 fn missing_query_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "QUERY_MISSING",
-    "missing query: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide query '" + name + "'"),
-    ],
-  )
+  @core.Reason::with_context("QUERY_MISSING", "missing query: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide query '" + name + "'"),
+  ])
 }
 
 ///|
 fn job_not_found_reason(job_id : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "JOB_NOT_FOUND",
-    "job not found: " + job_id,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Check job id"),
-    ],
-  )
+  @core.Reason::with_context("JOB_NOT_FOUND", "job not found: " + job_id, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Check job id"),
+  ])
 }
 
 ///|
 fn job_not_ready_reason(job_id : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "JOB_NOT_READY",
-    "job not ready: " + job_id,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Wait for job to complete"),
-    ],
-  )
+  @core.Reason::with_context("JOB_NOT_READY", "job not ready: " + job_id, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Wait for job to complete"),
+  ])
 }
 
 ///|
 fn job_canceled_reason(job_id : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "JOB_CANCELED",
-    "job canceled: " + job_id,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Job was canceled"),
-    ],
-  )
+  @core.Reason::with_context("JOB_CANCELED", "job canceled: " + job_id, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Job was canceled"),
+  ])
 }
 
 ///|
 fn job_expired_reason(job_id : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "JOB_EXPIRED",
-    "job expired: " + job_id,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Job retention expired"),
-    ],
-  )
+  @core.Reason::with_context("JOB_EXPIRED", "job expired: " + job_id, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Job retention expired"),
+  ])
 }
 
+///|
 fn extract_body_json(body : String) -> Result[Map[String, Json], @core.Reason] {
   let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
   let value = match parsed {
     Ok(v) => v
-    Err(err) => return Err(invalid_query_reason("input json parse error: " + err.to_string()))
+    Err(err) =>
+      return Err(
+        invalid_query_reason("input json parse error: " + err.to_string()),
+      )
   }
   match value {
     Object(m) => Ok(m)
@@ -145,7 +129,11 @@ fn extract_body_json(body : String) -> Result[Map[String, Json], @core.Reason] {
   }
 }
 
-fn extract_string_field(obj : Map[String, Json], name : String) -> Result[String, @core.Reason] {
+///|
+fn extract_string_field(
+  obj : Map[String, Json],
+  name : String,
+) -> Result[String, @core.Reason] {
   match obj.get(name) {
     Some(String(value)) => Ok(value)
     Some(_) => Err(invalid_query_reason("field must be string: " + name))
@@ -153,7 +141,11 @@ fn extract_string_field(obj : Map[String, Json], name : String) -> Result[String
   }
 }
 
-fn extract_optional_string(obj : Map[String, Json], name : String) -> Result[String?, @core.Reason] {
+///|
+fn extract_optional_string(
+  obj : Map[String, Json],
+  name : String,
+) -> Result[String?, @core.Reason] {
   match obj.get(name) {
     Some(String(value)) => Ok(Some(value))
     Some(_) => Err(invalid_query_reason("field must be string: " + name))
@@ -161,7 +153,11 @@ fn extract_optional_string(obj : Map[String, Json], name : String) -> Result[Str
   }
 }
 
-fn extract_optional_int(obj : Map[String, Json], name : String) -> Result[Int?, @core.Reason] {
+///|
+fn extract_optional_int(
+  obj : Map[String, Json],
+  name : String,
+) -> Result[Int?, @core.Reason] {
   match obj.get(name) {
     Some(Number(value, ..)) => Ok(Some(value.to_int()))
     Some(_) => Err(invalid_query_reason("field must be number: " + name))
@@ -169,6 +165,7 @@ fn extract_optional_int(obj : Map[String, Json], name : String) -> Result[Int?, 
   }
 }
 
+///|
 fn extract_limit(obj : Map[String, Json]) -> Result[Int, @core.Reason] {
   match obj.get("limit") {
     Some(Number(value, ..)) => {
@@ -186,16 +183,19 @@ fn extract_limit(obj : Map[String, Json]) -> Result[Int, @core.Reason] {
   }
 }
 
+///|
 fn validate_cursor(value : String?) -> Result[String?, @core.Reason] {
   match value {
-    Some(cursor) => match @timeline_event_v3_8.decode_cursor(cursor) {
-      Some(_) => Ok(Some(cursor))
-      None => Err(invalid_query_reason("invalid cursor"))
-    }
+    Some(cursor) =>
+      match @timeline_event_v3_8.decode_cursor(cursor) {
+        Some(_) => Ok(Some(cursor))
+        None => Err(invalid_query_reason("invalid cursor"))
+      }
     None => Ok(None)
   }
 }
 
+///|
 fn substring_from(value : String, start : Int) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
@@ -205,6 +205,7 @@ fn substring_from(value : String, start : Int) -> String {
   sb.to_string()
 }
 
+///|
 fn substring_range(value : String, start : Int, end : Int) -> String {
   let sb = StringBuilder::new()
   let limit = if end < value.length() { end } else { value.length() }
@@ -215,24 +216,28 @@ fn substring_range(value : String, start : Int, end : Int) -> String {
   sb.to_string()
 }
 
+///|
 fn download_url_for_job(job : @export_job_v4_7.JobRecord) -> String? {
   match job.status {
     @export_job_v4_7.JobStatus::Done => ()
     _ => return None
   }
   match job.input {
-    @export_job_v4_7.JobInput::Metrics(input) => {
+    @export_job_v4_7.JobInput::Metrics(input) =>
       if input.format == "jsonl" {
         Some("/v4.7/metrics/export/jobs/" + job.id + "/result.jsonl")
       } else {
         Some("/v4.7/metrics/export/jobs/" + job.id + "/result.csv")
       }
-    }
-    @export_job_v4_7.JobInput::Timeline(_) => Some("/v4.7/timeline/export/jobs/" + job.id + "/result.jsonl")
+    @export_job_v4_7.JobInput::Timeline(_) =>
+      Some("/v4.7/timeline/export/jobs/" + job.id + "/result.jsonl")
   }
 }
 
-fn parse_metrics_body(body : String) -> Result[@export_job_v4_7.MetricsJobInput, @core.Reason] {
+///|
+fn parse_metrics_body(
+  body : String,
+) -> Result[@export_job_v4_7.MetricsJobInput, @core.Reason] {
   let obj = match extract_body_json(body) {
     Ok(value) => value
     Err(reason) => return Err(reason)
@@ -256,10 +261,18 @@ fn parse_metrics_body(body : String) -> Result[@export_job_v4_7.MetricsJobInput,
   if format != "jsonl" && format != "csv" {
     return Err(invalid_query_reason("invalid format"))
   }
-  Ok({ entity_id, from_logical_time: from_time, to_logical_time: to_time, format })
+  Ok({
+    entity_id,
+    from_logical_time: from_time,
+    to_logical_time: to_time,
+    format,
+  })
 }
 
-fn parse_timeline_body(body : String) -> Result[@export_job_v4_7.TimelineJobInput, @core.Reason] {
+///|
+fn parse_timeline_body(
+  body : String,
+) -> Result[@export_job_v4_7.TimelineJobInput, @core.Reason] {
   let obj = match extract_body_json(body) {
     Ok(value) => value
     Err(reason) => return Err(reason)
@@ -305,10 +318,15 @@ fn parse_timeline_body(body : String) -> Result[@export_job_v4_7.TimelineJobInpu
   })
 }
 
+///|
 fn handle_metrics_job_create(req : ApiRequest) -> ApiResponse {
   let body = match req.body {
     Some(text) => text
-    None => return response_json(400, error_envelope_json(invalid_query_reason("missing body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason("missing body")),
+      )
   }
   let input = match parse_metrics_body(body) {
     Ok(value) => value
@@ -321,10 +339,15 @@ fn handle_metrics_job_create(req : ApiRequest) -> ApiResponse {
   response_json(200, @export_job_v4_7.job_json(job, download_url_for_job(job)))
 }
 
+///|
 fn handle_timeline_job_create(req : ApiRequest) -> ApiResponse {
   let body = match req.body {
     Some(text) => text
-    None => return response_json(400, error_envelope_json(invalid_query_reason("missing body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason("missing body")),
+      )
   }
   let input = match parse_timeline_body(body) {
     Ok(value) => value
@@ -337,28 +360,47 @@ fn handle_timeline_job_create(req : ApiRequest) -> ApiResponse {
   response_json(200, @export_job_v4_7.job_json(job, download_url_for_job(job)))
 }
 
-fn handle_job_status(job_id : String, expected_kind : @export_job_v4_7.JobKind) -> ApiResponse {
+///|
+fn handle_job_status(
+  job_id : String,
+  expected_kind : @export_job_v4_7.JobKind,
+) -> ApiResponse {
   let (job_opt, expired) = @job_store_v4_7.get_job_and_step(job_id)
   match job_opt {
     Some(job) => {
       if expired {
-        return response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_expired_reason(job_id)),
+        )
       }
       let kind_ok = match (job.kind, expected_kind) {
-        (@export_job_v4_7.JobKind::Metrics, @export_job_v4_7.JobKind::Metrics) => true
-        (@export_job_v4_7.JobKind::Timeline, @export_job_v4_7.JobKind::Timeline) => true
+        (@export_job_v4_7.JobKind::Metrics, @export_job_v4_7.JobKind::Metrics) =>
+          true
+        (@export_job_v4_7.JobKind::Timeline, @export_job_v4_7.JobKind::Timeline) =>
+          true
         _ => false
       }
       if !kind_ok {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
-      response_json(200, @export_job_v4_7.job_json(job, download_url_for_job(job)))
+      response_json(
+        200,
+        @export_job_v4_7.job_json(job, download_url_for_job(job)),
+      )
     }
-    None => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
 }
 
-fn ensure_job_ready(job : @export_job_v4_7.JobRecord) -> Result[@export_job_v4_7.JobRecord, @core.Reason] {
+///|
+fn ensure_job_ready(
+  job : @export_job_v4_7.JobRecord,
+) -> Result[@export_job_v4_7.JobRecord, @core.Reason] {
   match job.status {
     @export_job_v4_7.JobStatus::Done => Ok(job)
     @export_job_v4_7.JobStatus::Failed => Err(job_canceled_reason(job.id))
@@ -366,12 +408,16 @@ fn ensure_job_ready(job : @export_job_v4_7.JobRecord) -> Result[@export_job_v4_7
   }
 }
 
+///|
 fn handle_metrics_result_jsonl(job_id : String) -> ApiResponse {
   let (job_opt, expired) = @job_store_v4_7.get_job(job_id)
   match job_opt {
     Some(job) => {
       if expired {
-        return response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_expired_reason(job_id)),
+        )
       }
       let ready = match ensure_job_ready(job) {
         Ok(value) => value
@@ -380,23 +426,32 @@ fn handle_metrics_result_jsonl(job_id : String) -> ApiResponse {
       match ready.input {
         @export_job_v4_7.JobInput::Metrics(input) => {
           if input.format != "jsonl" {
-            return response_json(400, error_envelope_json(invalid_query_reason("invalid format")))
+            return response_json(
+              400,
+              error_envelope_json(invalid_query_reason("invalid format")),
+            )
           }
           response_jsonl(200, @metrics_job_v4_7.export_jsonl(input))
         }
-        _ => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        _ =>
+          response_json(404, error_envelope_json(job_not_found_reason(job_id)))
       }
     }
-    None => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
 }
 
+///|
 fn handle_metrics_result_csv(job_id : String) -> ApiResponse {
   let (job_opt, expired) = @job_store_v4_7.get_job(job_id)
   match job_opt {
     Some(job) => {
       if expired {
-        return response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_expired_reason(job_id)),
+        )
       }
       let ready = match ensure_job_ready(job) {
         Ok(value) => value
@@ -405,23 +460,32 @@ fn handle_metrics_result_csv(job_id : String) -> ApiResponse {
       match ready.input {
         @export_job_v4_7.JobInput::Metrics(input) => {
           if input.format != "csv" {
-            return response_json(400, error_envelope_json(invalid_query_reason("invalid format")))
+            return response_json(
+              400,
+              error_envelope_json(invalid_query_reason("invalid format")),
+            )
           }
           response_csv(200, @metrics_job_v4_7.export_csv(input))
         }
-        _ => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        _ =>
+          response_json(404, error_envelope_json(job_not_found_reason(job_id)))
       }
     }
-    None => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
 }
 
+///|
 fn handle_timeline_result_jsonl(job_id : String) -> ApiResponse {
   let (job_opt, expired) = @job_store_v4_7.get_job(job_id)
   match job_opt {
     Some(job) => {
       if expired {
-        return response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_expired_reason(job_id)),
+        )
       }
       let ready = match ensure_job_ready(job) {
         Ok(value) => value
@@ -432,31 +496,52 @@ fn handle_timeline_result_jsonl(job_id : String) -> ApiResponse {
           let (body, next_cursor) = @timeline_job_v4_7.export_page(input)
           response_jsonl_with_cursor(200, body, next_cursor)
         }
-        _ => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        _ =>
+          response_json(404, error_envelope_json(job_not_found_reason(job_id)))
       }
     }
-    None => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
 }
 
-fn handle_cancel(job_id : String, expected_kind : @export_job_v4_7.JobKind) -> ApiResponse {
-  let (job_opt, expired) = @job_store_v4_7.cancel_job(job_id, job_canceled_reason(job_id))
+///|
+fn handle_cancel(
+  job_id : String,
+  expected_kind : @export_job_v4_7.JobKind,
+) -> ApiResponse {
+  let (job_opt, expired) = @job_store_v4_7.cancel_job(
+    job_id,
+    job_canceled_reason(job_id),
+  )
   match job_opt {
     Some(job) => {
       if expired {
-        return response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_expired_reason(job_id)),
+        )
       }
       let kind_ok = match (job.kind, expected_kind) {
-        (@export_job_v4_7.JobKind::Metrics, @export_job_v4_7.JobKind::Metrics) => true
-        (@export_job_v4_7.JobKind::Timeline, @export_job_v4_7.JobKind::Timeline) => true
+        (@export_job_v4_7.JobKind::Metrics, @export_job_v4_7.JobKind::Metrics) =>
+          true
+        (@export_job_v4_7.JobKind::Timeline, @export_job_v4_7.JobKind::Timeline) =>
+          true
         _ => false
       }
       if !kind_ok {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
-      response_json(200, @export_job_v4_7.job_json(job, download_url_for_job(job)))
+      response_json(
+        200,
+        @export_job_v4_7.job_json(job, download_url_for_job(job)),
+      )
     }
-    None => response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
 }
 
@@ -472,31 +557,55 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" && req.path.has_prefix(metrics_status_prefix) {
     let suffix = substring_from(req.path, metrics_status_prefix.length())
     if suffix.has_suffix("/result.jsonl") {
-      let job_id = substring_range(suffix, 0, suffix.length() - "/result.jsonl".length())
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/result.jsonl".length(),
+      )
       if job_id.length() == 0 {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
       return handle_metrics_result_jsonl(job_id)
     }
     if suffix.has_suffix("/result.csv") {
-      let job_id = substring_range(suffix, 0, suffix.length() - "/result.csv".length())
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/result.csv".length(),
+      )
       if job_id.length() == 0 {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
       return handle_metrics_result_csv(job_id)
     }
     let job_id = suffix
     if job_id.length() == 0 {
-      return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
     }
     return handle_job_status(job_id, @export_job_v4_7.JobKind::Metrics)
   }
   if req.http_method == "POST" && req.path.has_prefix(metrics_status_prefix) {
     let suffix = substring_from(req.path, metrics_status_prefix.length())
     if suffix.has_suffix("/cancel") {
-      let job_id = substring_range(suffix, 0, suffix.length() - "/cancel".length())
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/cancel".length(),
+      )
       if job_id.length() == 0 {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
       return handle_cancel(job_id, @export_job_v4_7.JobKind::Metrics)
     }
@@ -505,38 +614,53 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" && req.path.has_prefix(timeline_status_prefix) {
     let suffix = substring_from(req.path, timeline_status_prefix.length())
     if suffix.has_suffix("/result.jsonl") {
-      let job_id = substring_range(suffix, 0, suffix.length() - "/result.jsonl".length())
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/result.jsonl".length(),
+      )
       if job_id.length() == 0 {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
       return handle_timeline_result_jsonl(job_id)
     }
     let job_id = suffix
     if job_id.length() == 0 {
-      return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
     }
     return handle_job_status(job_id, @export_job_v4_7.JobKind::Timeline)
   }
   if req.http_method == "POST" && req.path.has_prefix(timeline_status_prefix) {
     let suffix = substring_from(req.path, timeline_status_prefix.length())
     if suffix.has_suffix("/cancel") {
-      let job_id = substring_range(suffix, 0, suffix.length() - "/cancel".length())
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/cancel".length(),
+      )
       if job_id.length() == 0 {
-        return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
       }
       return handle_cancel(job_id, @export_job_v4_7.JobKind::Timeline)
     }
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v4.7/metrics/export/jobs"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

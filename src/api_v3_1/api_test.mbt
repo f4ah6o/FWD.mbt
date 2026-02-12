@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -26,7 +27,8 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 ///|
 test "api v3.1 execute executed" {
   let expected = load_expected("examples/v3_1/executor/expected_executed.json")
-  let body = match read_text_api("examples/v3_1/executor/body_executed.json", "body") {
+  let body = match
+    read_text_api("examples/v3_1/executor/body_executed.json", "body") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -46,8 +48,11 @@ test "api v3.1 execute executed" {
 
 ///|
 test "api v3.1 execute retry then success" {
-  let expected = load_expected("examples/v3_1/executor/expected_retry_then_success.json")
-  let body = match read_text_api("examples/v3_1/executor/body_retry_then_success.json", "body") {
+  let expected = load_expected(
+    "examples/v3_1/executor/expected_retry_then_success.json",
+  )
+  let body = match
+    read_text_api("examples/v3_1/executor/body_retry_then_success.json", "body") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -67,8 +72,13 @@ test "api v3.1 execute retry then success" {
 
 ///|
 test "api v3.1 execute idempotent duplicate" {
-  let expected = load_expected("examples/v3_1/executor/expected_idempotent_duplicate.json")
-  let body = match read_text_api("examples/v3_1/executor/body_idempotent_duplicate.json", "body") {
+  let expected = load_expected(
+    "examples/v3_1/executor/expected_idempotent_duplicate.json",
+  )
+  let body = match
+    read_text_api(
+      "examples/v3_1/executor/body_idempotent_duplicate.json", "body",
+    ) {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -88,7 +98,9 @@ test "api v3.1 execute idempotent duplicate" {
 
 ///|
 test "api v3.1 execute invalid body" {
-  let expected = load_expected("examples/api_v3_1/execute/expected_invalid_body.json")
+  let expected = load_expected(
+    "examples/api_v3_1/execute/expected_invalid_body.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v3.1/effects/execute",
@@ -105,7 +117,9 @@ test "api v3.1 execute invalid body" {
 
 ///|
 test "api v3.1 execute missing plan" {
-  let expected = load_expected("examples/api_v3_1/execute/expected_missing_plan.json")
+  let expected = load_expected(
+    "examples/api_v3_1/execute/expected_missing_plan.json",
+  )
   let req : ApiRequest = {
     http_method: "POST",
     path: "/v3.1/effects/execute",
@@ -122,8 +136,11 @@ test "api v3.1 execute missing plan" {
 
 ///|
 test "api v3.1 execute missing allowlist" {
-  let expected = load_expected("examples/api_v3_1/execute/expected_missing_allowlist.json")
-  let body = match read_text_api("examples/v3_1/executor/body_executed.json", "body") {
+  let expected = load_expected(
+    "examples/api_v3_1/execute/expected_missing_allowlist.json",
+  )
+  let body = match
+    read_text_api("examples/v3_1/executor/body_executed.json", "body") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -153,8 +170,11 @@ test "api v3.1 execute missing allowlist" {
 
 ///|
 test "api v3.1 execute missing idempotency" {
-  let expected = load_expected("examples/api_v3_1/execute/expected_missing_idempotency.json")
-  let body = match read_text_api("examples/v3_1/executor/body_executed.json", "body") {
+  let expected = load_expected(
+    "examples/api_v3_1/execute/expected_missing_idempotency.json",
+  )
+  let body = match
+    read_text_api("examples/v3_1/executor/body_executed.json", "body") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }

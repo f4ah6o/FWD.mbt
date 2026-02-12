@@ -13,10 +13,8 @@ fn load_execution_fixture(
   expected_path : String,
   transition_id : String,
 ) -> Unit raise {
-  let schema_text = match read_text_execute(
-    "examples/runtime_execute/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_execute("examples/runtime_execute/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -36,12 +34,8 @@ fn load_execution_fixture(
     Ok(values) => values
     Err(reason) => fail(reason.message())
   }
-  let outcome = match @runtime.execute_transition(
-    ir,
-    "Draft",
-    transition_id,
-    rule_results,
-  ) {
+  let outcome = match
+    @runtime.execute_transition(ir, "Draft", transition_id, rule_results) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
   }
@@ -59,10 +53,8 @@ fn load_execution_error_fixture(
   transition_id : String,
   state : String,
 ) -> Unit raise {
-  let schema_text = match read_text_execute(
-    "examples/runtime_execute/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_execute("examples/runtime_execute/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -82,12 +74,8 @@ fn load_execution_error_fixture(
     Ok(values) => values
     Err(reason) => fail(reason.message())
   }
-  let reason = match @runtime.execute_transition(
-    ir,
-    state,
-    transition_id,
-    rule_results,
-  ) {
+  let reason = match
+    @runtime.execute_transition(ir, state, transition_id, rule_results) {
     Ok(_) => fail("expected execute to return error")
     Err(value) => value
   }
@@ -101,8 +89,7 @@ fn load_execution_error_fixture(
 ///|
 test "runtime execute fixture (executed)" {
   load_execution_fixture(
-    "examples/runtime_execute/rules.json",
-    "examples/runtime_execute/expected_executed.json",
+    "examples/runtime_execute/rules.json", "examples/runtime_execute/expected_executed.json",
     "approve",
   )
 }
@@ -110,8 +97,7 @@ test "runtime execute fixture (executed)" {
 ///|
 test "runtime execute fixture (blocked)" {
   load_execution_fixture(
-    "examples/runtime_execute/rules.json",
-    "examples/runtime_execute/expected_blocked.json",
+    "examples/runtime_execute/rules.json", "examples/runtime_execute/expected_blocked.json",
     "reject",
   )
 }
@@ -119,19 +105,15 @@ test "runtime execute fixture (blocked)" {
 ///|
 test "runtime execute fixture (not found)" {
   load_execution_error_fixture(
-    "examples/runtime_execute/rules.json",
-    "examples/runtime_execute/expected_not_found.json",
-    "missing",
-    "Draft",
+    "examples/runtime_execute/rules.json", "examples/runtime_execute/expected_not_found.json",
+    "missing", "Draft",
   )
 }
 
 ///|
 test "runtime execute fixture (not available)" {
   load_execution_error_fixture(
-    "examples/runtime_execute/rules.json",
-    "examples/runtime_execute/expected_not_available.json",
-    "reject",
-    "Approved",
+    "examples/runtime_execute/rules.json", "examples/runtime_execute/expected_not_available.json",
+    "reject", "Approved",
   )
 }

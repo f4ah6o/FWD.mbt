@@ -1,6 +1,5 @@
 ///|
 /// JSON projection for timeline events (v3).
-
 fn kind_string(kind : TimelineKind) -> String {
   match kind {
     TimelineKind::Transition => "transition"
@@ -9,6 +8,7 @@ fn kind_string(kind : TimelineKind) -> String {
   }
 }
 
+///|
 fn compare_string(a : String, b : String) -> Int {
   if a < b {
     -1
@@ -19,6 +19,7 @@ fn compare_string(a : String, b : String) -> Int {
   }
 }
 
+///|
 fn compare_event(a : TimelineEvent, b : TimelineEvent) -> Int {
   let by_entity = compare_string(a.entity_id, b.entity_id)
   if by_entity != 0 {
@@ -37,6 +38,7 @@ fn compare_event(a : TimelineEvent, b : TimelineEvent) -> Int {
   0
 }
 
+///|
 fn event_json(event : TimelineEvent) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["entityId"] = Json::string(event.entity_id)

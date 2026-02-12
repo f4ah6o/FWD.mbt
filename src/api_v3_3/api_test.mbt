@@ -15,6 +15,7 @@ fn load_expected(path : String) -> String raise {
   }
 }
 
+///|
 fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
   let map : Map[String, String] = Map::new()
   for pair in pairs {
@@ -25,11 +26,17 @@ fn query_map(pairs : Array[(String, String)]) -> Map[String, String] {
 
 ///|
 test "api v3.3 timeline filtered html" {
-  let expected = load_expected("examples/api_v3_3/timeline/expected_filtered.html")
+  let expected = load_expected(
+    "examples/api_v3_3/timeline/expected_filtered.html",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.3/timeline",
-    query: query_map([("entityId", "order-1"), ("kind", "policy"), ("limit", "2")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("kind", "policy"),
+      ("limit", "2"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -63,7 +70,11 @@ test "api v3.3 timeline page2 html" {
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.3/timeline",
-    query: query_map([("entityId", "order-1"), ("limit", "2"), ("cursor", "offset:2")]),
+    query: query_map([
+      ("entityId", "order-1"),
+      ("limit", "2"),
+      ("cursor", "offset:2"),
+    ]),
     body: None,
   }
   let res = handle_request(req)
@@ -76,7 +87,9 @@ test "api v3.3 timeline page2 html" {
 
 ///|
 test "api v3.3 timeline invalid query" {
-  let expected = load_expected("examples/api_v3_3/timeline/expected_invalid_query.json")
+  let expected = load_expected(
+    "examples/api_v3_3/timeline/expected_invalid_query.json",
+  )
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v3.3/timeline",

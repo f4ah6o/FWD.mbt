@@ -17,7 +17,9 @@ fn load_expected_v3_8(path : String) -> String raise {
 
 ///|
 test "timeline v3.8 event list html fixture" {
-  let expected = load_expected_v3_8("examples/api_v3_8/timeline_event_list/expected_page1.html")
+  let expected = load_expected_v3_8(
+    "examples/api_v3_8/timeline_event_list/expected_page1.html",
+  )
   let events : Array[@timeline_v3.TimelineEvent] = [
     {
       entity_id: "order-1",
@@ -36,11 +38,9 @@ test "timeline v3.8 event list html fixture" {
       ref_id: "policy:submit",
       status: "deny",
       reasons: [
-        @core.Reason::with_context(
-          "POLICY_DENY",
-          "Policy denied execution",
-          [("target", "transition")],
-        ),
+        @core.Reason::with_context("POLICY_DENY", "Policy denied execution", [
+          ("target", "transition"),
+        ]),
       ],
     },
   ]

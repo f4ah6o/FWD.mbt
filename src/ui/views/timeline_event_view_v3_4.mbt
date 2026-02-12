@@ -1,6 +1,5 @@
 ///|
 /// v3.4 timeline event detail HTML projection.
-
 fn timeline_kind_label_v3_4(kind : @timeline_v3.TimelineKind) -> String {
   match kind {
     @timeline_v3.TimelineKind::Transition => "Transition"
@@ -9,6 +8,7 @@ fn timeline_kind_label_v3_4(kind : @timeline_v3.TimelineKind) -> String {
   }
 }
 
+///|
 fn timeline_reason_nodes_v3_4(reason : @core.Reason) -> Array[@tmpx.Node] {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(@tmpx.p([], [@tmpx.text(reason.message())]))
@@ -20,7 +20,10 @@ fn timeline_reason_nodes_v3_4(reason : @core.Reason) -> Array[@tmpx.Node] {
   nodes
 }
 
-fn event_node_v3_4(detail : @timeline_event_v3_4.TimelineEventDetail) -> @tmpx.Node {
+///|
+fn event_node_v3_4(
+  detail : @timeline_event_v3_4.TimelineEventDetail,
+) -> @tmpx.Node {
   let event = detail.event
   let kind_text = timeline_kind_label_v3_4(event.kind)
   let children : Array[@tmpx.Node] = []
@@ -32,16 +35,21 @@ fn event_node_v3_4(detail : @timeline_event_v3_4.TimelineEventDetail) -> @tmpx.N
       children.push(node)
     }
   }
-  @tmpx.div([
-    @tmpx.class_("fwd-timeline-event"),
-    @tmpx.data_attr("event-id", detail.event_id),
-    @tmpx.data_attr("logical-time", event.logical_time.to_string()),
-    @tmpx.data_attr("sequence", event.sequence.to_string()),
-    @tmpx.data_attr("kind", kind_text),
-  ], children)
+  @tmpx.div(
+    [
+      @tmpx.class_("fwd-timeline-event"),
+      @tmpx.data_attr("event-id", detail.event_id),
+      @tmpx.data_attr("logical-time", event.logical_time.to_string()),
+      @tmpx.data_attr("sequence", event.sequence.to_string()),
+      @tmpx.data_attr("kind", kind_text),
+    ],
+    children,
+  )
 }
 
 ///|
-pub fn render_timeline_event_html_v3_4(detail : @timeline_event_v3_4.TimelineEventDetail) -> String {
+pub fn render_timeline_event_html_v3_4(
+  detail : @timeline_event_v3_4.TimelineEventDetail,
+) -> String {
   @tmpx.render(event_node_v3_4(detail))
 }

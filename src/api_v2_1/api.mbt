@@ -23,7 +23,10 @@ pub(all) struct ApiState {
 
 ///|
 pub fn ApiState::new() -> ApiState {
-  { store: @store_v2_1.Store::new(), history: @history_v2_1.HistoryStore::new() }
+  {
+    store: @store_v2_1.Store::new(),
+    history: @history_v2_1.HistoryStore::new(),
+  }
 }
 
 ///|
@@ -54,14 +57,10 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
       @core.Reason::new("ParseFailure", msg)
     @compiler.CompileError::ResolveFailure(msg) =>
       if msg.has_prefix("rule name conflicts with builtin: ") {
-        @core.Reason::with_context(
-          "RESERVED_WORD_CONFLICT",
-          msg,
-          [
-            ("target", "rule"),
-            ("hint", "Builtin rule names are reserved"),
-          ],
-        )
+        @core.Reason::with_context("RESERVED_WORD_CONFLICT", msg, [
+          ("target", "rule"),
+          ("hint", "Builtin rule names are reserved"),
+        ])
       } else {
         @core.Reason::new("ResolveFailure", msg)
       }
@@ -71,28 +70,20 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
 
 ///|
 fn invalid_body_reason(msg : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_JSON_INVALID",
-    msg,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide a JSON object body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_JSON_INVALID", msg, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide a JSON object body"),
+  ])
 }
 
 ///|
 fn missing_field_reason(name : String) -> @core.Reason {
-  @core.Reason::with_context(
-    "INPUT_MISSING",
-    "missing field: " + name,
-    [
-      ("target", "runtime"),
-      ("level", "error"),
-      ("hint", "Provide field '" + name + "' in JSON body"),
-    ],
-  )
+  @core.Reason::with_context("INPUT_MISSING", "missing field: " + name, [
+    ("target", "runtime"),
+    ("level", "error"),
+    ("hint", "Provide field '" + name + "' in JSON body"),
+  ])
 }
 
 ///|
@@ -124,7 +115,9 @@ fn extract_string_field(
 }
 
 ///|
-fn extract_payload_field(obj : Map[String, Json]) -> Result[Json?, @core.Reason] {
+fn extract_payload_field(
+  obj : Map[String, Json],
+) -> Result[Json?, @core.Reason] {
   match obj.get("payload") {
     None => Ok(None)
     Some(value) => Ok(Some(value))
@@ -166,10 +159,12 @@ fn runtime_execute_json(outcome : @runtime.ExecutionOutcome) -> String {
       for effect in result.effects {
         let eobj : Map[String, Json] = Map::new()
         eobj["name"] = Json::string(effect.name)
-        eobj["kind"] = Json::string(match effect.kind {
-          @core.EffectKind::Sync => "sync"
-          @core.EffectKind::Async => "async"
-        })
+        eobj["kind"] = Json::string(
+          match effect.kind {
+            @core.EffectKind::Sync => "sync"
+            @core.EffectKind::Async => "async"
+          },
+        )
         effects.push(Json::object(eobj))
       }
       obj["effects"] = Json::array(effects)
@@ -215,7 +210,11 @@ fn entity_html_response(snapshot : @store_v2_1.Snapshot) -> String {
 fn handle_create(state : ApiState, req : ApiRequest) -> ApiResponse {
   let body = match req.body {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_field_reason("body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_field_reason("body")),
+      )
   }
   let obj = match extract_body_json(body) {
     Ok(value) => value
@@ -239,21 +238,23 @@ fn handle_create(state : ApiState, req : ApiRequest) -> ApiResponse {
 }
 
 ///|
-fn handle_get(state : ApiState, entity_id : String, format : String) -> ApiResponse {
+fn handle_get(
+  state : ApiState,
+  entity_id : String,
+  format : String,
+) -> ApiResponse {
   let snapshot = match state.store.get(entity_id) {
     Some(value) => value
     None =>
       return response_json(
         404,
-        error_envelope_json(@core.Reason::with_context(
-          "ENTITY_NOT_FOUND",
-          "entity not found",
-          [
+        error_envelope_json(
+          @core.Reason::with_context("ENTITY_NOT_FOUND", "entity not found", [
             ("target", "runtime"),
             ("level", "error"),
             ("hint", "Create the entity first"),
-          ],
-        )),
+          ]),
+        ),
       )
   }
   if format == "v2_1_html" {
@@ -263,7 +264,11 @@ fn handle_get(state : ApiState, entity_id : String, format : String) -> ApiRespo
 }
 
 ///|
-fn handle_history(state : ApiState, entity_id : String, format : String) -> ApiResponse {
+fn handle_history(
+  state : ApiState,
+  entity_id : String,
+  format : String,
+) -> ApiResponse {
   let events = state.history.get(entity_id)
   if format == "v2_1_html" {
     return response_html(200, history_html_response(events))
@@ -272,7 +277,9 @@ fn handle_history(state : ApiState, entity_id : String, format : String) -> ApiR
 }
 
 ///|
-fn extract_input_field(obj : Map[String, Json]) -> Result[Map[String, Bool], @core.Reason] {
+fn extract_input_field(
+  obj : Map[String, Json],
+) -> Result[Map[String, Bool], @core.Reason] {
   match obj.get("input") {
     None => Ok(Map::new())
     Some(value) => @hypermedia.parse_rule_results(value.stringify())
@@ -280,10 +287,19 @@ fn extract_input_field(obj : Map[String, Json]) -> Result[Map[String, Bool], @co
 }
 
 ///|
-fn handle_execute(schema_text : String, state : ApiState, req : ApiRequest, entity_id : String) -> ApiResponse {
+fn handle_execute(
+  schema_text : String,
+  state : ApiState,
+  req : ApiRequest,
+  entity_id : String,
+) -> ApiResponse {
   let body = match req.body {
     Some(value) => value
-    None => return response_json(400, error_envelope_json(missing_field_reason("body")))
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(missing_field_reason("body")),
+      )
   }
   let obj = match extract_body_json(body) {
     Ok(value) => value
@@ -293,10 +309,13 @@ fn handle_execute(schema_text : String, state : ApiState, req : ApiRequest, enti
     Ok(value) => value
     Err(reason) => return response_json(400, error_envelope_json(reason))
   }
-  let payload = match ensure_payload_object(match extract_payload_field(obj) {
-    Ok(value) => value
-    Err(reason) => return response_json(400, error_envelope_json(reason))
-  }) {
+  let payload = match
+    ensure_payload_object(
+      match extract_payload_field(obj) {
+        Ok(value) => value
+        Err(reason) => return response_json(400, error_envelope_json(reason))
+      },
+    ) {
     Ok(value) => value
     Err(reason) => return response_json(400, error_envelope_json(reason))
   }
@@ -309,20 +328,22 @@ fn handle_execute(schema_text : String, state : ApiState, req : ApiRequest, enti
     None =>
       return response_json(
         404,
-        error_envelope_json(@core.Reason::with_context(
-          "ENTITY_NOT_FOUND",
-          "entity not found",
-          [
+        error_envelope_json(
+          @core.Reason::with_context("ENTITY_NOT_FOUND", "entity not found", [
             ("target", "runtime"),
             ("level", "error"),
             ("hint", "Create the entity first"),
-          ],
-        )),
+          ]),
+        ),
       )
   }
   let ir = match @compiler.compile_yaml(schema_text) {
     Ok(value) => value
-    Err(err) => return response_json(400, error_envelope_json(reason_from_compile_error(err)))
+    Err(err) =>
+      return response_json(
+        400,
+        error_envelope_json(reason_from_compile_error(err)),
+      )
   }
   match @runtime.execute_transition(ir, snapshot.state, transition, input) {
     Ok(outcome) => {
@@ -339,30 +360,34 @@ fn handle_execute(schema_text : String, state : ApiState, req : ApiRequest, enti
             snapshot.version + 1,
           )
           state.store.save(new_snapshot)
-          ignore(state.history.append(
-            snapshot.entity_id,
-            result.id,
-            result.from,
-            result.to,
-            payload_value,
-            @history_v2_1.HistoryResult::Executed,
-            [],
-          ))
+          ignore(
+            state.history.append(
+              snapshot.entity_id,
+              result.id,
+              result.from,
+              result.to,
+              payload_value,
+              @history_v2_1.HistoryResult::Executed,
+              [],
+            ),
+          )
         }
         @runtime.ExecutionOutcome::Blocked(blocked) => {
           let payload_value = match payload {
             Some(value) => value
             None => snapshot.payload.unwrap_or(Json::object(Map::new()))
           }
-          ignore(state.history.append(
-            snapshot.entity_id,
-            blocked.id,
-            blocked.from,
-            blocked.to,
-            payload_value,
-            @history_v2_1.HistoryResult::Blocked,
-            blocked.reasons,
-          ))
+          ignore(
+            state.history.append(
+              snapshot.entity_id,
+              blocked.id,
+              blocked.from,
+              blocked.to,
+              payload_value,
+              @history_v2_1.HistoryResult::Blocked,
+              blocked.reasons,
+            ),
+          )
         }
       }
       response_json(200, runtime_execute_json(outcome))
@@ -404,13 +429,22 @@ pub fn handle_request(
   if request.http_method == "GET" && request.path.has_prefix("/v2.1/entities/") {
     let entity_id = match parse_entity_id(request.path, "/v2.1/entities/") {
       Some(value) => value
-      None => return response_json(404, error_envelope_json(missing_field_reason("entityId")))
+      None =>
+        return response_json(
+          404,
+          error_envelope_json(missing_field_reason("entityId")),
+        )
     }
     if request.path.has_suffix("/history") {
-      let trimmed = try! request.path[:request.path.length() - "/history".length()].to_string()
+      let trimmed = try! request.path[:request.path.length() -
+      "/history".length()].to_string()
       let eid = match parse_entity_id(trimmed, "/v2.1/entities/") {
         Some(value) => value
-        None => return response_json(404, error_envelope_json(missing_field_reason("entityId")))
+        None =>
+          return response_json(
+            404,
+            error_envelope_json(missing_field_reason("entityId")),
+          )
       }
       return handle_history(state, eid, format)
     }
@@ -423,29 +457,25 @@ pub fn handle_request(
       None =>
         return response_json(
           404,
-          error_envelope_json(@core.Reason::with_context(
-            "ENTITY_NOT_FOUND",
-            "entity not found",
-            [
+          error_envelope_json(
+            @core.Reason::with_context("ENTITY_NOT_FOUND", "entity not found", [
               ("target", "runtime"),
               ("level", "error"),
               ("hint", "Create the entity first"),
-            ],
-          )),
+            ]),
+          ),
         )
     }
     return handle_execute(schema_text, state, request, entity_id)
   }
   response_json(
     404,
-    error_envelope_json(@core.Reason::with_context(
-      "ROUTE_NOT_FOUND",
-      "route not found",
-      [
+    error_envelope_json(
+      @core.Reason::with_context("ROUTE_NOT_FOUND", "route not found", [
         ("target", "runtime"),
         ("level", "error"),
         ("hint", "Use /v2.1/entities"),
-      ],
-    )),
+      ]),
+    ),
   )
 }

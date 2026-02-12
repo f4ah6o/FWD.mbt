@@ -58,7 +58,9 @@ fn execute_body(transition : String, approve : Bool, reject : Bool) -> String {
 
 ///|
 test "api v2.1 create entity" {
-  let expected = load_expected("examples/api_v2_1/entities_create/expected.json")
+  let expected = load_expected(
+    "examples/api_v2_1/entities_create/expected.json",
+  )
   let schema_text = load_schema()
   let state = ApiState::new()
   let req : ApiRequest = {
@@ -169,7 +171,9 @@ test "api v2.1 history html" {
 
 ///|
 test "api v2.1 history html empty" {
-  let expected = load_expected("examples/api_v2_1/history_html/expected_empty.html")
+  let expected = load_expected(
+    "examples/api_v2_1/history_html/expected_empty.html",
+  )
   let schema_text = load_schema()
   let state = ApiState::new()
   let create_req : ApiRequest = {
@@ -190,7 +194,9 @@ test "api v2.1 history html empty" {
 
 ///|
 test "api v2.1 execute executed" {
-  let expected = load_expected("examples/api_v2_1/execute_executed/expected.json")
+  let expected = load_expected(
+    "examples/api_v2_1/execute_executed/expected.json",
+  )
   let schema_text = load_schema()
   let state = ApiState::new()
   let create_req : ApiRequest = {
@@ -211,7 +217,9 @@ test "api v2.1 execute executed" {
 
 ///|
 test "api v2.1 execute blocked" {
-  let expected = load_expected("examples/api_v2_1/execute_blocked/expected.json")
+  let expected = load_expected(
+    "examples/api_v2_1/execute_blocked/expected.json",
+  )
   let schema_text = load_schema()
   let state = ApiState::new()
   let create_req : ApiRequest = {
@@ -232,7 +240,9 @@ test "api v2.1 execute blocked" {
 
 ///|
 test "api v2.1 execute not found" {
-  let expected = load_expected("examples/api_v2_1/execute_not_found/expected.json")
+  let expected = load_expected(
+    "examples/api_v2_1/execute_not_found/expected.json",
+  )
   let schema_text = load_schema()
   let state = ApiState::new()
   let create_req : ApiRequest = {
@@ -253,7 +263,9 @@ test "api v2.1 execute not found" {
 
 ///|
 test "api v2.1 execute not available" {
-  let expected = load_expected("examples/api_v2_1/execute_not_available/expected.json")
+  let expected = load_expected(
+    "examples/api_v2_1/execute_not_available/expected.json",
+  )
   let schema_text = load_schema()
   let state = ApiState::new()
   let create_req : ApiRequest = {

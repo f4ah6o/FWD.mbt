@@ -1,0 +1,9 @@
+import {
+  "fwd/metrics_v3_6",
+  "moonbitlang/core/json",
+}
+
+import {
+  "fwd/metrics_snapshot_v4_5",
+  "moonbitlang/x/fs",
+} for "test"

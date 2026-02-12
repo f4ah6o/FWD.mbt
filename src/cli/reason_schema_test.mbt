@@ -7,7 +7,10 @@ struct ReasonSchema {
 }
 
 ///|
-fn json_object(json : Json, label : String) -> Result[Map[String, Json], String] {
+fn json_object(
+  json : Json,
+  label : String,
+) -> Result[Map[String, Json], String] {
   match json {
     Object(obj) => Ok(obj)
     _ => Err("expected object: " + label)
@@ -70,8 +73,9 @@ fn object_get(
 
 ///|
 fn load_reason_schema() -> Result[ReasonSchema, String] {
-  let schema_text_result : Result[String, @fs.IOError] =
-    try? @fs.read_file_to_string("src/schema/reason.schema.v1.json")
+  let schema_text_result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(
+    "src/schema/reason.schema.v1.json",
+  )
   let schema_text = match schema_text_result {
     Ok(text) => text
     Err(err) => return Err("read schema failed: " + err.to_string())
@@ -99,7 +103,8 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
       Err(msg) => return Err(msg)
     }
   }
-  let properties_json = match object_get(root, "properties", "schema.properties") {
+  let properties_json = match
+    object_get(root, "properties", "schema.properties") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -107,22 +112,18 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let reason_version = match object_get(
-    properties,
-    "reasonVersion",
-    "schema.properties.reasonVersion",
-  ) {
+  let reason_version = match
+    object_get(properties, "reasonVersion", "schema.properties.reasonVersion") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let reason_version_obj = match json_object(
-    reason_version,
-    "schema.properties.reasonVersion",
-  ) {
+  let reason_version_obj = match
+    json_object(reason_version, "schema.properties.reasonVersion") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let code_props = match object_get(properties, "code", "schema.properties.code") {
+  let code_props = match
+    object_get(properties, "code", "schema.properties.code") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -130,11 +131,8 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let level_props = match object_get(
-    properties,
-    "level",
-    "schema.properties.level",
-  ) {
+  let level_props = match
+    object_get(properties, "level", "schema.properties.level") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -142,11 +140,8 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let target_props = match object_get(
-    properties,
-    "target",
-    "schema.properties.target",
-  ) {
+  let target_props = match
+    object_get(properties, "target", "schema.properties.target") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -154,18 +149,15 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let reason_version_const = match object_get(
-    reason_version_obj,
-    "const",
-    "schema.properties.reasonVersion.const",
-  ) {
+  let reason_version_const = match
+    object_get(
+      reason_version_obj, "const", "schema.properties.reasonVersion.const",
+    ) {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let reason_version_value = match json_number(
-    reason_version_const,
-    "schema.properties.reasonVersion.const",
-  ) {
+  let reason_version_value = match
+    json_number(reason_version_const, "schema.properties.reasonVersion.const") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -182,27 +174,24 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
     Err(_) => ()
   }
   if code_pattern is None {
-    let anyof_json = match object_get(
-      code_obj,
-      "anyOf",
-      "schema.properties.code.anyOf",
-    ) {
+    let anyof_json = match
+      object_get(code_obj, "anyOf", "schema.properties.code.anyOf") {
       Ok(value) => value
       Err(msg) => return Err(msg)
     }
-    let anyof_items = match json_array(
-      anyof_json,
-      "schema.properties.code.anyOf",
-    ) {
+    let anyof_items = match
+      json_array(anyof_json, "schema.properties.code.anyOf") {
       Ok(value) => value
       Err(msg) => return Err(msg)
     }
     for item in anyof_items {
-      let item_obj = match json_object(item, "schema.properties.code.anyOf item") {
+      let item_obj = match
+        json_object(item, "schema.properties.code.anyOf item") {
         Ok(value) => value
         Err(msg) => return Err(msg)
       }
-      match object_get(item_obj, "pattern", "schema.properties.code.anyOf.pattern") {
+      match
+        object_get(item_obj, "pattern", "schema.properties.code.anyOf.pattern") {
         Ok(value) =>
           match json_string(value, "schema.properties.code.anyOf.pattern") {
             Ok(text) => code_pattern = Some(text)
@@ -216,18 +205,13 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
     Some(value) => value
     None => return Err("schema missing code pattern")
   }
-  let level_enum_json = match object_get(
-    level_obj,
-    "enum",
-    "schema.properties.level.enum",
-  ) {
+  let level_enum_json = match
+    object_get(level_obj, "enum", "schema.properties.level.enum") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let level_enum_raw = match json_array(
-    level_enum_json,
-    "schema.properties.level.enum",
-  ) {
+  let level_enum_raw = match
+    json_array(level_enum_json, "schema.properties.level.enum") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -238,18 +222,13 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
       Err(msg) => return Err(msg)
     }
   }
-  let target_enum_json = match object_get(
-    target_obj,
-    "enum",
-    "schema.properties.target.enum",
-  ) {
+  let target_enum_json = match
+    object_get(target_obj, "enum", "schema.properties.target.enum") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let target_enum_raw = match json_array(
-    target_enum_json,
-    "schema.properties.target.enum",
-  ) {
+  let target_enum_raw = match
+    json_array(target_enum_json, "schema.properties.target.enum") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -260,12 +239,7 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
       Err(msg) => return Err(msg)
     }
   }
-  Ok({
-    required,
-    level_enum,
-    target_enum,
-    code_pattern: code_pattern_value,
-  })
+  Ok({ required, level_enum, target_enum, code_pattern: code_pattern_value })
 }
 
 ///|
@@ -274,7 +248,10 @@ fn is_code_char(ch : Int) -> Bool {
 }
 
 ///|
-fn matches_code_pattern(pattern : String, code : String) -> Result[Bool, String] {
+fn matches_code_pattern(
+  pattern : String,
+  code : String,
+) -> Result[Bool, String] {
   if pattern != "^[A-Z0-9_]+$" {
     return Err("unsupported pattern: " + pattern)
   }
@@ -305,12 +282,7 @@ fn validate_reason_against_schema(
     }
   }
   let allowed_fields = [
-    "reasonVersion",
-    "code",
-    "level",
-    "target",
-    "message",
-    "hint",
+    "reasonVersion", "code", "level", "target", "message", "hint",
   ]
   for entry in reason.to_array() {
     if !allowed_fields.contains(entry.0) {
@@ -318,7 +290,10 @@ fn validate_reason_against_schema(
     }
   }
   match reason.get("reasonVersion") {
-    Some(Number(value, ..)) => if value != 1.0 { return Err("reasonVersion must be 1") }
+    Some(Number(value, ..)) =>
+      if value != 1.0 {
+        return Err("reasonVersion must be 1")
+      }
     _ => return Err("reasonVersion must be number")
   }
   match reason.get("code") {
@@ -345,7 +320,10 @@ fn validate_reason_against_schema(
     _ => return Err("target must be string")
   }
   match reason.get("message") {
-    Some(String(message)) => if message.length() == 0 { return Err("message empty") }
+    Some(String(message)) =>
+      if message.length() == 0 {
+        return Err("message empty")
+      }
     _ => return Err("message must be string")
   }
   match reason.get("hint") {
@@ -362,7 +340,8 @@ fn extract_reasons(output_json : Json) -> Result[Array[Json], String] {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
-  let reasons_json = match object_get(root, "reasons", "validation output reasons") {
+  let reasons_json = match
+    object_get(root, "reasons", "validation output reasons") {
     Ok(value) => value
     Err(msg) => return Err(msg)
   }
@@ -430,7 +409,8 @@ fn assert_baseline_reasons(
       Ok(_) => return Err("baseline reason code must be string")
       Err(msg) => return Err(msg)
     }
-    match reason_field_non_empty(reason_obj, "target", "baseline reason target") {
+    match
+      reason_field_non_empty(reason_obj, "target", "baseline reason target") {
       Ok(_) => ()
       Err(msg) => return Err(msg)
     }
@@ -458,11 +438,7 @@ test "reason json schema validation" {
     @core.Reason::with_context(
       "unknown_state",
       "transition.to is not defined in states",
-      [
-        ("state", "Missing"),
-        ("target", "state"),
-        ("level", "error"),
-      ],
+      [("state", "Missing"), ("target", "state"), ("level", "error")],
     ),
   )
   let output = @compiler.validation_json_string(false, reasons)
@@ -474,11 +450,13 @@ test "reason json schema validation" {
     Ok(value) => value
     Err(msg) => fail(msg)
   }
-  let reasons_json = match object_get(root, "reasons", "validation output reasons") {
+  let reasons_json = match
+    object_get(root, "reasons", "validation output reasons") {
     Ok(value) => value
     Err(msg) => fail(msg)
   }
-  let reason_items = match json_array(reasons_json, "validation output reasons") {
+  let reason_items = match
+    json_array(reasons_json, "validation output reasons") {
     Ok(value) => value
     Err(msg) => fail(msg)
   }
@@ -509,13 +487,12 @@ test "reason json schema validation" {
     @core.Reason::with_context(
       "RESERVED_WORD_CONFLICT",
       "rule name conflicts with builtin: hasAtLeastOneState",
-      [
-        ("target", "rule"),
-        ("hint", "Builtin rule names are reserved"),
-      ],
+      [("target", "rule"), ("hint", "Builtin rule names are reserved")],
     ),
   )
-  let reserved_output = @compiler.validation_json_string(false, reserved_reasons)
+  let reserved_output = @compiler.validation_json_string(
+    false, reserved_reasons,
+  )
   let reserved_json = match parse_json(reserved_output, "reserved output") {
     Ok(value) => value
     Err(msg) => fail(msg)
@@ -524,18 +501,13 @@ test "reason json schema validation" {
     Ok(value) => value
     Err(msg) => fail(msg)
   }
-  let reserved_reasons_json = match object_get(
-    reserved_root,
-    "reasons",
-    "reserved output reasons",
-  ) {
+  let reserved_reasons_json = match
+    object_get(reserved_root, "reasons", "reserved output reasons") {
     Ok(value) => value
     Err(msg) => fail(msg)
   }
-  let reserved_items = match json_array(
-    reserved_reasons_json,
-    "reserved output reasons",
-  ) {
+  let reserved_items = match
+    json_array(reserved_reasons_json, "reserved output reasons") {
     Ok(value) => value
     Err(msg) => fail(msg)
   }
@@ -545,30 +517,33 @@ test "reason json schema validation" {
       Err(msg) => fail("schema validation failed: " + msg)
     }
   }
-  match assert_baseline_reasons(
-    schema,
-    "examples/remove-state.yaml",
-    "examples/fwd_schema_change_valid.yaml",
-    ["STATE_REMOVED", "MIGRATION_REQUIRED"],
-  ) {
+  match
+    assert_baseline_reasons(
+      schema,
+      "examples/remove-state.yaml",
+      "examples/fwd_schema_change_valid.yaml",
+      ["STATE_REMOVED", "MIGRATION_REQUIRED"],
+    ) {
     Ok(_) => ()
     Err(msg) => fail(msg)
   }
-  match assert_baseline_reasons(
-    schema,
-    "examples/remove-transition.yaml",
-    "examples/fwd_schema_change_valid.yaml",
-    ["TRANSITION_REMOVED", "MIGRATION_REQUIRED"],
-  ) {
+  match
+    assert_baseline_reasons(
+      schema,
+      "examples/remove-transition.yaml",
+      "examples/fwd_schema_change_valid.yaml",
+      ["TRANSITION_REMOVED", "MIGRATION_REQUIRED"],
+    ) {
     Ok(_) => ()
     Err(msg) => fail(msg)
   }
-  match assert_baseline_reasons(
-    schema,
-    "examples/modify-transition.yaml",
-    "examples/fwd_schema_change_valid.yaml",
-    ["TRANSITION_MODIFIED", "MIGRATION_REQUIRED"],
-  ) {
+  match
+    assert_baseline_reasons(
+      schema,
+      "examples/modify-transition.yaml",
+      "examples/fwd_schema_change_valid.yaml",
+      ["TRANSITION_MODIFIED", "MIGRATION_REQUIRED"],
+    ) {
     Ok(_) => ()
     Err(msg) => fail(msg)
   }

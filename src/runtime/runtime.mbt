@@ -65,8 +65,5 @@ pub fn compute_available_transitions(
       blocked.push({ id: tr.name, reasons })
     }
   }
-  Ok({
-    available_transitions: available,
-    blocked_transitions: blocked,
-  })
+  Ok({ available_transitions: available, blocked_transitions: blocked })
 }

@@ -8,30 +8,26 @@ fn read_text_plain(path : String, label : String) -> Result[String, String] {
 }
 
 ///|
-fn parse_rule_results_local(input_json : String) -> Result[Map[String, Bool], @core.Reason] {
+fn parse_rule_results_local(
+  input_json : String,
+) -> Result[Map[String, Bool], @core.Reason] {
   parse_rule_results(input_json)
 }
 
 ///|
 test "hypermedia show fixture" {
-  let schema_text = match read_text_plain(
-    "examples/hypermedia_show/model.yaml",
-    "model",
-  ) {
+  let schema_text = match
+    read_text_plain("examples/hypermedia_show/model.yaml", "model") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let rules_text = match read_text_plain(
-    "examples/hypermedia_show/rules.json",
-    "rules",
-  ) {
+  let rules_text = match
+    read_text_plain("examples/hypermedia_show/rules.json", "rules") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let expected = match read_text_plain(
-    "examples/hypermedia_show/expected.json",
-    "expected",
-  ) {
+  let expected = match
+    read_text_plain("examples/hypermedia_show/expected.json", "expected") {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -43,11 +39,8 @@ test "hypermedia show fixture" {
     Ok(values) => values
     Err(reason) => fail(reason.message())
   }
-  let runtime_result = match @runtime.compute_available_transitions(
-    ir,
-    "Draft",
-    rule_results,
-  ) {
+  let runtime_result = match
+    @runtime.compute_available_transitions(ir, "Draft", rule_results) {
     Ok(value) => value
     Err(reason) => fail(reason.message())
   }
@@ -61,10 +54,10 @@ test "hypermedia show fixture" {
 
 ///|
 test "hypermedia invalid input json" {
-  let expected = match read_text_plain(
-    "examples/hypermedia_show/invalid_input.json",
-    "invalid expected",
-  ) {
+  let expected = match
+    read_text_plain(
+      "examples/hypermedia_show/invalid_input.json", "invalid expected",
+    ) {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
