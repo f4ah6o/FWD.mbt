@@ -796,3 +796,116 @@ test "api v5 policy missing body" {
     res, "fixtures/v5/policy/check/case_missing_body.response.json",
   )
 }
+
+///|
+test "api v5.1 retry clean start" {
+  let res = handle_request({
+    http_method: "POST",
+    path: "/v5.1/export/jobs/job-7/retry",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/retry_resume/case_retry_clean_start.response.json",
+  )
+}
+
+///|
+test "api v5.1 resume from cursor" {
+  let res = handle_request({
+    http_method: "POST",
+    path: "/v5.1/export/jobs/job-8/resume",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/retry_resume/case_resume_from_cursor.response.json",
+  )
+}
+
+///|
+test "api v5.1 partial resume" {
+  let res = handle_request({
+    http_method: "POST",
+    path: "/v5.1/export/jobs/job-9/resume/partial",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/retry_resume/case_partial_resume.response.json",
+  )
+}
+
+///|
+test "api v5.1 rollback metadata only" {
+  let res = handle_request({
+    http_method: "POST",
+    path: "/v5.1/export/batch/jobs/batch-3/rollback",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/rollback/case_rollback_metadata_only.response.json",
+  )
+}
+
+///|
+test "api v5.1 retention hierarchy" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.1/retention/evaluate/hierarchy",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(res, "fixtures/v5_1/retention/case_hierarchy.response.json")
+}
+
+///|
+test "api v5.1 retention precedence" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.1/retention/evaluate/precedence",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(res, "fixtures/v5_1/retention/case_precedence.response.json")
+}
+
+///|
+test "api v5.1 retention post expiry visibility" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.1/retention/evaluate/post-expiry-visibility",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/retention/case_post_expiry_visibility.response.json",
+  )
+}
+
+///|
+test "api v5.1 optional job view" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.1/views/jobs/job-11",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/views_optional/case_job_view.response.json",
+  )
+}
+
+///|
+test "api v5.1 optional batch view" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.1/views/batch/jobs/batch-11",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res, "fixtures/v5_1/views_optional/case_batch_view.response.json",
+  )
+}

@@ -568,7 +568,336 @@ fn substring_range(value : String, start : Int, end : Int) -> String {
 }
 
 ///|
+fn v5_1_retry_json(job_id : String) -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "jobId": Json::string(job_id),
+    "status": Json::string("running"),
+    "progress": Json::object({
+      "processed": Json::number(0),
+      "total": Json::number(3),
+    }),
+    "ttlSeconds": Json::number(120),
+    "executionMode": Json::string("retry"),
+    "resumeCursor": Json::null(),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_resume_json(job_id : String) -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "jobId": Json::string(job_id),
+    "status": Json::string("running"),
+    "progress": Json::object({
+      "processed": Json::number(2),
+      "total": Json::number(5),
+    }),
+    "ttlSeconds": Json::number(120),
+    "executionMode": Json::string("resume"),
+    "resumeCursor": Json::string("cursor-v5_1-job-8-step-2"),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_partial_resume_json(job_id : String) -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "jobId": Json::string(job_id),
+    "status": Json::string("running"),
+    "progress": Json::object({
+      "processed": Json::number(1),
+      "total": Json::number(4),
+    }),
+    "ttlSeconds": Json::number(120),
+    "executionMode": Json::string("partial_resume"),
+    "resumeCursor": Json::string("cursor-v5_1-job-9-step-1"),
+    "unitGranularity": Json::string("job_segments"),
+    "resumeUnits": Json::array([
+      Json::string("segment-2"),
+      Json::string("segment-4"),
+    ]),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_batch_rollback_json(batch_id : String) -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "jobId": Json::string(batch_id),
+    "status": Json::string("rolled_back"),
+    "rollbackMode": Json::string("metadata_only"),
+    "createdAtAnchor": Json::string("anchor-v5-batch-3-created"),
+    "ttlSeconds": Json::number(240),
+    "childIds": Json::array([Json::string("job-31"), Json::string("job-32")]),
+    "children": Json::array([
+      Json::object({
+        "jobId": Json::string("job-31"),
+        "status": Json::string("rolled_back"),
+      }),
+      Json::object({
+        "jobId": Json::string("job-32"),
+        "status": Json::string("rolled_back"),
+      }),
+    ]),
+    "results": Json::object({ "visibility": Json::string("retained") }),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_retention_hierarchy_json() -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "evaluationAxis": Json::string("poll_count"),
+    "pollCount": Json::number(6),
+    "scopes": Json::object({
+      "system": Json::object({ "expiryPollCount": Json::number(10) }),
+      "batch": Json::object({ "expiryPollCount": Json::number(8) }),
+      "job": Json::object({ "expiryPollCount": Json::number(6) }),
+    }),
+    "precedenceOrder": Json::array([
+      Json::string("job"),
+      Json::string("batch"),
+      Json::string("system"),
+    ]),
+    "effectiveScope": Json::string("job"),
+    "effectiveExpiryPollCount": Json::number(6),
+    "expired": Json::boolean(true),
+    "postExpiryVisibility": Json::object({
+      "results": Json::string("hidden"),
+      "metadata": Json::string("retained"),
+    }),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_retention_precedence_json() -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "evaluationAxis": Json::string("poll_count"),
+    "pollCount": Json::number(7),
+    "scope": Json::string("job"),
+    "candidateExpiries": Json::array([
+      Json::object({
+        "ruleId": Json::string("job_rule_01"),
+        "expiryPollCount": Json::number(7),
+      }),
+      Json::object({
+        "ruleId": Json::string("job_rule_02"),
+        "expiryPollCount": Json::number(7),
+      }),
+    ]),
+    "sameScopeTieBreakRule": Json::string("lowest_rule_id"),
+    "selectedRuleId": Json::string("job_rule_01"),
+    "effectiveExpiryPollCount": Json::number(7),
+    "expired": Json::boolean(true),
+    "postExpiryVisibility": Json::object({
+      "results": Json::string("hidden"),
+      "metadata": Json::string("retained"),
+    }),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_retention_visibility_json() -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "evaluationAxis": Json::string("poll_count"),
+    "pollCount": Json::number(9),
+    "effectiveExpiryPollCount": Json::number(9),
+    "expired": Json::boolean(true),
+    "postExpiryVisibility": Json::object({
+      "results": Json::string("hidden"),
+      "metadata": Json::string("retained"),
+    }),
+    "resultAccess": Json::object({
+      "get": Json::string("hidden"),
+      "download": Json::string("hidden"),
+    }),
+    "metadataAccess": Json::object({
+      "get": Json::string("retained"),
+      "status": Json::string("retained"),
+    }),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_job_view_json(job_id : String) -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "jobId": Json::string(job_id),
+    "status": Json::string("queued"),
+    "progress": Json::object({
+      "processed": Json::number(0),
+      "total": Json::number(3),
+    }),
+    "ttlSeconds": Json::number(120),
+  }).stringify(indent=2)
+}
+
+///|
+fn v5_1_batch_view_json(batch_id : String) -> String {
+  Json::object({
+    "jobVersion": Json::string("5.1"),
+    "jobId": Json::string(batch_id),
+    "status": Json::string("queued"),
+    "progress": Json::object({
+      "processed": Json::number(0),
+      "total": Json::number(2),
+    }),
+    "ttlSeconds": Json::number(240),
+    "childIds": Json::array([Json::string("job-111"), Json::string("job-112")]),
+  }).stringify(indent=2)
+}
+
+///|
+fn handle_v5_1_job_retry(job_id : String) -> ApiResponse {
+  if job_id == "job-7" {
+    response_json(200, v5_1_retry_json(job_id))
+  } else {
+    response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_1_job_resume(job_id : String) -> ApiResponse {
+  if job_id == "job-8" {
+    response_json(200, v5_1_resume_json(job_id))
+  } else {
+    response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_1_job_partial_resume(job_id : String) -> ApiResponse {
+  if job_id == "job-9" {
+    response_json(200, v5_1_partial_resume_json(job_id))
+  } else {
+    response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_1_batch_rollback(job_id : String) -> ApiResponse {
+  if job_id == "batch-3" {
+    response_json(200, v5_1_batch_rollback_json(job_id))
+  } else {
+    response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_1_job_view(job_id : String) -> ApiResponse {
+  if job_id == "job-11" {
+    response_json(200, v5_1_job_view_json(job_id))
+  } else {
+    response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_1_batch_view(job_id : String) -> ApiResponse {
+  if job_id == "batch-11" {
+    response_json(200, v5_1_batch_view_json(job_id))
+  } else {
+    response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
 pub fn handle_request(req : ApiRequest) -> ApiResponse {
+  if req.http_method == "GET" &&
+    req.path == "/v5.1/retention/evaluate/hierarchy" {
+    return response_json(200, v5_1_retention_hierarchy_json())
+  }
+  if req.http_method == "GET" &&
+    req.path == "/v5.1/retention/evaluate/precedence" {
+    return response_json(200, v5_1_retention_precedence_json())
+  }
+  if req.http_method == "GET" &&
+    req.path == "/v5.1/retention/evaluate/post-expiry-visibility" {
+    return response_json(200, v5_1_retention_visibility_json())
+  }
+  let v5_1_jobs_prefix = "/v5.1/export/jobs/"
+  if req.path.has_prefix(v5_1_jobs_prefix) {
+    let suffix = substring_from(req.path, v5_1_jobs_prefix.length())
+    if req.http_method == "POST" && suffix.has_suffix("/resume/partial") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/resume/partial".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_1_job_partial_resume(job_id)
+    }
+    if req.http_method == "POST" && suffix.has_suffix("/resume") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/resume".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_1_job_resume(job_id)
+    }
+    if req.http_method == "POST" && suffix.has_suffix("/retry") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/retry".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_1_job_retry(job_id)
+    }
+  }
+  let v5_1_batch_prefix = "/v5.1/export/batch/jobs/"
+  if req.path.has_prefix(v5_1_batch_prefix) {
+    let suffix = substring_from(req.path, v5_1_batch_prefix.length())
+    if req.http_method == "POST" && suffix.has_suffix("/rollback") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/rollback".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_1_batch_rollback(job_id)
+    }
+  }
+  let v5_1_view_jobs_prefix = "/v5.1/views/jobs/"
+  if req.http_method == "GET" && req.path.has_prefix(v5_1_view_jobs_prefix) {
+    let job_id = substring_from(req.path, v5_1_view_jobs_prefix.length())
+    if job_id.length() == 0 {
+      return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    }
+    return handle_v5_1_job_view(job_id)
+  }
+  let v5_1_view_batch_prefix = "/v5.1/views/batch/jobs/"
+  if req.http_method == "GET" && req.path.has_prefix(v5_1_view_batch_prefix) {
+    let job_id = substring_from(req.path, v5_1_view_batch_prefix.length())
+    if job_id.length() == 0 {
+      return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    }
+    return handle_v5_1_batch_view(job_id)
+  }
   if req.http_method == "GET" && req.path == "/v5/observability/metrics/summary" {
     return response_json(200, @observability_v5.metrics_summary_json())
   }
