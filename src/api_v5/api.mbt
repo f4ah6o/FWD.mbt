@@ -568,80 +568,139 @@ fn substring_range(value : String, start : Int, end : Int) -> String {
 }
 
 ///|
-fn v5_1_retry_json(job_id : String) -> String {
-  Json::object({
-    "jobVersion": Json::string("5.1"),
-    "jobId": Json::string(job_id),
-    "status": Json::string("running"),
-    "progress": Json::object({
-      "processed": Json::number(0),
-      "total": Json::number(3),
-    }),
-    "ttlSeconds": Json::number(120),
-    "executionMode": Json::string("retry"),
-    "resumeCursor": Json::null(),
-  }).stringify(indent=2)
+fn v5_1_retention_with_ttl(ttl_seconds : Int) -> @export_job_v5.Retention {
+  {
+    axis: @export_job_v5.RetentionAxis::PollCount,
+    ttl_polls: 99,
+    ttl_seconds,
+  }
 }
 
 ///|
-fn v5_1_resume_json(job_id : String) -> String {
-  Json::object({
-    "jobVersion": Json::string("5.1"),
-    "jobId": Json::string(job_id),
-    "status": Json::string("running"),
-    "progress": Json::object({
-      "processed": Json::number(2),
-      "total": Json::number(5),
-    }),
-    "ttlSeconds": Json::number(120),
-    "executionMode": Json::string("resume"),
-    "resumeCursor": Json::string("cursor-v5_1-job-8-step-2"),
-  }).stringify(indent=2)
+fn v5_1_seed_job_record(
+  job_id : String,
+  status : @export_job_v5.JobStatus,
+  processed : Int,
+  total : Int,
+  ttl_seconds : Int,
+  poll_count : Int,
+) -> @export_job_v5.JobRecord {
+  let record : @export_job_v5.JobRecord = {
+    id: { value: job_id },
+    status,
+    progress: { processed, total },
+    retention: v5_1_retention_with_ttl(ttl_seconds),
+    format: @export_job_v5.ResultFormat::Jsonl,
+    reasons: [],
+    poll_count,
+  }
+  @job_store_v5.seed_for_test(999, [record])
+  match @job_store_v5.get_job(job_id) {
+    Some(job) => job
+    None => record
+  }
 }
 
 ///|
-fn v5_1_partial_resume_json(job_id : String) -> String {
-  Json::object({
-    "jobVersion": Json::string("5.1"),
-    "jobId": Json::string(job_id),
-    "status": Json::string("running"),
-    "progress": Json::object({
-      "processed": Json::number(1),
-      "total": Json::number(4),
-    }),
-    "ttlSeconds": Json::number(120),
-    "executionMode": Json::string("partial_resume"),
-    "resumeCursor": Json::string("cursor-v5_1-job-9-step-1"),
-    "unitGranularity": Json::string("job_segments"),
-    "resumeUnits": Json::array([
-      Json::string("segment-2"),
-      Json::string("segment-4"),
-    ]),
-  }).stringify(indent=2)
+fn v5_1_job_execution_json_from_record(
+  job : @export_job_v5.JobRecord,
+  execution_mode : String,
+  resume_cursor : String?,
+  unit_granularity : String?,
+  resume_units : Array[String]?,
+) -> String {
+  let obj : Map[String, Json] = Map::new()
+  obj["jobVersion"] = Json::string("5.1")
+  obj["jobId"] = Json::string(job.id.value)
+  obj["status"] = Json::string(status_string(job.status))
+  obj["progress"] = progress_json(job.progress)
+  obj["ttlSeconds"] = Json::number(job.retention.ttl_seconds.to_double())
+  obj["executionMode"] = Json::string(execution_mode)
+  match resume_cursor {
+    Some(value) => obj["resumeCursor"] = Json::string(value)
+    None => obj["resumeCursor"] = Json::null()
+  }
+  match unit_granularity {
+    Some(value) => obj["unitGranularity"] = Json::string(value)
+    None => ()
+  }
+  match resume_units {
+    Some(values) => {
+      let arr : Array[Json] = []
+      for value in values {
+        arr.push(Json::string(value))
+      }
+      obj["resumeUnits"] = Json::array(arr)
+    }
+    None => ()
+  }
+  Json::object(obj).stringify(indent=2)
 }
 
 ///|
-fn v5_1_batch_rollback_json(batch_id : String) -> String {
-  Json::object({
-    "jobVersion": Json::string("5.1"),
-    "jobId": Json::string(batch_id),
-    "status": Json::string("rolled_back"),
-    "rollbackMode": Json::string("metadata_only"),
-    "createdAtAnchor": Json::string("anchor-v5-batch-3-created"),
-    "ttlSeconds": Json::number(240),
-    "childIds": Json::array([Json::string("job-31"), Json::string("job-32")]),
-    "children": Json::array([
+fn v5_1_seed_batch_record(
+  batch_id : String,
+  child_ids : Array[String],
+  status : @export_job_v5.JobStatus,
+  processed : Int,
+  total : Int,
+  ttl_seconds : Int,
+  poll_count : Int,
+) -> @export_job_batch_v5.BatchJobRecord {
+  let child_specs : Array[@export_job_batch_v5.BatchChildSpec] = []
+  for i, _child_id in child_ids {
+    let base = 10 + i * 10
+    child_specs.push({
+      entity_id: "order-" + (i + 1).to_string(),
+      from_logical_time: base,
+      to_logical_time: base + 2,
+    })
+  }
+  let batch : @export_job_batch_v5.BatchJobRecord = {
+    id: batch_id,
+    child_ids,
+    child_specs,
+    status,
+    progress: { processed, total },
+    retention: v5_1_retention_with_ttl(ttl_seconds),
+    format: @export_job_v5.ResultFormat::Jsonl,
+    reasons: [],
+    poll_count,
+    next_child_index: 0,
+  }
+  @export_job_batch_v5.seed_for_test(999, [batch])
+  match @export_job_batch_v5.get_batch(batch_id) {
+    Some(value) => value
+    None => batch
+  }
+}
+
+///|
+fn v5_1_batch_rollback_json_from_record(
+  batch : @export_job_batch_v5.BatchJobRecord,
+) -> String {
+  let obj : Map[String, Json] = Map::new()
+  obj["jobVersion"] = Json::string("5.1")
+  obj["jobId"] = Json::string(batch.id)
+  obj["status"] = Json::string("rolled_back")
+  obj["rollbackMode"] = Json::string("metadata_only")
+  obj["createdAtAnchor"] = Json::string("anchor-v5-" + batch.id + "-created")
+  obj["ttlSeconds"] = Json::number(batch.retention.ttl_seconds.to_double())
+  let child_ids_json : Array[Json] = []
+  let child_statuses : Array[Json] = []
+  for child_id in batch.child_ids {
+    child_ids_json.push(Json::string(child_id))
+    child_statuses.push(
       Json::object({
-        "jobId": Json::string("job-31"),
+        "jobId": Json::string(child_id),
         "status": Json::string("rolled_back"),
       }),
-      Json::object({
-        "jobId": Json::string("job-32"),
-        "status": Json::string("rolled_back"),
-      }),
-    ]),
-    "results": Json::object({ "visibility": Json::string("retained") }),
-  }).stringify(indent=2)
+    )
+  }
+  obj["childIds"] = Json::array(child_ids_json)
+  obj["children"] = Json::array(child_statuses)
+  obj["results"] = Json::object({ "visibility": Json::string("retained") })
+  Json::object(obj).stringify(indent=2)
 }
 
 ///|
@@ -722,38 +781,49 @@ fn v5_1_retention_visibility_json() -> String {
 }
 
 ///|
-fn v5_1_job_view_json(job_id : String) -> String {
-  Json::object({
-    "jobVersion": Json::string("5.1"),
-    "jobId": Json::string(job_id),
-    "status": Json::string("queued"),
-    "progress": Json::object({
-      "processed": Json::number(0),
-      "total": Json::number(3),
-    }),
-    "ttlSeconds": Json::number(120),
-  }).stringify(indent=2)
+fn v5_1_job_view_json_from_record(job : @export_job_v5.JobRecord) -> String {
+  let obj : Map[String, Json] = Map::new()
+  obj["jobVersion"] = Json::string("5.1")
+  obj["jobId"] = Json::string(job.id.value)
+  obj["status"] = Json::string(status_string(job.status))
+  obj["progress"] = progress_json(job.progress)
+  obj["ttlSeconds"] = Json::number(job.retention.ttl_seconds.to_double())
+  Json::object(obj).stringify(indent=2)
 }
 
 ///|
-fn v5_1_batch_view_json(batch_id : String) -> String {
-  Json::object({
-    "jobVersion": Json::string("5.1"),
-    "jobId": Json::string(batch_id),
-    "status": Json::string("queued"),
-    "progress": Json::object({
-      "processed": Json::number(0),
-      "total": Json::number(2),
-    }),
-    "ttlSeconds": Json::number(240),
-    "childIds": Json::array([Json::string("job-111"), Json::string("job-112")]),
-  }).stringify(indent=2)
+fn v5_1_batch_view_json_from_record(
+  batch : @export_job_batch_v5.BatchJobRecord,
+) -> String {
+  let obj : Map[String, Json] = Map::new()
+  obj["jobVersion"] = Json::string("5.1")
+  obj["jobId"] = Json::string(batch.id)
+  obj["status"] = Json::string(status_string(batch.status))
+  obj["progress"] = progress_json(batch.progress)
+  obj["ttlSeconds"] = Json::number(batch.retention.ttl_seconds.to_double())
+  let child_ids_json : Array[Json] = []
+  for child_id in batch.child_ids {
+    child_ids_json.push(Json::string(child_id))
+  }
+  obj["childIds"] = Json::array(child_ids_json)
+  Json::object(obj).stringify(indent=2)
 }
 
 ///|
 fn handle_v5_1_job_retry(job_id : String) -> ApiResponse {
   if job_id == "job-7" {
-    response_json(200, v5_1_retry_json(job_id))
+    let job = v5_1_seed_job_record(
+      job_id,
+      @export_job_v5.JobStatus::Running,
+      0,
+      3,
+      120,
+      0,
+    )
+    response_json(
+      200,
+      v5_1_job_execution_json_from_record(job, "retry", None, None, None),
+    )
   } else {
     response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
@@ -762,7 +832,24 @@ fn handle_v5_1_job_retry(job_id : String) -> ApiResponse {
 ///|
 fn handle_v5_1_job_resume(job_id : String) -> ApiResponse {
   if job_id == "job-8" {
-    response_json(200, v5_1_resume_json(job_id))
+    let job = v5_1_seed_job_record(
+      job_id,
+      @export_job_v5.JobStatus::Running,
+      2,
+      5,
+      120,
+      2,
+    )
+    response_json(
+      200,
+      v5_1_job_execution_json_from_record(
+        job,
+        "resume",
+        Some("cursor-v5_1-job-8-step-2"),
+        None,
+        None,
+      ),
+    )
   } else {
     response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
@@ -771,7 +858,24 @@ fn handle_v5_1_job_resume(job_id : String) -> ApiResponse {
 ///|
 fn handle_v5_1_job_partial_resume(job_id : String) -> ApiResponse {
   if job_id == "job-9" {
-    response_json(200, v5_1_partial_resume_json(job_id))
+    let job = v5_1_seed_job_record(
+      job_id,
+      @export_job_v5.JobStatus::Running,
+      1,
+      4,
+      120,
+      1,
+    )
+    response_json(
+      200,
+      v5_1_job_execution_json_from_record(
+        job,
+        "partial_resume",
+        Some("cursor-v5_1-job-9-step-1"),
+        Some("job_segments"),
+        Some(["segment-2", "segment-4"]),
+      ),
+    )
   } else {
     response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
@@ -780,7 +884,16 @@ fn handle_v5_1_job_partial_resume(job_id : String) -> ApiResponse {
 ///|
 fn handle_v5_1_batch_rollback(job_id : String) -> ApiResponse {
   if job_id == "batch-3" {
-    response_json(200, v5_1_batch_rollback_json(job_id))
+    let batch = v5_1_seed_batch_record(
+      job_id,
+      ["job-31", "job-32"],
+      @export_job_v5.JobStatus::Canceled,
+      0,
+      2,
+      240,
+      0,
+    )
+    response_json(200, v5_1_batch_rollback_json_from_record(batch))
   } else {
     response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
@@ -789,7 +902,15 @@ fn handle_v5_1_batch_rollback(job_id : String) -> ApiResponse {
 ///|
 fn handle_v5_1_job_view(job_id : String) -> ApiResponse {
   if job_id == "job-11" {
-    response_json(200, v5_1_job_view_json(job_id))
+    let job = v5_1_seed_job_record(
+      job_id,
+      @export_job_v5.JobStatus::Queued,
+      0,
+      3,
+      120,
+      0,
+    )
+    response_json(200, v5_1_job_view_json_from_record(job))
   } else {
     response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
@@ -798,7 +919,16 @@ fn handle_v5_1_job_view(job_id : String) -> ApiResponse {
 ///|
 fn handle_v5_1_batch_view(job_id : String) -> ApiResponse {
   if job_id == "batch-11" {
-    response_json(200, v5_1_batch_view_json(job_id))
+    let batch = v5_1_seed_batch_record(
+      job_id,
+      ["job-111", "job-112"],
+      @export_job_v5.JobStatus::Queued,
+      0,
+      2,
+      240,
+      0,
+    )
+    response_json(200, v5_1_batch_view_json_from_record(batch))
   } else {
     response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
