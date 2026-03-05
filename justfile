@@ -7,3 +7,9 @@ ci:
     moon check
     moon test
     just bootstrap
+
+tornado *args:
+    opz z.ai -- tornado --config=tornado.json {{args}}
+
+tornado-validate:
+    opz z.ai -- tornado validate tornado.json

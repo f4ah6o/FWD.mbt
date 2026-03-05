@@ -1,0 +1,22 @@
+{
+  "project_dir": ".",
+  "review_dir": ".tornado/reviews",
+  "max_review_cycles": 3,
+  "agents": [
+    {
+      "id": "dev",
+      "kind": "claude-code",
+      "role": "dev",
+      "working_dir": ".",
+      "max_iterations": 12
+    },
+    {
+      "id": "reviewer",
+      "kind": "codex",
+      "role": "review",
+      "model": "gpt-5.3-codex",
+      "working_dir": ".",
+      "max_iterations": 6
+    }
+  ]
+}
