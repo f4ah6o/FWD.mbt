@@ -885,10 +885,24 @@ test "api v5.1 retention post expiry visibility" {
 }
 
 ///|
-test "api v5.1 optional job view" {
+test "api v5.1 observability job view" {
+  let job : @export_job_v5.JobRecord = {
+    id: { value: "job-11" },
+    status: @export_job_v5.JobStatus::Queued,
+    progress: { processed: 0, total: 3 },
+    retention: {
+      axis: @export_job_v5.RetentionAxis::PollCount,
+      ttl_polls: 3,
+      ttl_seconds: 120,
+    },
+    format: @export_job_v5.ResultFormat::Jsonl,
+    reasons: [],
+    poll_count: 0,
+  }
+  @job_store_v5.seed_for_test(12, [job])
   let res = handle_request({
     http_method: "GET",
-    path: "/v5.1/views/jobs/job-11",
+    path: "/v5/observability/views/job/job-11",
     query: query_map([]),
     body: None,
   })
@@ -898,10 +912,27 @@ test "api v5.1 optional job view" {
 }
 
 ///|
-test "api v5.1 optional batch view" {
+test "api v5.1 observability batch view" {
+  let batch : @export_job_batch_v5.BatchJobRecord = {
+    id: "batch-11",
+    child_ids: ["job-111", "job-112"],
+    child_specs: [],
+    status: @export_job_v5.JobStatus::Queued,
+    progress: { processed: 0, total: 2 },
+    retention: {
+      axis: @export_job_v5.RetentionAxis::PollCount,
+      ttl_polls: 6,
+      ttl_seconds: 240,
+    },
+    format: @export_job_v5.ResultFormat::Jsonl,
+    reasons: [],
+    poll_count: 0,
+    next_child_index: 0,
+  }
+  @export_job_batch_v5.seed_for_test(12, [batch])
   let res = handle_request({
     http_method: "GET",
-    path: "/v5.1/views/batch/jobs/batch-11",
+    path: "/v5/observability/views/batch/batch-11",
     query: query_map([]),
     body: None,
   })

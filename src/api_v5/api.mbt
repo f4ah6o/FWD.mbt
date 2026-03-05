@@ -1034,6 +1034,36 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" && req.path == "/v5/observability/export/audit" {
     return response_json(200, @observability_v5.export_audit_json())
   }
+  let view_job_prefix = "/v5/observability/views/job/"
+  if req.http_method == "GET" && req.path.has_prefix(view_job_prefix) {
+    let job_id = substring_from(req.path, view_job_prefix.length())
+    if job_id.length() == 0 {
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
+    }
+    return match @observability_view_v5_1.job_view_json(job_id) {
+      Some(body) => response_json(200, body)
+      None =>
+        response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+    }
+  }
+  let view_batch_prefix = "/v5/observability/views/batch/"
+  if req.http_method == "GET" && req.path.has_prefix(view_batch_prefix) {
+    let batch_id = substring_from(req.path, view_batch_prefix.length())
+    if batch_id.length() == 0 {
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(batch_id)),
+      )
+    }
+    return match @observability_view_v5_1.batch_view_json(batch_id) {
+      Some(body) => response_json(200, body)
+      None =>
+        response_json(404, error_envelope_json(job_not_found_reason(batch_id)))
+    }
+  }
   if req.http_method == "POST" && req.path == "/v5/policy/check" {
     let result = @policy_gate_v5.check_policy(req.body)
     let headers : Map[String, String] = Map::new()
