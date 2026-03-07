@@ -1362,3 +1362,109 @@ test "api v5.5 invalid cursor" {
     "fixtures/v5_5/timeline/case_invalid_cursor.response.json",
   )
 }
+
+///|
+fn expect_response_html(
+  res : ApiResponse,
+  expected_path : String,
+) -> Unit raise {
+  let expected = load_expected(expected_path)
+  inspect(res.status, content="200")
+  inspect(
+    res.headers.get("content-type"),
+    content="Some(\"text/html\")",
+  )
+  let mut body = res.body
+  if expected.has_suffix("\n") {
+    body = body + "\n"
+  }
+  inspect(body, content=expected)
+}
+
+///|
+test "api v5.6 single job timeline html" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("limit", "2"), ("format", "html")]),
+    body: None,
+  })
+  expect_response_html(
+    res,
+    "fixtures/v5_6/timeline/page1_expected.html",
+  )
+}
+
+///|
+test "api v5.6 single job timeline mx" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("limit", "2"), ("format", "mx")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(
+    res.headers.get("content-type"),
+    content="Some(\"text/html\")",
+  )
+  // MX response should contain mx-target and mx-get
+  inspect(res.body.contains("mx-target"), content="true")
+  inspect(res.body.contains("mx-get"), content="true")
+}
+
+///|
+test "api v5.6 single job timeline page2 html" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([
+      ("limit", "2"),
+      ("cursor", "offset:2"),
+      ("format", "html"),
+    ]),
+    body: None,
+  })
+  expect_response_html(
+    res,
+    "fixtures/v5_6/timeline/page2_expected.html",
+  )
+}
+
+///|
+test "api v5.6 single job timeline filtered html" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([
+      ("fromLogicalTime", "1"),
+      ("toLogicalTime", "1"),
+      ("format", "html"),
+    ]),
+    body: None,
+  })
+  expect_response_html(
+    res,
+    "fixtures/v5_6/timeline/filtered_expected.html",
+  )
+}
+
+///|
+test "api v5.6 no format falls back to json" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("limit", "2")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(
+    res.headers.get("content-type"),
+    content="Some(\"application/json\")",
+  )
+}

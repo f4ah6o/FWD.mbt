@@ -8,6 +8,9 @@ import {
   "fwd/timeline_event_v3_4",
   "fwd/timeline_event_v3_9",
   "fwd/store_v2_1",
+  "fwd/export_job_v5",
+  "fwd/job_timeline_v5_4",
+  "fwd/job_timeline_v5_5",
   "f4ah6o/tmpx/tmpx",
 }
 

@@ -14,6 +14,7 @@ import {
   "fwd/job_timeline_v5_4",
   "fwd/job_store_v5_4",
   "fwd/job_timeline_v5_5",
+  "fwd/ui/views" @views,
   "moonbitlang/core/json",
 }
 

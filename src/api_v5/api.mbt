@@ -38,6 +38,13 @@ fn response_csv(status : Int, body : String) -> ApiResponse {
 }
 
 ///|
+fn response_html(status : Int, body : String) -> ApiResponse {
+  let headers : Map[String, String] = Map::new()
+  headers["content-type"] = "text/html"
+  { status, headers, body }
+}
+
+///|
 fn response_json_with_headers(
   status : Int,
   body : String,
@@ -1349,11 +1356,31 @@ fn handle_v5_5_job_timeline(
     cursor: query.get("cursor"),
   }
   match @job_timeline_v5_5.query_timeline(tl_query) {
-    Ok(page) =>
-      response_json(
-        200,
-        @job_timeline_v5_5.paginated_timeline_json(job_id, page),
-      )
+    Ok(page) => {
+      let format = query.get("format")
+      let base_url = "/v5.5/export/jobs/" + job_id + "/timeline"
+      match format {
+        Some("html") =>
+          response_html(
+            200,
+            @views.render_job_timeline_html_v5_6(
+              { job_id, base_url, page },
+            ),
+          )
+        Some("mx") =>
+          response_html(
+            200,
+            @views.render_job_timeline_html_v5_6_mx(
+              { job_id, base_url, page },
+            ),
+          )
+        _ =>
+          response_json(
+            200,
+            @job_timeline_v5_5.paginated_timeline_json(job_id, page),
+          )
+      }
+    }
     Err(msg) =>
       response_json(
         400,
@@ -1401,11 +1428,33 @@ fn handle_v5_5_batch_timeline(
         limit,
         query.get("cursor"),
       ) {
-        Ok(page) =>
-          response_json(
-            200,
-            @job_timeline_v5_5.paginated_batch_timeline_json(batch_id, page),
-          )
+        Ok(page) => {
+          let format = query.get("format")
+          let base_url = "/v5.5/export/batch/jobs/" + batch_id + "/timeline"
+          match format {
+            Some("html") =>
+              response_html(
+                200,
+                @views.render_job_timeline_html_v5_6(
+                  { job_id: batch_id, base_url, page },
+                ),
+              )
+            Some("mx") =>
+              response_html(
+                200,
+                @views.render_job_timeline_html_v5_6_mx(
+                  { job_id: batch_id, base_url, page },
+                ),
+              )
+            _ =>
+              response_json(
+                200,
+                @job_timeline_v5_5.paginated_batch_timeline_json(
+                  batch_id, page,
+                ),
+              )
+          }
+        }
         Err(msg) =>
           response_json(
             400,
