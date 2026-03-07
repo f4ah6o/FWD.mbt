@@ -1,0 +1,18 @@
+{
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.2",
+    "axes": [
+      {"axis": "logical_time", "threshold": 50, "current": 60, "expired": true}
+    ],
+    "effectiveAxis": "logical_time",
+    "effectiveThreshold": 50,
+    "expired": true,
+    "resolutionRule": "strictest_wins",
+    "postExpiryVisibility": {
+      "results": "hidden",
+      "metadata": "retained"
+    }
+  }
+}

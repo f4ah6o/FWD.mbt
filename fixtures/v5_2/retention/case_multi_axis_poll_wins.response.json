@@ -1,0 +1,19 @@
+{
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.2",
+    "axes": [
+      {"axis": "poll_count", "threshold": 5, "current": 6, "expired": true},
+      {"axis": "logical_time", "threshold": 100, "current": 50, "expired": false}
+    ],
+    "effectiveAxis": "poll_count",
+    "effectiveThreshold": 5,
+    "expired": true,
+    "resolutionRule": "strictest_wins",
+    "postExpiryVisibility": {
+      "results": "hidden",
+      "metadata": "retained"
+    }
+  }
+}

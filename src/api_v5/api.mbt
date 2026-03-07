@@ -568,6 +568,63 @@ fn substring_range(value : String, start : Int, end : Int) -> String {
 }
 
 ///|
+fn parse_v5_2_axis(value : String) -> @retention_v5_2.RetentionAxisV52? {
+  if value == "poll_count" {
+    Some(@retention_v5_2.RetentionAxisV52::PollCount)
+  } else if value == "logical_time" {
+    Some(@retention_v5_2.RetentionAxisV52::LogicalTime)
+  } else {
+    None
+  }
+}
+
+///|
+fn parse_v5_2_eval_input(
+  obj : Map[String, Json],
+) -> Result[@retention_v5_2.MultiAxisEvalInput, @core.Reason] {
+  let policies : Array[@retention_v5_2.RetentionPolicyV52] = []
+  let policies_json = match obj.get("policies") {
+    Some(Array(items)) => items
+    Some(_) => return Err(invalid_query_reason("policies must be array"))
+    None => return Err(missing_query_reason("policies"))
+  }
+  for item in policies_json {
+    let entry = match item {
+      Object(m) => m
+      _ => return Err(invalid_query_reason("policy must be object"))
+    }
+    let axis_text = match extract_string_field(entry, "axis") {
+      Ok(value) => value
+      Err(reason) => return Err(reason)
+    }
+    let axis = match parse_v5_2_axis(axis_text) {
+      Some(value) => value
+      None => return Err(invalid_query_reason("invalid axis: " + axis_text))
+    }
+    let threshold = match extract_int_field_optional(entry, "threshold", 0) {
+      Ok(value) => value
+      Err(reason) => return Err(reason)
+    }
+    let ttl_seconds = match extract_int_field_optional(entry, "ttlSeconds", 0) {
+      Ok(value) => value
+      Err(reason) => return Err(reason)
+    }
+    policies.push({ axis, threshold, ttl_seconds })
+  }
+  let current_poll_count = match
+    extract_int_field_optional(obj, "currentPollCount", 0) {
+    Ok(value) => value
+    Err(reason) => return Err(reason)
+  }
+  let current_logical_time = match
+    extract_int_field_optional(obj, "currentLogicalTime", 0) {
+    Ok(value) => value
+    Err(reason) => return Err(reason)
+  }
+  Ok({ policies, current_poll_count, current_logical_time })
+}
+
+///|
 fn v5_1_retention_with_ttl(ttl_seconds : Int) -> @export_job_v5.Retention {
   {
     axis: @export_job_v5.RetentionAxis::PollCount,
@@ -1027,6 +1084,27 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
       return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
     }
     return handle_v5_1_batch_view(job_id)
+  }
+  if req.http_method == "GET" &&
+    req.path == "/v5.2/retention/evaluate/multi-axis" {
+    let query_json = match req.body {
+      Some(text) => text
+      None =>
+        return response_json(
+          400,
+          error_envelope_json(invalid_query_reason("missing body")),
+        )
+    }
+    let parsed = match extract_body_json(query_json) {
+      Ok(value) => value
+      Err(reason) => return response_json(400, error_envelope_json(reason))
+    }
+    let input = match parse_v5_2_eval_input(parsed) {
+      Ok(value) => value
+      Err(reason) => return response_json(400, error_envelope_json(reason))
+    }
+    let result = @retention_v5_2.evaluate_multi_axis(input)
+    return response_json(200, @retention_v5_2.eval_result_json(result))
   }
   if req.http_method == "GET" && req.path == "/v5/observability/metrics/summary" {
     return response_json(200, @observability_v5.metrics_summary_json())

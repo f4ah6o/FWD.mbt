@@ -940,3 +940,99 @@ test "api v5.1 observability batch view" {
     res, "fixtures/v5_1/views_optional/case_batch_view.response.json",
   )
 }
+
+///|
+test "api v5.2 retention multi-axis poll wins" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":5,\"ttlSeconds\":120},{\"axis\":\"logical_time\",\"threshold\":100,\"ttlSeconds\":300}],\"currentPollCount\":6,\"currentLogicalTime\":50}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_2/retention/case_multi_axis_poll_wins.response.json",
+  )
+}
+
+///|
+test "api v5.2 retention multi-axis logical time wins" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":10,\"ttlSeconds\":240},{\"axis\":\"logical_time\",\"threshold\":50,\"ttlSeconds\":150}],\"currentPollCount\":3,\"currentLogicalTime\":55}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_2/retention/case_multi_axis_logical_time_wins.response.json",
+  )
+}
+
+///|
+test "api v5.2 retention multi-axis both expired" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":3,\"ttlSeconds\":60},{\"axis\":\"logical_time\",\"threshold\":20,\"ttlSeconds\":60}],\"currentPollCount\":5,\"currentLogicalTime\":25}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_2/retention/case_multi_axis_both_expired.response.json",
+  )
+}
+
+///|
+test "api v5.2 retention multi-axis none expired" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":10,\"ttlSeconds\":240},{\"axis\":\"logical_time\",\"threshold\":100,\"ttlSeconds\":300}],\"currentPollCount\":2,\"currentLogicalTime\":30}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_2/retention/case_multi_axis_none_expired.response.json",
+  )
+}
+
+///|
+test "api v5.2 retention single axis poll count" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":5,\"ttlSeconds\":120}],\"currentPollCount\":7,\"currentLogicalTime\":0}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_2/retention/case_single_axis_poll_count.response.json",
+  )
+}
+
+///|
+test "api v5.2 retention single axis logical time" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.2/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"logical_time\",\"threshold\":50,\"ttlSeconds\":150}],\"currentPollCount\":0,\"currentLogicalTime\":60}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_2/retention/case_single_axis_logical_time.response.json",
+  )
+}
