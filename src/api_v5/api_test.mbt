@@ -1164,3 +1164,100 @@ test "api v5.3 retention single axis event count" {
     "fixtures/v5_3/retention/case_single_axis_event_count.response.json",
   )
 }
+
+///|
+test "api v5.4 timeline normal lifecycle" {
+  @job_store_v5_4.reset_for_test()
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = [
+    {
+      axis: @retention_v5_3.RetentionAxisV53::PollCount,
+      threshold: 10,
+      ttl_seconds: 120,
+    },
+  ]
+  let job = @job_store_v5_4.create_job(@export_job_v5.ResultFormat::Jsonl, policies)
+  // step: queued → running
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  // step: running → done
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.4/export/jobs/" + job.id.value + "/timeline",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_4/timeline/case_normal_lifecycle.response.json",
+  )
+}
+
+///|
+test "api v5.4 timeline canceled" {
+  @job_store_v5_4.reset_for_test()
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = [
+    {
+      axis: @retention_v5_3.RetentionAxisV53::PollCount,
+      threshold: 10,
+      ttl_seconds: 120,
+    },
+  ]
+  let job = @job_store_v5_4.create_job(@export_job_v5.ResultFormat::Jsonl, policies)
+  // step: queued → running
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  // cancel: running → canceled
+  ignore(@job_store_v5_4.cancel_job(job.id.value))
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.4/export/jobs/" + job.id.value + "/timeline",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_4/timeline/case_canceled.response.json",
+  )
+}
+
+///|
+test "api v5.4 timeline expired" {
+  @job_store_v5_4.reset_for_test()
+  // Set low threshold so job expires quickly
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = [
+    {
+      axis: @retention_v5_3.RetentionAxisV53::PollCount,
+      threshold: 2,
+      ttl_seconds: 60,
+    },
+  ]
+  let job = @job_store_v5_4.create_job(@export_job_v5.ResultFormat::Jsonl, policies)
+  // step: queued → running (poll_count=1 < threshold=2)
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  // step: running → expired (poll_count=2 >= threshold=2)
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.4/export/jobs/" + job.id.value + "/timeline",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_4/timeline/case_expired.response.json",
+  )
+}
+
+///|
+test "api v5.4 timeline job not found" {
+  @job_store_v5_4.reset_for_test()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.4/export/jobs/job-999/timeline",
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_4/timeline/case_job_not_found.response.json",
+  )
+}

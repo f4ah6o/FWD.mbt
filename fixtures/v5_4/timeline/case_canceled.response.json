@@ -1,0 +1,43 @@
+{
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.4",
+    "jobId": "job-1",
+    "events": [
+      {
+        "logicalTime": 0,
+        "sequence": 1,
+        "kind": "status_change",
+        "fromStatus": "queued",
+        "toStatus": "queued",
+        "reasons": []
+      },
+      {
+        "logicalTime": 1,
+        "sequence": 1,
+        "kind": "status_change",
+        "fromStatus": "queued",
+        "toStatus": "running",
+        "reasons": []
+      },
+      {
+        "logicalTime": 1,
+        "sequence": 2,
+        "kind": "status_change",
+        "fromStatus": "running",
+        "toStatus": "canceled",
+        "reasons": [
+          {
+            "reasonVersion": 1,
+            "code": "JOB_CANCELED",
+            "level": "error",
+            "target": "runtime",
+            "message": "job canceled: job-1",
+            "hint": "Job was canceled"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.4",
+    "jobId": "job-1",
+    "events": [
+      {
+        "logicalTime": 0,
+        "sequence": 1,
+        "kind": "status_change",
+        "fromStatus": "queued",
+        "toStatus": "queued",
+        "reasons": []
+      },
+      {
+        "logicalTime": 1,
+        "sequence": 1,
+        "kind": "status_change",
+        "fromStatus": "queued",
+        "toStatus": "running",
+        "reasons": []
+      },
+      {
+        "logicalTime": 2,
+        "sequence": 1,
+        "kind": "status_change",
+        "fromStatus": "running",
+        "toStatus": "expired",
+        "reasons": [
+          {
+            "reasonVersion": 1,
+            "code": "JOB_EXPIRED",
+            "level": "error",
+            "target": "runtime",
+            "message": "job expired: job-1",
+            "hint": "Job retention expired"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -11,6 +11,8 @@ import {
   "fwd/job_store_v5_2",
   "fwd/retention_v5_3",
   "fwd/job_store_v5_3",
+  "fwd/job_timeline_v5_4",
+  "fwd/job_store_v5_4",
   "moonbitlang/core/json",
 }
 

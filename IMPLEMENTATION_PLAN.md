@@ -446,6 +446,11 @@
 - v5.3 job store: `fixtures/v5_3/jobs/**` + `job_store_v5_3/`
 - v5.3 API endpoints: `api_v5/api_test.mbt` (v5.3 retention + job tests)
 
+## Frozen Contracts (v5.4)
+- v5.4 timeline fixtures: `fixtures/v5_4/timeline/case_*.response.json` + `job_timeline_v5_4/timeline_test.mbt`
+- v5.4 job store: `job_store_v5_4/` (timeline-integrated store)
+- v5.4 API endpoints: `api_v5/api_test.mbt` (v5.4 timeline tests)
+
 ---
 
 # v5.0 Planning Anchor (Export + Observability + Policy Boundaries)

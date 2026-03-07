@@ -1252,6 +1252,48 @@ fn handle_v5_1_batch_view(job_id : String) -> ApiResponse {
 }
 
 ///|
+fn handle_v5_4_job_timeline(job_id : String) -> ApiResponse {
+  // Timeline is available even for expired jobs (it's history).
+  match @job_store_v5_4.get_job(job_id) {
+    Some(_) => {
+      let events = @job_timeline_v5_4.get_timeline(job_id)
+      response_json(200, @job_timeline_v5_4.timeline_json(job_id, events))
+    }
+    None =>
+      response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
+  }
+}
+
+///|
+fn handle_v5_4_batch_timeline(batch_id : String) -> ApiResponse {
+  match @export_job_batch_v5.get_batch(batch_id) {
+    Some(batch) =>
+      match batch.status {
+        @export_job_v5.JobStatus::Expired =>
+          return response_json(
+            404,
+            error_envelope_json(job_expired_reason(batch_id)),
+          )
+        _ => {
+          let events = @job_timeline_v5_4.get_batch_timeline(batch.child_ids)
+          response_json(
+            200,
+            @job_timeline_v5_4.batch_timeline_json(batch_id, events),
+          )
+        }
+      }
+    None =>
+      response_json(
+        404,
+        error_envelope_json(job_not_found_reason(batch_id)),
+      )
+  }
+}
+
+///|
 pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" &&
     req.path == "/v5.1/retention/evaluate/hierarchy" {
@@ -1583,6 +1625,43 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
         )
       }
       return handle_job_get(job_id)
+    }
+  }
+  // v5.4 timeline routes
+  let v5_4_jobs_prefix = "/v5.4/export/jobs/"
+  if req.http_method == "GET" && req.path.has_prefix(v5_4_jobs_prefix) {
+    let suffix = substring_from(req.path, v5_4_jobs_prefix.length())
+    if suffix.has_suffix("/timeline") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/timeline".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_4_job_timeline(job_id)
+    }
+  }
+  let v5_4_batch_prefix = "/v5.4/export/batch/jobs/"
+  if req.http_method == "GET" && req.path.has_prefix(v5_4_batch_prefix) {
+    let suffix = substring_from(req.path, v5_4_batch_prefix.length())
+    if suffix.has_suffix("/timeline") {
+      let batch_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/timeline".length(),
+      )
+      if batch_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(batch_id)),
+        )
+      }
+      return handle_v5_4_batch_timeline(batch_id)
     }
   }
   response_json(
