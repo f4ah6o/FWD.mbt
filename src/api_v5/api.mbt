@@ -568,6 +568,104 @@ fn substring_range(value : String, start : Int, end : Int) -> String {
 }
 
 ///|
+fn parse_v5_2_policies(
+  obj : Map[String, Json],
+) -> Result[Array[@retention_v5_2.RetentionPolicyV52], @core.Reason] {
+  let policies : Array[@retention_v5_2.RetentionPolicyV52] = []
+  let items = match obj.get("policies") {
+    Some(Array(arr)) => arr
+    Some(_) => return Err(invalid_query_reason("policies must be array"))
+    None => return Err(missing_query_reason("policies"))
+  }
+  for item in items {
+    let entry = match item {
+      Object(m) => m
+      _ => return Err(invalid_query_reason("policy must be object"))
+    }
+    let axis_text = match extract_string_field(entry, "axis") {
+      Ok(v) => v
+      Err(r) => return Err(r)
+    }
+    let axis = match parse_v5_2_axis(axis_text) {
+      Some(v) => v
+      None => return Err(invalid_query_reason("invalid axis: " + axis_text))
+    }
+    let threshold = match extract_int_field_optional(entry, "threshold", 0) {
+      Ok(v) => v
+      Err(r) => return Err(r)
+    }
+    let ttl_seconds = match extract_int_field_optional(entry, "ttlSeconds", 0) {
+      Ok(v) => v
+      Err(r) => return Err(r)
+    }
+    policies.push({ axis, threshold, ttl_seconds })
+  }
+  Ok(policies)
+}
+
+///|
+fn handle_v5_2_job_create(req : ApiRequest) -> ApiResponse {
+  let body = match req.body {
+    Some(text) => text
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason("missing body")),
+      )
+  }
+  let obj = match extract_body_json(body) {
+    Ok(value) => value
+    Err(reason) => return response_json(400, error_envelope_json(reason))
+  }
+  let format_text = match extract_string_field(obj, "format") {
+    Ok(value) => value
+    Err(reason) => return response_json(400, error_envelope_json(reason))
+  }
+  let format = match parse_format(format_text) {
+    Some(value) => value
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason("invalid format")),
+      )
+  }
+  let policies = match parse_v5_2_policies(obj) {
+    Ok(value) => value
+    Err(reason) => return response_json(400, error_envelope_json(reason))
+  }
+  let job = @job_store_v5_2.create_job(format, policies)
+  response_json(200, @job_store_v5_2.job_json(job))
+}
+
+///|
+fn handle_v5_2_job_get(job_id : String) -> ApiResponse {
+  match @job_store_v5_2.get_job(job_id) {
+    Some(job) =>
+      match job.status {
+        @export_job_v5.JobStatus::Expired =>
+          response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        _ => response_json(200, @job_store_v5_2.job_json(job))
+      }
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_2_job_cancel(job_id : String) -> ApiResponse {
+  match @job_store_v5_2.cancel_job(job_id) {
+    Some(job) =>
+      match job.status {
+        @export_job_v5.JobStatus::Expired =>
+          response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        _ => response_json(200, @job_store_v5_2.job_json(job))
+      }
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
 fn parse_v5_2_axis(value : String) -> @retention_v5_2.RetentionAxisV52? {
   if value == "poll_count" {
     Some(@retention_v5_2.RetentionAxisV52::PollCount)
@@ -622,6 +720,168 @@ fn parse_v5_2_eval_input(
     Err(reason) => return Err(reason)
   }
   Ok({ policies, current_poll_count, current_logical_time })
+}
+
+///|
+fn parse_v5_3_axis(value : String) -> @retention_v5_3.RetentionAxisV53? {
+  if value == "poll_count" {
+    Some(@retention_v5_3.RetentionAxisV53::PollCount)
+  } else if value == "logical_time" {
+    Some(@retention_v5_3.RetentionAxisV53::LogicalTime)
+  } else if value == "event_count" {
+    Some(@retention_v5_3.RetentionAxisV53::EventCount)
+  } else {
+    None
+  }
+}
+
+///|
+fn parse_v5_3_policies(
+  obj : Map[String, Json],
+) -> Result[Array[@retention_v5_3.RetentionPolicyV53], @core.Reason] {
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = []
+  let items = match obj.get("policies") {
+    Some(Array(arr)) => arr
+    Some(_) => return Err(invalid_query_reason("policies must be array"))
+    None => return Err(missing_query_reason("policies"))
+  }
+  for item in items {
+    let entry = match item {
+      Object(m) => m
+      _ => return Err(invalid_query_reason("policy must be object"))
+    }
+    let axis_text = match extract_string_field(entry, "axis") {
+      Ok(v) => v
+      Err(r) => return Err(r)
+    }
+    let axis = match parse_v5_3_axis(axis_text) {
+      Some(v) => v
+      None => return Err(invalid_query_reason("invalid axis: " + axis_text))
+    }
+    let threshold = match extract_int_field_optional(entry, "threshold", 0) {
+      Ok(v) => v
+      Err(r) => return Err(r)
+    }
+    let ttl_seconds = match extract_int_field_optional(entry, "ttlSeconds", 0) {
+      Ok(v) => v
+      Err(r) => return Err(r)
+    }
+    policies.push({ axis, threshold, ttl_seconds })
+  }
+  Ok(policies)
+}
+
+///|
+fn parse_v5_3_eval_input(
+  obj : Map[String, Json],
+) -> Result[@retention_v5_3.MultiAxisEvalInput, @core.Reason] {
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = []
+  let policies_json = match obj.get("policies") {
+    Some(Array(items)) => items
+    Some(_) => return Err(invalid_query_reason("policies must be array"))
+    None => return Err(missing_query_reason("policies"))
+  }
+  for item in policies_json {
+    let entry = match item {
+      Object(m) => m
+      _ => return Err(invalid_query_reason("policy must be object"))
+    }
+    let axis_text = match extract_string_field(entry, "axis") {
+      Ok(value) => value
+      Err(reason) => return Err(reason)
+    }
+    let axis = match parse_v5_3_axis(axis_text) {
+      Some(value) => value
+      None => return Err(invalid_query_reason("invalid axis: " + axis_text))
+    }
+    let threshold = match extract_int_field_optional(entry, "threshold", 0) {
+      Ok(value) => value
+      Err(reason) => return Err(reason)
+    }
+    let ttl_seconds = match extract_int_field_optional(entry, "ttlSeconds", 0) {
+      Ok(value) => value
+      Err(reason) => return Err(reason)
+    }
+    policies.push({ axis, threshold, ttl_seconds })
+  }
+  let current_poll_count = match
+    extract_int_field_optional(obj, "currentPollCount", 0) {
+    Ok(value) => value
+    Err(reason) => return Err(reason)
+  }
+  let current_logical_time = match
+    extract_int_field_optional(obj, "currentLogicalTime", 0) {
+    Ok(value) => value
+    Err(reason) => return Err(reason)
+  }
+  let current_event_count = match
+    extract_int_field_optional(obj, "currentEventCount", 0) {
+    Ok(value) => value
+    Err(reason) => return Err(reason)
+  }
+  Ok({ policies, current_poll_count, current_logical_time, current_event_count })
+}
+
+///|
+fn handle_v5_3_job_create(req : ApiRequest) -> ApiResponse {
+  let body = match req.body {
+    Some(text) => text
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason("missing body")),
+      )
+  }
+  let obj = match extract_body_json(body) {
+    Ok(value) => value
+    Err(reason) => return response_json(400, error_envelope_json(reason))
+  }
+  let format_text = match extract_string_field(obj, "format") {
+    Ok(value) => value
+    Err(reason) => return response_json(400, error_envelope_json(reason))
+  }
+  let format = match parse_format(format_text) {
+    Some(value) => value
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason("invalid format")),
+      )
+  }
+  let policies = match parse_v5_3_policies(obj) {
+    Ok(value) => value
+    Err(reason) => return response_json(400, error_envelope_json(reason))
+  }
+  let job = @job_store_v5_3.create_job(format, policies)
+  response_json(200, @job_store_v5_3.job_json(job))
+}
+
+///|
+fn handle_v5_3_job_get(job_id : String) -> ApiResponse {
+  match @job_store_v5_3.get_job(job_id) {
+    Some(job) =>
+      match job.status {
+        @export_job_v5.JobStatus::Expired =>
+          response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        _ => response_json(200, @job_store_v5_3.job_json(job))
+      }
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
+}
+
+///|
+fn handle_v5_3_job_cancel(job_id : String) -> ApiResponse {
+  match @job_store_v5_3.cancel_job(job_id) {
+    Some(job) =>
+      match job.status {
+        @export_job_v5.JobStatus::Expired =>
+          response_json(404, error_envelope_json(job_expired_reason(job_id)))
+        _ => response_json(200, @job_store_v5_3.job_json(job))
+      }
+    None =>
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+  }
 }
 
 ///|
@@ -1105,6 +1365,89 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
     }
     let result = @retention_v5_2.evaluate_multi_axis(input)
     return response_json(200, @retention_v5_2.eval_result_json(result))
+  }
+  if req.http_method == "POST" && req.path == "/v5.2/export/jobs" {
+    return handle_v5_2_job_create(req)
+  }
+  let v5_2_jobs_prefix = "/v5.2/export/jobs/"
+  if req.path.has_prefix(v5_2_jobs_prefix) {
+    let suffix = substring_from(req.path, v5_2_jobs_prefix.length())
+    if req.http_method == "POST" && suffix.has_suffix("/cancel") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/cancel".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_2_job_cancel(job_id)
+    }
+    if req.http_method == "GET" {
+      let job_id = suffix
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_2_job_get(job_id)
+    }
+  }
+  if req.http_method == "GET" &&
+    req.path == "/v5.3/retention/evaluate/multi-axis" {
+    let query_json = match req.body {
+      Some(text) => text
+      None =>
+        return response_json(
+          400,
+          error_envelope_json(invalid_query_reason("missing body")),
+        )
+    }
+    let parsed = match extract_body_json(query_json) {
+      Ok(value) => value
+      Err(reason) => return response_json(400, error_envelope_json(reason))
+    }
+    let input = match parse_v5_3_eval_input(parsed) {
+      Ok(value) => value
+      Err(reason) => return response_json(400, error_envelope_json(reason))
+    }
+    let result = @retention_v5_3.evaluate_multi_axis(input)
+    return response_json(200, @retention_v5_3.eval_result_json(result))
+  }
+  if req.http_method == "POST" && req.path == "/v5.3/export/jobs" {
+    return handle_v5_3_job_create(req)
+  }
+  let v5_3_jobs_prefix = "/v5.3/export/jobs/"
+  if req.path.has_prefix(v5_3_jobs_prefix) {
+    let suffix = substring_from(req.path, v5_3_jobs_prefix.length())
+    if req.http_method == "POST" && suffix.has_suffix("/cancel") {
+      let job_id = substring_range(
+        suffix,
+        0,
+        suffix.length() - "/cancel".length(),
+      )
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_3_job_cancel(job_id)
+    }
+    if req.http_method == "GET" {
+      let job_id = suffix
+      if job_id.length() == 0 {
+        return response_json(
+          404,
+          error_envelope_json(job_not_found_reason(job_id)),
+        )
+      }
+      return handle_v5_3_job_get(job_id)
+    }
   }
   if req.http_method == "GET" && req.path == "/v5/observability/metrics/summary" {
     return response_json(200, @observability_v5.metrics_summary_json())

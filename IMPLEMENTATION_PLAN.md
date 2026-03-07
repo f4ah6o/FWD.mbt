@@ -441,6 +441,11 @@
 ## Frozen Contracts (v4.7)
 - v4.7 export jobs endpoints: `examples/api_v4_7/**` + `api_v4_7/api_test.mbt`
 
+## Frozen Contracts (v5.3)
+- v5.3 retention evaluation: `fixtures/v5_3/retention/case_*.response.json` + `retention_v5_3/evaluate_test.mbt`
+- v5.3 job store: `fixtures/v5_3/jobs/**` + `job_store_v5_3/`
+- v5.3 API endpoints: `api_v5/api_test.mbt` (v5.3 retention + job tests)
+
 ---
 
 # v5.0 Planning Anchor (Export + Observability + Policy Boundaries)

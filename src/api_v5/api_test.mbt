@@ -1036,3 +1036,131 @@ test "api v5.2 retention single axis logical time" {
     "fixtures/v5_2/retention/case_single_axis_logical_time.response.json",
   )
 }
+
+///|
+test "api v5.3 retention multi-axis poll wins" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":5,\"ttlSeconds\":120},{\"axis\":\"logical_time\",\"threshold\":100,\"ttlSeconds\":300},{\"axis\":\"event_count\",\"threshold\":1000,\"ttlSeconds\":600}],\"currentPollCount\":6,\"currentLogicalTime\":50,\"currentEventCount\":200}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_multi_axis_poll_wins.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention multi-axis logical time wins" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":10,\"ttlSeconds\":240},{\"axis\":\"logical_time\",\"threshold\":50,\"ttlSeconds\":150},{\"axis\":\"event_count\",\"threshold\":1000,\"ttlSeconds\":600}],\"currentPollCount\":3,\"currentLogicalTime\":55,\"currentEventCount\":200}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_multi_axis_logical_time_wins.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention multi-axis event count wins" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":10,\"ttlSeconds\":240},{\"axis\":\"logical_time\",\"threshold\":100,\"ttlSeconds\":300},{\"axis\":\"event_count\",\"threshold\":500,\"ttlSeconds\":600}],\"currentPollCount\":3,\"currentLogicalTime\":30,\"currentEventCount\":600}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_multi_axis_event_count_wins.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention multi-axis all three expired" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":3,\"ttlSeconds\":60},{\"axis\":\"logical_time\",\"threshold\":20,\"ttlSeconds\":60},{\"axis\":\"event_count\",\"threshold\":10,\"ttlSeconds\":60}],\"currentPollCount\":5,\"currentLogicalTime\":25,\"currentEventCount\":15}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_multi_axis_all_three_expired.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention multi-axis none expired" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":10,\"ttlSeconds\":240},{\"axis\":\"logical_time\",\"threshold\":100,\"ttlSeconds\":300},{\"axis\":\"event_count\",\"threshold\":1000,\"ttlSeconds\":600}],\"currentPollCount\":2,\"currentLogicalTime\":30,\"currentEventCount\":200}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_multi_axis_none_expired.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention single axis poll count" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"poll_count\",\"threshold\":5,\"ttlSeconds\":120}],\"currentPollCount\":7,\"currentLogicalTime\":0,\"currentEventCount\":0}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_single_axis_poll_count.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention single axis logical time" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"logical_time\",\"threshold\":50,\"ttlSeconds\":150}],\"currentPollCount\":0,\"currentLogicalTime\":60,\"currentEventCount\":0}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_single_axis_logical_time.response.json",
+  )
+}
+
+///|
+test "api v5.3 retention single axis event count" {
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.3/retention/evaluate/multi-axis",
+    query: query_map([]),
+    body: Some(
+      "{\"policies\":[{\"axis\":\"event_count\",\"threshold\":500,\"ttlSeconds\":600}],\"currentPollCount\":0,\"currentLogicalTime\":0,\"currentEventCount\":600}",
+    ),
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_3/retention/case_single_axis_event_count.response.json",
+  )
+}
