@@ -1,0 +1,3 @@
+{"eventId":"job-1:0:1:status_change","jobId":"job-1","logicalTime":0,"sequence":1,"kind":"status_change","fromStatus":"queued","toStatus":"queued","reasons":[]}
+{"eventId":"job-1:1:1:status_change","jobId":"job-1","logicalTime":1,"sequence":1,"kind":"status_change","fromStatus":"queued","toStatus":"running","reasons":[]}
+{"eventId":"job-1:2:1:status_change","jobId":"job-1","logicalTime":2,"sequence":1,"kind":"status_change","fromStatus":"running","toStatus":"done","reasons":[]}

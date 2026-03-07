@@ -1261,3 +1261,104 @@ test "api v5.4 timeline job not found" {
     "fixtures/v5_4/timeline/case_job_not_found.response.json",
   )
 }
+
+///|
+fn setup_v5_5_3_event_job() -> String {
+  @job_store_v5_4.reset_for_test()
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = [
+    {
+      axis: @retention_v5_3.RetentionAxisV53::PollCount,
+      threshold: 10,
+      ttl_seconds: 120,
+    },
+  ]
+  let job = @job_store_v5_4.create_job(
+    @export_job_v5.ResultFormat::Jsonl,
+    policies,
+  )
+  // step: queued → running
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  // step: running → done
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  job.id.value
+}
+
+///|
+test "api v5.5 paginated page 1" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("limit", "2")]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_5/timeline/case_page1.response.json",
+  )
+}
+
+///|
+test "api v5.5 paginated page 2" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("limit", "2"), ("cursor", "offset:2")]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_5/timeline/case_page2.response.json",
+  )
+}
+
+///|
+test "api v5.5 filtered by logical time" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("fromLogicalTime", "1"), ("toLogicalTime", "1")]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_5/timeline/case_filtered.response.json",
+  )
+}
+
+///|
+test "api v5.5 JSONL export" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline/export",
+    query: query_map([]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  let expected = match read_text_api(
+    "fixtures/v5_5/timeline/case_export.response.jsonl",
+    "expected",
+  ) {
+    Ok(text) => text
+    Err(msg) => fail(msg)
+  }
+  inspect(res.body, content=expected)
+}
+
+///|
+test "api v5.5 invalid cursor" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("cursor", "bad-cursor")]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_5/timeline/case_invalid_cursor.response.json",
+  )
+}
