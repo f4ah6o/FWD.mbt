@@ -1468,3 +1468,139 @@ test "api v5.6 no format falls back to json" {
     content="Some(\"application/json\")",
   )
 }
+
+///|
+test "api v5.7 event detail json" {
+  let job_id = setup_v5_5_3_event_job()
+  let event_id = job_id + ":1:1:status_change"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([]),
+    body: None,
+  })
+  expect_response_json(
+    res,
+    "fixtures/v5_7/timeline/case_detail.response.json",
+  )
+}
+
+///|
+test "api v5.7 event detail html" {
+  let job_id = setup_v5_5_3_event_job()
+  let event_id = job_id + ":1:1:status_change"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([("format", "html")]),
+    body: None,
+  })
+  expect_response_html(
+    res,
+    "fixtures/v5_7/timeline/detail_expected.html",
+  )
+}
+
+///|
+test "api v5.7 event detail mx" {
+  let job_id = setup_v5_5_3_event_job()
+  let event_id = job_id + ":1:1:status_change"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([("format", "mx")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(
+    res.headers.get("content-type"),
+    content="Some(\"text/html\")",
+  )
+  inspect(res.body.contains("mx-target"), content="true")
+  inspect(res.body.contains("mx-get"), content="true")
+}
+
+///|
+test "api v5.7 event detail first event html" {
+  let job_id = setup_v5_5_3_event_job()
+  let event_id = job_id + ":0:1:status_change"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([("format", "html")]),
+    body: None,
+  })
+  expect_response_html(
+    res,
+    "fixtures/v5_7/timeline/detail_first_expected.html",
+  )
+}
+
+///|
+test "api v5.7 event detail last event html" {
+  let job_id = setup_v5_5_3_event_job()
+  let event_id = job_id + ":2:1:status_change"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([("format", "html")]),
+    body: None,
+  })
+  expect_response_html(
+    res,
+    "fixtures/v5_7/timeline/detail_last_expected.html",
+  )
+}
+
+///|
+test "api v5.7 event not found" {
+  let job_id = setup_v5_5_3_event_job()
+  let event_id = job_id + ":99:1:status_change"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([]),
+    body: None,
+  })
+  inspect(res.status, content="404")
+}
+
+///|
+test "api v5.7 invalid event id" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/bad-id",
+    query: query_map([]),
+    body: None,
+  })
+  inspect(res.status, content="400")
+}
+
+///|
+test "api v5.7 kind filter status_change" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("kind", "status_change"), ("limit", "10")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(
+    res.headers.get("content-type"),
+    content="Some(\"application/json\")",
+  )
+}
+
+///|
+test "api v5.7 kind filter invalid" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("kind", "unknown_kind")]),
+    body: None,
+  })
+  inspect(res.status, content="400")
+}

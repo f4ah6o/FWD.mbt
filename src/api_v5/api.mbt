@@ -575,6 +575,31 @@ fn substring_range(value : String, start : Int, end : Int) -> String {
 }
 
 ///|
+fn find_substring(haystack : String, needle : String) -> Int {
+  let h_len = haystack.length()
+  let n_len = needle.length()
+  if n_len == 0 {
+    return 0
+  }
+  if n_len > h_len {
+    return -1
+  }
+  for i = 0; i <= h_len - n_len; i = i + 1 {
+    let mut matched = true
+    for j = 0; j < n_len; j = j + 1 {
+      if haystack[i + j] != needle[j] {
+        matched = false
+        break
+      }
+    }
+    if matched {
+      return i
+    }
+  }
+  -1
+}
+
+///|
 fn parse_v5_2_policies(
   obj : Map[String, Json],
 ) -> Result[Array[@retention_v5_2.RetentionPolicyV52], @core.Reason] {
@@ -1332,6 +1357,20 @@ fn parse_query_int(
 }
 
 ///|
+fn parse_kind_filter(
+  query : Map[String, String],
+) -> Result[@job_timeline_v5_4.JobTimelineKind?, String] {
+  match query.get("kind") {
+    None => Ok(None)
+    Some(kind_str) =>
+      match @job_timeline_v5_7.parse_kind(kind_str) {
+        Some(k) => Ok(Some(k))
+        None => Err("invalid kind: " + kind_str)
+      }
+  }
+}
+
+///|
 fn handle_v5_5_job_timeline(
   job_id : String,
   query : Map[String, String],
@@ -1344,47 +1383,63 @@ fn handle_v5_5_job_timeline(
         error_envelope_json(job_not_found_reason(job_id)),
       )
   }
+  let kind_filter = match parse_kind_filter(query) {
+    Ok(k) => k
+    Err(msg) =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason(msg)),
+      )
+  }
   let limit = match parse_query_int(query, "limit") {
     Some(n) => n
     None => 10
   }
-  let tl_query : @job_timeline_v5_5.JobTimelineQuery = {
-    job_id,
-    from_logical_time: parse_query_int(query, "fromLogicalTime"),
-    to_logical_time: parse_query_int(query, "toLogicalTime"),
-    limit,
-    cursor: query.get("cursor"),
-  }
-  match @job_timeline_v5_5.query_timeline(tl_query) {
-    Ok(page) => {
-      let format = query.get("format")
-      let base_url = "/v5.5/export/jobs/" + job_id + "/timeline"
-      match format {
-        Some("html") =>
-          response_html(
-            200,
-            @views.render_job_timeline_html_v5_6(
-              { job_id, base_url, page },
+  let offset = match query.get("cursor") {
+    Some(cursor_str) =>
+      match @job_timeline_v5_5.decode_cursor(cursor_str) {
+        Some(cursor) => cursor.offset
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(
+              invalid_query_reason("invalid cursor format"),
             ),
-          )
-        Some("mx") =>
-          response_html(
-            200,
-            @views.render_job_timeline_html_v5_6_mx(
-              { job_id, base_url, page },
-            ),
-          )
-        _ =>
-          response_json(
-            200,
-            @job_timeline_v5_5.paginated_timeline_json(job_id, page),
           )
       }
-    }
-    Err(msg) =>
+    None => 0
+  }
+  let events = @job_timeline_v5_4.get_timeline(job_id)
+  let filtered = @job_timeline_v5_5.filter_events(
+    events,
+    parse_query_int(query, "fromLogicalTime"),
+    parse_query_int(query, "toLogicalTime"),
+  )
+  let kind_filtered = @job_timeline_v5_7.filter_events_by_kind(
+    filtered, kind_filter,
+  )
+  let page = @job_timeline_v5_5.paginate(kind_filtered, offset, limit)
+  let format = query.get("format")
+  let base_url = "/v5.5/export/jobs/" + job_id + "/timeline"
+  match format {
+    Some("html") =>
+      response_html(
+        200,
+        @views.render_job_timeline_html_v5_6(
+          { job_id, base_url, page },
+        ),
+      )
+    Some("mx") =>
+      response_html(
+        200,
+        @views.render_job_timeline_html_v5_6_mx(
+          { job_id, base_url, page },
+        ),
+      )
+    _ =>
       response_json(
-        400,
-        error_envelope_json(invalid_query_reason(msg)),
+        200,
+        @job_timeline_v5_5.paginated_timeline_json(job_id, page),
       )
   }
 }
@@ -1417,48 +1472,65 @@ fn handle_v5_5_batch_timeline(
 ) -> ApiResponse {
   match @export_job_batch_v5.get_batch(batch_id) {
     Some(batch) => {
+      let kind_filter = match parse_kind_filter(query) {
+        Ok(k) => k
+        Err(msg) =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason(msg)),
+          )
+      }
       let limit = match parse_query_int(query, "limit") {
         Some(n) => n
         None => 10
       }
-      match @job_timeline_v5_5.query_batch_timeline(
-        batch.child_ids,
-        parse_query_int(query, "fromLogicalTime"),
-        parse_query_int(query, "toLogicalTime"),
-        limit,
-        query.get("cursor"),
-      ) {
-        Ok(page) => {
-          let format = query.get("format")
-          let base_url = "/v5.5/export/batch/jobs/" + batch_id + "/timeline"
-          match format {
-            Some("html") =>
-              response_html(
-                200,
-                @views.render_job_timeline_html_v5_6(
-                  { job_id: batch_id, base_url, page },
-                ),
-              )
-            Some("mx") =>
-              response_html(
-                200,
-                @views.render_job_timeline_html_v5_6_mx(
-                  { job_id: batch_id, base_url, page },
-                ),
-              )
-            _ =>
-              response_json(
-                200,
-                @job_timeline_v5_5.paginated_batch_timeline_json(
-                  batch_id, page,
+      let offset = match query.get("cursor") {
+        Some(cursor_str) =>
+          match @job_timeline_v5_5.decode_cursor(cursor_str) {
+            Some(cursor) => cursor.offset
+            None =>
+              return response_json(
+                400,
+                error_envelope_json(
+                  invalid_query_reason("invalid cursor format"),
                 ),
               )
           }
-        }
-        Err(msg) =>
+        None => 0
+      }
+      let events = @job_timeline_v5_4.get_batch_timeline(batch.child_ids)
+      let filtered = @job_timeline_v5_5.filter_events(
+        events,
+        parse_query_int(query, "fromLogicalTime"),
+        parse_query_int(query, "toLogicalTime"),
+      )
+      let kind_filtered = @job_timeline_v5_7.filter_events_by_kind(
+        filtered, kind_filter,
+      )
+      let page = @job_timeline_v5_5.paginate(kind_filtered, offset, limit)
+      let format = query.get("format")
+      let base_url = "/v5.5/export/batch/jobs/" + batch_id + "/timeline"
+      match format {
+        Some("html") =>
+          response_html(
+            200,
+            @views.render_job_timeline_html_v5_6(
+              { job_id: batch_id, base_url, page },
+            ),
+          )
+        Some("mx") =>
+          response_html(
+            200,
+            @views.render_job_timeline_html_v5_6_mx(
+              { job_id: batch_id, base_url, page },
+            ),
+          )
+        _ =>
           response_json(
-            400,
-            error_envelope_json(invalid_query_reason(msg)),
+            200,
+            @job_timeline_v5_5.paginated_batch_timeline_json(
+              batch_id, page,
+            ),
           )
       }
     }
@@ -1483,6 +1555,131 @@ fn handle_v5_5_batch_timeline_export(
         parse_query_int(query, "toLogicalTime"),
       )
       response_jsonl(200, body)
+    }
+    None =>
+      response_json(
+        404,
+        error_envelope_json(job_not_found_reason(batch_id)),
+      )
+  }
+}
+
+///|
+fn handle_v5_7_job_timeline_event(
+  job_id : String,
+  event_id_str : String,
+  query : Map[String, String],
+) -> ApiResponse {
+  match @job_store_v5_4.get_job(job_id) {
+    Some(_) => ()
+    None =>
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
+  }
+  let parsed = match @job_timeline_v5_7.parse_event_id(event_id_str) {
+    Some(q) => q
+    None =>
+      return response_json(
+        400,
+        error_envelope_json(
+          invalid_query_reason("invalid event ID format"),
+        ),
+      )
+  }
+  let detail = match @job_timeline_v5_7.lookup_event_detail(parsed) {
+    Some(d) => d
+    None =>
+      return response_json(
+        404,
+        error_envelope_json(
+          @core.Reason::with_context("EVENT_NOT_FOUND", "event not found", [
+            ("target", "runtime"),
+            ("level", "error"),
+          ]),
+        ),
+      )
+  }
+  let format = query.get("format")
+  let base_url = "/v5.7/export/jobs/" + job_id + "/timeline/event"
+  match format {
+    Some("html") =>
+      response_html(
+        200,
+        @views.render_job_timeline_detail_html_v5_7(
+          { event_id: event_id_str, base_url, detail },
+        ),
+      )
+    Some("mx") =>
+      response_html(
+        200,
+        @views.render_job_timeline_detail_html_v5_7_mx(
+          { event_id: event_id_str, base_url, detail },
+        ),
+      )
+    _ => response_json(200, @job_timeline_v5_7.detail_json(detail))
+  }
+}
+
+///|
+fn handle_v5_7_batch_timeline_event(
+  batch_id : String,
+  event_id_str : String,
+  query : Map[String, String],
+) -> ApiResponse {
+  match @export_job_batch_v5.get_batch(batch_id) {
+    Some(batch) => {
+      let parsed = match @job_timeline_v5_7.parse_event_id(event_id_str) {
+        Some(q) => q
+        None =>
+          return response_json(
+            400,
+            error_envelope_json(
+              invalid_query_reason("invalid event ID format"),
+            ),
+          )
+      }
+      let detail = match @job_timeline_v5_7.lookup_batch_event_detail(
+        batch.child_ids,
+        parsed,
+      ) {
+        Some(d) => d
+        None =>
+          return response_json(
+            404,
+            error_envelope_json(
+              @core.Reason::with_context(
+                "EVENT_NOT_FOUND", "event not found", [
+                  ("target", "runtime"),
+                  ("level", "error"),
+                ],
+              ),
+            ),
+          )
+      }
+      let format = query.get("format")
+      let base_url = "/v5.7/export/batch/jobs/" +
+        batch_id +
+        "/timeline/event"
+      match format {
+        Some("html") =>
+          response_html(
+            200,
+            @views.render_job_timeline_detail_html_v5_7(
+              { event_id: event_id_str, base_url, detail },
+            ),
+          )
+        Some("mx") =>
+          response_html(
+            200,
+            @views.render_job_timeline_detail_html_v5_7_mx(
+              { event_id: event_id_str, base_url, detail },
+            ),
+          )
+        _ =>
+          response_json(200, @job_timeline_v5_7.detail_json(detail))
+      }
     }
     None =>
       response_json(
@@ -1926,6 +2123,42 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
         )
       }
       return handle_v5_5_batch_timeline(batch_id, req.query)
+    }
+  }
+  // v5.7 event detail routes
+  let v5_7_jobs_prefix = "/v5.7/export/jobs/"
+  if req.http_method == "GET" && req.path.has_prefix(v5_7_jobs_prefix) {
+    let suffix = substring_from(req.path, v5_7_jobs_prefix.length())
+    // Match: {job_id}/timeline/event/{event_id}
+    let tl_event_marker = "/timeline/event/"
+    let marker_pos = find_substring(suffix, tl_event_marker)
+    if marker_pos >= 0 {
+      let job_id = substring_range(suffix, 0, marker_pos)
+      let event_id_str = substring_from(
+        suffix, marker_pos + tl_event_marker.length(),
+      )
+      if job_id.length() > 0 && event_id_str.length() > 0 {
+        return handle_v5_7_job_timeline_event(
+          job_id, event_id_str, req.query,
+        )
+      }
+    }
+  }
+  let v5_7_batch_prefix = "/v5.7/export/batch/jobs/"
+  if req.http_method == "GET" && req.path.has_prefix(v5_7_batch_prefix) {
+    let suffix = substring_from(req.path, v5_7_batch_prefix.length())
+    let tl_event_marker = "/timeline/event/"
+    let marker_pos = find_substring(suffix, tl_event_marker)
+    if marker_pos >= 0 {
+      let batch_id = substring_range(suffix, 0, marker_pos)
+      let event_id_str = substring_from(
+        suffix, marker_pos + tl_event_marker.length(),
+      )
+      if batch_id.length() > 0 && event_id_str.length() > 0 {
+        return handle_v5_7_batch_timeline_event(
+          batch_id, event_id_str, req.query,
+        )
+      }
     }
   }
   response_json(

@@ -1,0 +1,18 @@
+{
+  "status": 200,
+  "headers": {},
+  "body": {
+    "jobVersion": "5.7",
+    "eventId": "job-1:1:1:status_change",
+    "event": {
+      "logicalTime": 1,
+      "sequence": 1,
+      "kind": "status_change",
+      "fromStatus": "queued",
+      "toStatus": "running",
+      "reasons": []
+    },
+    "prevEventId": "job-1:0:1:status_change",
+    "nextEventId": "job-1:2:1:status_change"
+  }
+}
