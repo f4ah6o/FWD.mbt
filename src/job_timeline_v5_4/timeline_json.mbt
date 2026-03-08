@@ -5,6 +5,8 @@
 fn kind_string(kind : JobTimelineKind) -> String {
   match kind {
     JobTimelineKind::StatusChange => "status_change"
+    JobTimelineKind::PolicyDecision => "policy_decision"
+    JobTimelineKind::RetentionCheck => "retention_check"
   }
 }
 

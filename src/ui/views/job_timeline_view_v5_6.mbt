@@ -14,6 +14,8 @@ fn job_timeline_kind_string_v5_6(
 ) -> String {
   match kind {
     @job_timeline_v5_4.JobTimelineKind::StatusChange => "status_change"
+    @job_timeline_v5_4.JobTimelineKind::PolicyDecision => "policy_decision"
+    @job_timeline_v5_4.JobTimelineKind::RetentionCheck => "retention_check"
   }
 }
 

@@ -1457,11 +1457,24 @@ fn handle_v5_5_job_timeline_export(
         error_envelope_json(job_not_found_reason(job_id)),
       )
   }
-  let body = @job_timeline_v5_5.export_job_jsonl(
-    job_id,
+  let kind_filter = match parse_kind_filter(query) {
+    Ok(k) => k
+    Err(msg) =>
+      return response_json(
+        400,
+        error_envelope_json(invalid_query_reason(msg)),
+      )
+  }
+  let events = @job_timeline_v5_4.get_timeline(job_id)
+  let filtered = @job_timeline_v5_5.filter_events(
+    events,
     parse_query_int(query, "fromLogicalTime"),
     parse_query_int(query, "toLogicalTime"),
   )
+  let kind_filtered = @job_timeline_v5_7.filter_events_by_kind(
+    filtered, kind_filter,
+  )
+  let body = @job_timeline_v5_5.export_jsonl(kind_filtered)
   response_jsonl(200, body)
 }
 
@@ -1549,11 +1562,24 @@ fn handle_v5_5_batch_timeline_export(
 ) -> ApiResponse {
   match @export_job_batch_v5.get_batch(batch_id) {
     Some(batch) => {
-      let body = @job_timeline_v5_5.export_batch_jsonl(
-        batch.child_ids,
+      let kind_filter = match parse_kind_filter(query) {
+        Ok(k) => k
+        Err(msg) =>
+          return response_json(
+            400,
+            error_envelope_json(invalid_query_reason(msg)),
+          )
+      }
+      let events = @job_timeline_v5_4.get_batch_timeline(batch.child_ids)
+      let filtered = @job_timeline_v5_5.filter_events(
+        events,
         parse_query_int(query, "fromLogicalTime"),
         parse_query_int(query, "toLogicalTime"),
       )
+      let kind_filtered = @job_timeline_v5_7.filter_events_by_kind(
+        filtered, kind_filter,
+      )
+      let body = @job_timeline_v5_5.export_jsonl(kind_filtered)
       response_jsonl(200, body)
     }
     None =>

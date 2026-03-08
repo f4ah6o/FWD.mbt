@@ -63,6 +63,48 @@ pub fn record_status_change(
 }
 
 ///|
+/// Record a policy decision event with auto-sequencing.
+pub fn record_policy_decision(
+  job_id : String,
+  logical_time : Int,
+  to_status : String,
+  reasons : Array[@export_job_v5.ReasonV1],
+) -> Unit {
+  let seq = next_sequence(job_id, logical_time)
+  let event : JobTimelineEvent = {
+    job_id,
+    logical_time,
+    sequence: seq,
+    kind: JobTimelineKind::PolicyDecision,
+    from_status: "pending",
+    to_status,
+    reasons,
+  }
+  record_event(event)
+}
+
+///|
+/// Record a retention check event with auto-sequencing.
+pub fn record_retention_check(
+  job_id : String,
+  logical_time : Int,
+  to_status : String,
+  reasons : Array[@export_job_v5.ReasonV1],
+) -> Unit {
+  let seq = next_sequence(job_id, logical_time)
+  let event : JobTimelineEvent = {
+    job_id,
+    logical_time,
+    sequence: seq,
+    kind: JobTimelineKind::RetentionCheck,
+    from_status: "active",
+    to_status,
+    reasons,
+  }
+  record_event(event)
+}
+
+///|
 /// Get timeline for a single job, sorted by (logical_time, sequence).
 pub fn get_timeline(job_id : String) -> Array[JobTimelineEvent] {
   match timeline_store.val.get(job_id) {

@@ -2,6 +2,8 @@
 /// Job timeline event kind (v5.4).
 pub(all) enum JobTimelineKind {
   StatusChange
+  PolicyDecision
+  RetentionCheck
 }
 
 ///|

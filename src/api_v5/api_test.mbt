@@ -1604,3 +1604,149 @@ test "api v5.7 kind filter invalid" {
   })
   inspect(res.status, content="400")
 }
+
+///|
+fn setup_v5_8_mixed_kind_job() -> String {
+  @job_store_v5_4.reset_for_test()
+  let policies : Array[@retention_v5_3.RetentionPolicyV53] = [
+    {
+      axis: @retention_v5_3.RetentionAxisV53::PollCount,
+      threshold: 10,
+      ttl_seconds: 120,
+    },
+  ]
+  let job = @job_store_v5_4.create_job(
+    @export_job_v5.ResultFormat::Jsonl,
+    policies,
+  )
+  // step: queued → running (creates status_change events)
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  // step: running → done
+  ignore(@job_store_v5_4.step_job(job.id.value))
+  // Add policy decision event
+  @job_timeline_v5_4.record_policy_decision(
+    job.id.value, 3, "approved", [],
+  )
+  // Add retention check event
+  @job_timeline_v5_4.record_retention_check(
+    job.id.value, 4, "retained", [],
+  )
+  job.id.value
+}
+
+///|
+test "api v5.8 export no kind filter unchanged" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline/export",
+    query: query_map([]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(
+    res.headers.get("content-type"),
+    content="Some(\"application/jsonl\")",
+  )
+}
+
+///|
+test "api v5.8 export kind filter status_change" {
+  let job_id = setup_v5_8_mixed_kind_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline/export",
+    query: query_map([("kind", "status_change")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(res.body.contains("status_change"), content="true")
+  inspect(res.body.contains("policy_decision"), content="false")
+  inspect(res.body.contains("retention_check"), content="false")
+}
+
+///|
+test "api v5.8 export kind filter policy_decision" {
+  let job_id = setup_v5_8_mixed_kind_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline/export",
+    query: query_map([("kind", "policy_decision")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(res.body.contains("policy_decision"), content="true")
+  inspect(res.body.contains("status_change"), content="false")
+}
+
+///|
+test "api v5.8 export kind filter retention_check" {
+  let job_id = setup_v5_8_mixed_kind_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline/export",
+    query: query_map([("kind", "retention_check")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(res.body.contains("retention_check"), content="true")
+  inspect(res.body.contains("status_change"), content="false")
+}
+
+///|
+test "api v5.8 export invalid kind" {
+  let job_id = setup_v5_5_3_event_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline/export",
+    query: query_map([("kind", "invalid")]),
+    body: None,
+  })
+  inspect(res.status, content="400")
+}
+
+///|
+test "api v5.8 mixed kinds timeline list" {
+  let job_id = setup_v5_8_mixed_kind_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([("limit", "10")]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(res.body.contains("policy_decision"), content="true")
+  inspect(res.body.contains("retention_check"), content="true")
+}
+
+///|
+test "api v5.8 mixed kinds filter on timeline list" {
+  let job_id = setup_v5_8_mixed_kind_job()
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.5/export/jobs/" + job_id + "/timeline",
+    query: query_map([
+      ("kind", "policy_decision"),
+      ("limit", "10"),
+    ]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(res.body.contains("policy_decision"), content="true")
+  inspect(res.body.contains("status_change"), content="false")
+}
+
+///|
+test "api v5.8 event detail policy_decision" {
+  let job_id = setup_v5_8_mixed_kind_job()
+  let event_id = job_id + ":3:1:policy_decision"
+  let res = handle_request({
+    http_method: "GET",
+    path: "/v5.7/export/jobs/" + job_id + "/timeline/event/" + event_id,
+    query: query_map([]),
+    body: None,
+  })
+  inspect(res.status, content="200")
+  inspect(res.body.contains("policy_decision"), content="true")
+  inspect(res.body.contains("approved"), content="true")
+}

@@ -6,6 +6,10 @@
 pub fn parse_kind(s : String) -> @job_timeline_v5_4.JobTimelineKind? {
   if s == "status_change" {
     Some(@job_timeline_v5_4.JobTimelineKind::StatusChange)
+  } else if s == "policy_decision" {
+    Some(@job_timeline_v5_4.JobTimelineKind::PolicyDecision)
+  } else if s == "retention_check" {
+    Some(@job_timeline_v5_4.JobTimelineKind::RetentionCheck)
   } else {
     None
   }
@@ -16,6 +20,8 @@ pub fn parse_kind(s : String) -> @job_timeline_v5_4.JobTimelineKind? {
 pub fn kind_string(kind : @job_timeline_v5_4.JobTimelineKind) -> String {
   match kind {
     @job_timeline_v5_4.JobTimelineKind::StatusChange => "status_change"
+    @job_timeline_v5_4.JobTimelineKind::PolicyDecision => "policy_decision"
+    @job_timeline_v5_4.JobTimelineKind::RetentionCheck => "retention_check"
   }
 }
 
