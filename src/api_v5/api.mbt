@@ -1425,14 +1425,14 @@ fn handle_v5_5_job_timeline(
     Some("html") =>
       response_html(
         200,
-        @views.render_job_timeline_html_v5_6(
+        @views.render_job_timeline_html_v6(
           { job_id, base_url, page },
         ),
       )
     Some("mx") =>
       response_html(
         200,
-        @views.render_job_timeline_html_v5_6_mx(
+        @views.render_job_timeline_html_v6_mx(
           { job_id, base_url, page },
         ),
       )
@@ -1527,14 +1527,14 @@ fn handle_v5_5_batch_timeline(
         Some("html") =>
           response_html(
             200,
-            @views.render_job_timeline_html_v5_6(
+            @views.render_job_timeline_html_v6(
               { job_id: batch_id, base_url, page },
             ),
           )
         Some("mx") =>
           response_html(
             200,
-            @views.render_job_timeline_html_v5_6_mx(
+            @views.render_job_timeline_html_v6_mx(
               { job_id: batch_id, base_url, page },
             ),
           )
@@ -1633,14 +1633,14 @@ fn handle_v5_7_job_timeline_event(
     Some("html") =>
       response_html(
         200,
-        @views.render_job_timeline_detail_html_v5_7(
+        @views.render_job_timeline_detail_html_v6(
           { event_id: event_id_str, base_url, detail },
         ),
       )
     Some("mx") =>
       response_html(
         200,
-        @views.render_job_timeline_detail_html_v5_7_mx(
+        @views.render_job_timeline_detail_html_v6_mx(
           { event_id: event_id_str, base_url, detail },
         ),
       )
@@ -1692,14 +1692,14 @@ fn handle_v5_7_batch_timeline_event(
         Some("html") =>
           response_html(
             200,
-            @views.render_job_timeline_detail_html_v5_7(
+            @views.render_job_timeline_detail_html_v6(
               { event_id: event_id_str, base_url, detail },
             ),
           )
         Some("mx") =>
           response_html(
             200,
-            @views.render_job_timeline_detail_html_v5_7_mx(
+            @views.render_job_timeline_detail_html_v6_mx(
               { event_id: event_id_str, base_url, detail },
             ),
           )

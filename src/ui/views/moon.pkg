@@ -12,6 +12,7 @@ import {
   "fwd/job_timeline_v5_4",
   "fwd/job_timeline_v5_5",
   "fwd/job_timeline_v5_7",
+  "fwd/ui/view_components" @view_components,
   "f4ah6o/tmpx/tmpx",
 }
 
