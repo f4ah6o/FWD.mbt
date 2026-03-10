@@ -25,6 +25,37 @@ moon run cli -- validate <schema.yaml> --baseline <baseline.yaml> --json
 - Exit code is `0` on success, `1` on failure.
 - Expected validation failures are reported as JSON with `"ok": false`.
 
+## v6 Workbench (first slice)
+
+v6 の最初の実装は、**guided form builder -> validate -> runtime preview** をつなぐ
+authoring-first workbench surface です。
+
+### Endpoints
+
+- `GET /v6/workbench`
+- `GET /v6/workbench?format=mx`
+- `POST /v6/workbench/preview`
+- `POST /v6/workbench/preview?format=mx`
+
+### Scope
+
+- entity name / initial state / states / transitions を guided form で入力
+- first slice では state / transition は 3 slot 固定
+- 内部では `@schema.Schema` を直接組み立てる
+- validate error は Reason をそのまま表示
+- preview は state ごとの available transitions を表示
+
+### Fixtures
+
+- `examples/workbench_v6/expected.html`
+- `examples/workbench_v6/expected_mx.html`
+- `examples/workbench_v6/expected_invalid.html`
+
+### Notes
+
+- 既存の `api_v2` 〜 `api_v5` frozen surface は変更しない
+- YAML export / graph editor / persistence は first slice の対象外
+
 ## Runtime (v1)
 
 Compute available/blocked transitions from IR and a current state snapshot.

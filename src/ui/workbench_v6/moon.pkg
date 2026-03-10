@@ -1,0 +1,10 @@
+import {
+  "fwd/core",
+  "fwd/workbench_v6" @wb,
+  "fwd/ui/view_components" @view_components,
+  "f4ah6o/tmpx/tmpx",
+}
+
+import {
+  "moonbitlang/x/fs",
+} for "test"

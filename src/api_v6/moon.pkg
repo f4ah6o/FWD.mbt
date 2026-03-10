@@ -1,0 +1,11 @@
+import {
+  "fwd/core",
+  "fwd/compiler",
+  "fwd/workbench_v6" @wb,
+  "fwd/ui/workbench_v6" @workbench_view,
+  "moonbitlang/core/json",
+}
+
+import {
+  "moonbitlang/x/fs",
+} for "test"
