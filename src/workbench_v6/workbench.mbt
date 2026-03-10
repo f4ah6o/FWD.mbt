@@ -1,4 +1,13 @@
 ///|
+fn max_int(a : Int, b : Int) -> Int {
+  if a > b {
+    a
+  } else {
+    b
+  }
+}
+
+///|
 pub fn default_builder() -> BuilderState {
   {
     entity_name: "Request",
@@ -9,6 +18,37 @@ pub fn default_builder() -> BuilderState {
       { name: "reject", from: "Draft", to: "Rejected" },
       { name: "", from: "", to: "" },
     ],
+  }
+}
+
+///|
+pub fn purchase_request_builder() -> BuilderState {
+  {
+    entity_name: "PurchaseRequest",
+    initial_state: "Draft",
+    states: [
+      "Draft", "Submitted", "ManagerApproved", "FinanceApproved", "Ordered", "Rejected",
+    ],
+    transitions: [
+      { name: "submit", from: "Draft", to: "Submitted" },
+      { name: "manager_approve", from: "Submitted", to: "ManagerApproved" },
+      { name: "manager_reject", from: "Submitted", to: "Rejected" },
+      {
+        name: "finance_approve",
+        from: "ManagerApproved",
+        to: "FinanceApproved",
+      },
+      { name: "finance_reject", from: "ManagerApproved", to: "Rejected" },
+      { name: "place_order", from: "FinanceApproved", to: "Ordered" },
+    ],
+  }
+}
+
+///|
+pub fn builder_for_case(case_id : String) -> BuilderState? {
+  match case_id {
+    "purchase-request" => Some(purchase_request_builder())
+    _ => None
   }
 }
 
@@ -163,4 +203,14 @@ pub fn evaluate_builder(builder : BuilderState) -> WorkbenchModel {
     }
   }
   { builder, validation_reason: None, previews }
+}
+
+///|
+pub fn state_slot_count(builder : BuilderState) -> Int {
+  max_int(3, builder.states.length())
+}
+
+///|
+pub fn transition_slot_count(builder : BuilderState) -> Int {
+  max_int(3, builder.transitions.length())
 }

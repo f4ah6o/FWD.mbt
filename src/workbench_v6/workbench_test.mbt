@@ -44,3 +44,27 @@ test "evaluate_builder invalid transition target" {
   }
   inspect(model.previews.length(), content="0")
 }
+
+///|
+test "purchase request case provides practical preview" {
+  let builder = purchase_request_builder()
+  inspect(state_slot_count(builder), content="6")
+  inspect(transition_slot_count(builder), content="6")
+  match builder_for_case("purchase-request") {
+    Some(_) => ()
+    None => fail("expected practical case builder")
+  }
+  let model = evaluate_builder(builder)
+  match model.validation_reason {
+    None => ()
+    Some(reason) => fail("unexpected validation error: " + reason.code())
+  }
+  inspect(model.previews.length(), content="6")
+  inspect(model.previews[1].state, content="Submitted")
+  inspect(model.previews[1].available.length(), content="2")
+  inspect(model.previews[1].available[0].id, content="manager_reject")
+  inspect(model.previews[1].available[1].id, content="manager_approve")
+  inspect(model.previews[2].available[0].id, content="finance_reject")
+  inspect(model.previews[2].available[1].id, content="finance_approve")
+  inspect(model.previews[3].available[0].id, content="place_order")
+}

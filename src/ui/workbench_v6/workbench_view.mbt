@@ -9,6 +9,27 @@ fn hint_text(reason : @core.Reason) -> String? {
 }
 
 ///|
+fn state_value(builder : @wb.BuilderState, index : Int) -> String {
+  if index < builder.states.length() {
+    builder.states[index]
+  } else {
+    ""
+  }
+}
+
+///|
+fn transition_value(
+  builder : @wb.BuilderState,
+  index : Int,
+) -> @wb.BuilderTransition {
+  if index < builder.transitions.length() {
+    builder.transitions[index]
+  } else {
+    { name: "", from: "", to: "" }
+  }
+}
+
+///|
 fn form_attrs(ctx : @view_components.ViewContext) -> Array[@tmpx.Attr] {
   let attrs : Array[@tmpx.Attr] = []
   if ctx.enable_mx {
@@ -56,7 +77,21 @@ fn builder_form_section(
       @tmpx.value_(model.builder.initial_state),
     ]),
   )
-  for i in 0..<3 {
+  children.push(
+    @tmpx.input_([
+      @tmpx.type_("hidden"),
+      @tmpx.name_("state_slots"),
+      @tmpx.value_(@wb.state_slot_count(model.builder).to_string()),
+    ]),
+  )
+  children.push(
+    @tmpx.input_([
+      @tmpx.type_("hidden"),
+      @tmpx.name_("transition_slots"),
+      @tmpx.value_(@wb.transition_slot_count(model.builder).to_string()),
+    ]),
+  )
+  for i in 0..<@wb.state_slot_count(model.builder) {
     children.push(
       @tmpx.div(
         [
@@ -67,14 +102,14 @@ fn builder_form_section(
           @tmpx.p([], [@tmpx.text("state " + (i + 1).to_string())]),
           @tmpx.input_([
             @tmpx.name_("state_" + i.to_string()),
-            @tmpx.value_(model.builder.states[i]),
+            @tmpx.value_(state_value(model.builder, i)),
           ]),
         ],
       ),
     )
   }
-  for i in 0..<3 {
-    let transition = model.builder.transitions[i]
+  for i in 0..<@wb.transition_slot_count(model.builder) {
+    let transition = transition_value(model.builder, i)
     children.push(
       @tmpx.div(
         [

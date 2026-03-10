@@ -44,12 +44,33 @@ fn invalid_preview_body() -> String {
 }
 
 ///|
+fn purchase_request_preview_body() -> String {
+  "entity_name=PurchaseRequest&initial_state=Draft&state_slots=6&transition_slots=6&state_0=Draft&state_1=Submitted&state_2=ManagerApproved&state_3=FinanceApproved&state_4=Ordered&state_5=Rejected&transition_0_name=submit&transition_0_from=Draft&transition_0_to=Submitted&transition_1_name=manager_approve&transition_1_from=Submitted&transition_1_to=ManagerApproved&transition_2_name=manager_reject&transition_2_from=Submitted&transition_2_to=Rejected&transition_3_name=finance_approve&transition_3_from=ManagerApproved&transition_3_to=FinanceApproved&transition_4_name=finance_reject&transition_4_from=ManagerApproved&transition_4_to=Rejected&transition_5_name=place_order&transition_5_from=FinanceApproved&transition_5_to=Ordered"
+}
+
+///|
 test "api v6 workbench html" {
   let expected = load_expected_api_v6("examples/workbench_v6/expected.html")
   let req : ApiRequest = {
     http_method: "GET",
     path: "/v6/workbench",
     query: Map::new(),
+    body: None,
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="200")
+  assert_api_v6_body(resp.body, expected)
+}
+
+///|
+test "api v6 workbench practical case html" {
+  let expected = load_expected_api_v6(
+    "examples/workbench_v6/purchase_request_expected.html",
+  )
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v6/workbench",
+    query: make_query([("case", "purchase-request")]),
     body: None,
   }
   let resp = handle_request(req)
@@ -95,6 +116,22 @@ test "api v6 preview invalid builder" {
     path: "/v6/workbench/preview",
     query: Map::new(),
     body: Some(invalid_preview_body()),
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="200")
+  assert_api_v6_body(resp.body, expected)
+}
+
+///|
+test "api v6 preview practical builder" {
+  let expected = load_expected_api_v6(
+    "examples/workbench_v6/purchase_request_expected.html",
+  )
+  let req : ApiRequest = {
+    http_method: "POST",
+    path: "/v6/workbench/preview",
+    query: Map::new(),
+    body: Some(purchase_request_preview_body()),
   }
   let resp = handle_request(req)
   inspect(resp.status, content="200")

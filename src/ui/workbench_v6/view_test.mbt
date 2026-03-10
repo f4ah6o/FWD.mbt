@@ -71,3 +71,14 @@ test "workbench invalid html fixture" {
   let output = render_workbench_html(@wb.evaluate_builder(invalid_builder()))
   assert_workbench_html(output, expected)
 }
+
+///|
+test "workbench purchase request fixture" {
+  let expected = load_expected_workbench_view(
+    "examples/workbench_v6/purchase_request_expected.html",
+  )
+  let output = render_workbench_html(
+    @wb.evaluate_builder(@wb.purchase_request_builder()),
+  )
+  assert_workbench_html(output, expected)
+}

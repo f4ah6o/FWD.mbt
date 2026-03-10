@@ -44,6 +44,19 @@ fn invalid_query_reason(message : String) -> @core.Reason {
 }
 
 ///|
+fn invalid_case_reason(case_id : String) -> @core.Reason {
+  @core.Reason::with_context(
+    "CASE_INVALID",
+    "unsupported workbench case: " + case_id,
+    [
+      ("target", "runtime"),
+      ("level", "error"),
+      ("hint", "Use case=purchase-request"),
+    ],
+  )
+}
+
+///|
 fn missing_body_reason() -> @core.Reason {
   @core.Reason::with_context("INPUT_MISSING", "missing form body", [
     ("target", "runtime"),
@@ -68,6 +81,20 @@ fn parse_format(query : Map[String, String]) -> Result[Bool, @core.Reason] {
     Some("html") => Ok(false)
     Some("mx") => Ok(true)
     Some(value) => Err(invalid_query_reason("unsupported format: " + value))
+  }
+}
+
+///|
+fn parse_builder_case(
+  query : Map[String, String],
+) -> Result[@wb.BuilderState, @core.Reason] {
+  match query.get("case") {
+    None => Ok(@wb.default_builder())
+    Some(case_id) =>
+      match @wb.builder_for_case(case_id) {
+        Some(builder) => Ok(builder)
+        None => Err(invalid_case_reason(case_id))
+      }
   }
 }
 
@@ -176,32 +203,65 @@ fn field_or_empty(fields : Map[String, String], name : String) -> String {
 }
 
 ///|
+fn decimal_value(ch : Int) -> Int? {
+  if ch >= '0'.to_int() && ch <= '9'.to_int() {
+    Some(ch - '0'.to_int())
+  } else {
+    None
+  }
+}
+
+///|
+fn parse_nonzero_int(value : String) -> Int? {
+  if value.length() == 0 {
+    return None
+  }
+  let mut result = 0
+  for i in 0..<value.length() {
+    let digit = match decimal_value(value[i].to_int()) {
+      Some(value) => value
+      None => return None
+    }
+    result = result * 10 + digit
+  }
+  if result > 0 {
+    Some(result)
+  } else {
+    None
+  }
+}
+
+///|
+fn slot_count(fields : Map[String, String], field_name : String) -> Int {
+  match fields.get(field_name) {
+    Some(value) =>
+      match parse_nonzero_int(value) {
+        Some(count) => count
+        None => 3
+      }
+    None => 3
+  }
+}
+
+///|
 fn builder_from_fields(fields : Map[String, String]) -> @wb.BuilderState {
+  let states : Array[String] = []
+  for i in 0..<slot_count(fields, "state_slots") {
+    states.push(field_or_empty(fields, "state_" + i.to_string()))
+  }
+  let transitions : Array[@wb.BuilderTransition] = []
+  for i in 0..<slot_count(fields, "transition_slots") {
+    transitions.push({
+      name: field_or_empty(fields, "transition_" + i.to_string() + "_name"),
+      from: field_or_empty(fields, "transition_" + i.to_string() + "_from"),
+      to: field_or_empty(fields, "transition_" + i.to_string() + "_to"),
+    })
+  }
   {
     entity_name: field_or_empty(fields, "entity_name"),
     initial_state: field_or_empty(fields, "initial_state"),
-    states: [
-      field_or_empty(fields, "state_0"),
-      field_or_empty(fields, "state_1"),
-      field_or_empty(fields, "state_2"),
-    ],
-    transitions: [
-      {
-        name: field_or_empty(fields, "transition_0_name"),
-        from: field_or_empty(fields, "transition_0_from"),
-        to: field_or_empty(fields, "transition_0_to"),
-      },
-      {
-        name: field_or_empty(fields, "transition_1_name"),
-        from: field_or_empty(fields, "transition_1_from"),
-        to: field_or_empty(fields, "transition_1_to"),
-      },
-      {
-        name: field_or_empty(fields, "transition_2_name"),
-        from: field_or_empty(fields, "transition_2_from"),
-        to: field_or_empty(fields, "transition_2_to"),
-      },
-    ],
+    states,
+    transitions,
   }
 }
 
@@ -224,7 +284,11 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
       Ok(value) => value
       Err(reason) => return response_json(400, error_envelope_json(reason))
     }
-    return render_workbench(@wb.default_builder(), enable_mx)
+    let builder = match parse_builder_case(req.query) {
+      Ok(value) => value
+      Err(reason) => return response_json(400, error_envelope_json(reason))
+    }
+    return render_workbench(builder, enable_mx)
   }
   if req.http_method == "POST" && req.path == "/v6/workbench/preview" {
     let enable_mx = match parse_format(req.query) {

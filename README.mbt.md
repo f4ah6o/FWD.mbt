@@ -33,6 +33,7 @@ authoring-first workbench surface です。
 ### Endpoints
 
 - `GET /v6/workbench`
+- `GET /v6/workbench?case=purchase-request`
 - `GET /v6/workbench?format=mx`
 - `POST /v6/workbench/preview`
 - `POST /v6/workbench/preview?format=mx`
@@ -40,10 +41,15 @@ authoring-first workbench surface です。
 ### Scope
 
 - entity name / initial state / states / transitions を guided form で入力
-- first slice では state / transition は 3 slot 固定
+- hidden `state_slots` / `transition_slots` で可変 slot 数を保持する
 - 内部では `@schema.Schema` を直接組み立てる
 - validate error は Reason をそのまま表示
 - preview は state ごとの available transitions を表示
+
+### Practical case
+
+- `case=purchase-request` で、備品購入申請を想定した 6 state / 6 transition の preset builder を読み込める
+- fixture: `examples/workbench_v6/purchase_request_expected.html`
 
 ### Fixtures
 
