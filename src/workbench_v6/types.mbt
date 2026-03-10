@@ -9,6 +9,8 @@ pub(all) struct BuilderTransition {
 pub(all) struct BuilderState {
   entity_name : String
   initial_state : String
+  schema_status : String
+  rollout_mode : String
   states : Array[String]
   transitions : Array[BuilderTransition]
 }
@@ -33,8 +35,20 @@ pub(all) struct StatePreview {
 }
 
 ///|
+pub(all) struct RolloutPlan {
+  schema_status : String
+  rollout_mode : String
+  readiness : String
+  headline : String
+  gates : Array[String]
+  actions : Array[String]
+  surfaces : Array[String]
+}
+
+///|
 pub(all) struct WorkbenchModel {
   builder : BuilderState
   validation_reason : @core.Reason?
   previews : Array[StatePreview]
+  rollout : RolloutPlan
 }

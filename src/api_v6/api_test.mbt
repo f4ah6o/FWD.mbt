@@ -35,17 +35,17 @@ fn make_query(entries : Array[(String, String)]) -> Map[String, String] {
 
 ///|
 fn valid_preview_body() -> String {
-  "entity_name=Request&initial_state=Draft&state_0=Draft&state_1=Approved&state_2=Rejected&transition_0_name=approve&transition_0_from=Draft&transition_0_to=Approved&transition_1_name=reject&transition_1_from=Draft&transition_1_to=Rejected&transition_2_name=&transition_2_from=&transition_2_to="
+  "entity_name=Request&initial_state=Draft&schema_status=Draft&rollout_mode=simulation&state_0=Draft&state_1=Approved&state_2=Rejected&transition_0_name=approve&transition_0_from=Draft&transition_0_to=Approved&transition_1_name=reject&transition_1_from=Draft&transition_1_to=Rejected&transition_2_name=&transition_2_from=&transition_2_to="
 }
 
 ///|
 fn invalid_preview_body() -> String {
-  "entity_name=Request&initial_state=Draft&state_0=Draft&state_1=&state_2=&transition_0_name=approve&transition_0_from=Draft&transition_0_to=Approved&transition_1_name=&transition_1_from=&transition_1_to=&transition_2_name=&transition_2_from=&transition_2_to="
+  "entity_name=Request&initial_state=Draft&schema_status=Draft&rollout_mode=simulation&state_0=Draft&state_1=&state_2=&transition_0_name=approve&transition_0_from=Draft&transition_0_to=Approved&transition_1_name=&transition_1_from=&transition_1_to=&transition_2_name=&transition_2_from=&transition_2_to="
 }
 
 ///|
 fn purchase_request_preview_body() -> String {
-  "entity_name=PurchaseRequest&initial_state=Draft&state_slots=6&transition_slots=6&state_0=Draft&state_1=Submitted&state_2=ManagerApproved&state_3=FinanceApproved&state_4=Ordered&state_5=Rejected&transition_0_name=submit&transition_0_from=Draft&transition_0_to=Submitted&transition_1_name=manager_approve&transition_1_from=Submitted&transition_1_to=ManagerApproved&transition_2_name=manager_reject&transition_2_from=Submitted&transition_2_to=Rejected&transition_3_name=finance_approve&transition_3_from=ManagerApproved&transition_3_to=FinanceApproved&transition_4_name=finance_reject&transition_4_from=ManagerApproved&transition_4_to=Rejected&transition_5_name=place_order&transition_5_from=FinanceApproved&transition_5_to=Ordered"
+  "entity_name=PurchaseRequest&initial_state=Draft&schema_status=Released&rollout_mode=shadow&state_slots=6&transition_slots=6&state_0=Draft&state_1=Submitted&state_2=ManagerApproved&state_3=FinanceApproved&state_4=Ordered&state_5=Rejected&transition_0_name=submit&transition_0_from=Draft&transition_0_to=Submitted&transition_1_name=manager_approve&transition_1_from=Submitted&transition_1_to=ManagerApproved&transition_2_name=manager_reject&transition_2_from=Submitted&transition_2_to=Rejected&transition_3_name=finance_approve&transition_3_from=ManagerApproved&transition_3_to=FinanceApproved&transition_4_name=finance_reject&transition_4_from=ManagerApproved&transition_4_to=Rejected&transition_5_name=place_order&transition_5_from=FinanceApproved&transition_5_to=Ordered"
 }
 
 ///|
@@ -136,4 +136,18 @@ test "api v6 preview practical builder" {
   let resp = handle_request(req)
   inspect(resp.status, content="200")
   assert_api_v6_body(resp.body, expected)
+}
+
+///|
+test "api v6 preview invalid rollout mode" {
+  let req : ApiRequest = {
+    http_method: "POST",
+    path: "/v6/workbench/preview",
+    query: Map::new(),
+    body: Some(valid_preview_body() + "&rollout_mode=broken"),
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="200")
+  assert_true(resp.body.contains("validation.code: WORKBENCH_FIELD_INVALID"))
+  assert_true(resp.body.contains("readiness: blocked"))
 }

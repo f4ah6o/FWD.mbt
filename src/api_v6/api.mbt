@@ -203,6 +203,18 @@ fn field_or_empty(fields : Map[String, String], name : String) -> String {
 }
 
 ///|
+fn field_or_default(
+  fields : Map[String, String],
+  name : String,
+  default : String,
+) -> String {
+  match fields.get(name) {
+    Some(value) => value
+    None => default
+  }
+}
+
+///|
 fn decimal_value(ch : Int) -> Int? {
   if ch >= '0'.to_int() && ch <= '9'.to_int() {
     Some(ch - '0'.to_int())
@@ -260,6 +272,16 @@ fn builder_from_fields(fields : Map[String, String]) -> @wb.BuilderState {
   {
     entity_name: field_or_empty(fields, "entity_name"),
     initial_state: field_or_empty(fields, "initial_state"),
+    schema_status: field_or_default(
+      fields,
+      "schema_status",
+      @wb.default_schema_status(),
+    ),
+    rollout_mode: field_or_default(
+      fields,
+      "rollout_mode",
+      @wb.default_rollout_mode(),
+    ),
     states,
     transitions,
   }

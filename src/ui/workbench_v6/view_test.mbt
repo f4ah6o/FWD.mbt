@@ -32,6 +32,8 @@ fn invalid_builder() -> @wb.BuilderState {
   {
     entity_name: "Request",
     initial_state: "Draft",
+    schema_status: @wb.default_schema_status(),
+    rollout_mode: @wb.default_rollout_mode(),
     states: ["Draft", "", ""],
     transitions: [
       { name: "approve", from: "Draft", to: "Approved" },

@@ -3,6 +3,8 @@ test "builder_to_schema compacts blank slots" {
   let builder : BuilderState = {
     entity_name: "Request",
     initial_state: "Draft",
+    schema_status: default_schema_status(),
+    rollout_mode: default_rollout_mode(),
     states: ["Draft", "Approved", ""],
     transitions: [
       { name: "approve", from: "Draft", to: "Approved" },
@@ -27,6 +29,11 @@ test "evaluate_builder valid default preview" {
   inspect(draft.available.length(), content="2")
   inspect(draft.available[0].id, content="reject")
   inspect(draft.available[1].id, content="approve")
+  inspect(model.rollout.readiness, content="simulation-only")
+  inspect(
+    model.rollout.headline,
+    content="Design in the workbench before touching live operations.",
+  )
 }
 
 ///|
@@ -34,6 +41,8 @@ test "evaluate_builder invalid transition target" {
   let builder : BuilderState = {
     entity_name: "Request",
     initial_state: "Draft",
+    schema_status: default_schema_status(),
+    rollout_mode: default_rollout_mode(),
     states: ["Draft"],
     transitions: [{ name: "approve", from: "Draft", to: "Approved" }],
   }
@@ -43,6 +52,7 @@ test "evaluate_builder invalid transition target" {
     None => fail("expected validation error")
   }
   inspect(model.previews.length(), content="0")
+  inspect(model.rollout.readiness, content="blocked")
 }
 
 ///|
@@ -60,6 +70,11 @@ test "purchase request case provides practical preview" {
     Some(reason) => fail("unexpected validation error: " + reason.code())
   }
   inspect(model.previews.length(), content="6")
+  inspect(model.rollout.readiness, content="ready-for-shadow")
+  inspect(
+    model.rollout.headline,
+    content="Mirror live traffic without enforcing FWD decisions yet.",
+  )
   inspect(model.previews[1].state, content="Submitted")
   inspect(model.previews[1].available.length(), content="2")
   inspect(model.previews[1].available[0].id, content="manager_reject")
@@ -67,4 +82,26 @@ test "purchase request case provides practical preview" {
   inspect(model.previews[2].available[0].id, content="finance_reject")
   inspect(model.previews[2].available[1].id, content="finance_approve")
   inspect(model.previews[3].available[0].id, content="place_order")
+}
+
+///|
+test "invalid rollout mode returns explicit validation error" {
+  let builder : BuilderState = {
+    entity_name: "Request",
+    initial_state: "Draft",
+    schema_status: "Released",
+    rollout_mode: "broken",
+    states: ["Draft", "Approved", "Rejected"],
+    transitions: [
+      { name: "approve", from: "Draft", to: "Approved" },
+      { name: "reject", from: "Draft", to: "Rejected" },
+      { name: "", from: "", to: "" },
+    ],
+  }
+  let model = evaluate_builder(builder)
+  match model.validation_reason {
+    Some(reason) => inspect(reason.code(), content="WORKBENCH_FIELD_INVALID")
+    None => fail("expected rollout field validation error")
+  }
+  inspect(model.rollout.readiness, content="blocked")
 }

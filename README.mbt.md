@@ -41,15 +41,20 @@ authoring-first workbench surface です。
 ### Scope
 
 - entity name / initial state / states / transitions を guided form で入力
+- schema lifecycle (`Draft | Reviewing | Released | Deprecated`) を workbench 上で保持する
+- rollout mode (`simulation | shadow | assisted | enforced`) を workbench 上で保持する
 - hidden `state_slots` / `transition_slots` で可変 slot 数を保持する
 - 内部では `@schema.Schema` を直接組み立てる
 - validate error は Reason をそのまま表示
 - preview は state ごとの available transitions を表示
+- rollout section で「今は simulation/shadow/assisted/enforced のどこまで進めるべきか」を表示する
 
 ### Practical case
 
 - `case=purchase-request` で、備品購入申請を想定した 6 state / 6 transition の preset builder を読み込める
 - fixture: `examples/workbench_v6/purchase_request_expected.html`
+- preset は `schemaStatus=Released` / `rolloutMode=shadow` を持ち、
+  「設計思想を保ったまま shadow で実運用を始める」導線をそのまま確認できる
 
 ### Fixtures
 

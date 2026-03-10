@@ -47,6 +47,8 @@ fn summary_section(model : @wb.WorkbenchModel) -> @tmpx.Node {
   @tmpx.section([@tmpx.data_attr("section", "summary")], [
     @tmpx.p([], [@tmpx.text("entityName: " + model.builder.entity_name)]),
     @tmpx.p([], [@tmpx.text("initialState: " + model.builder.initial_state)]),
+    @tmpx.p([], [@tmpx.text("schemaStatus: " + model.builder.schema_status)]),
+    @tmpx.p([], [@tmpx.text("rolloutMode: " + model.builder.rollout_mode)]),
     @tmpx.p([], [
       @tmpx.text("stateCount: " + schema.states.length().to_string()),
     ]),
@@ -75,6 +77,34 @@ fn builder_form_section(
     @tmpx.input_([
       @tmpx.name_("initial_state"),
       @tmpx.value_(model.builder.initial_state),
+    ]),
+  )
+  children.push(@tmpx.p([], [@tmpx.text("schema status")]))
+  children.push(
+    @tmpx.input_([
+      @tmpx.name_("schema_status"),
+      @tmpx.value_(model.builder.schema_status),
+    ]),
+  )
+  children.push(
+    @tmpx.p([], [
+      @tmpx.text(
+        "valid schema status: Draft | Reviewing | Released | Deprecated",
+      ),
+    ]),
+  )
+  children.push(@tmpx.p([], [@tmpx.text("rollout mode")]))
+  children.push(
+    @tmpx.input_([
+      @tmpx.name_("rollout_mode"),
+      @tmpx.value_(model.builder.rollout_mode),
+    ]),
+  )
+  children.push(
+    @tmpx.p([], [
+      @tmpx.text(
+        "valid rollout mode: simulation | shadow | assisted | enforced",
+      ),
     ]),
   )
   children.push(
@@ -224,6 +254,33 @@ fn preview_section(model : @wb.WorkbenchModel) -> @tmpx.Node {
 }
 
 ///|
+fn rollout_section(model : @wb.WorkbenchModel) -> @tmpx.Node {
+  let children : Array[@tmpx.Node] = []
+  children.push(
+    @tmpx.p([], [@tmpx.text("schemaStatus: " + model.rollout.schema_status)]),
+  )
+  children.push(
+    @tmpx.p([], [@tmpx.text("rolloutMode: " + model.rollout.rollout_mode)]),
+  )
+  children.push(
+    @tmpx.p([], [@tmpx.text("readiness: " + model.rollout.readiness)]),
+  )
+  children.push(
+    @tmpx.p([], [@tmpx.text("headline: " + model.rollout.headline)]),
+  )
+  for gate in model.rollout.gates {
+    children.push(@tmpx.p([], [@tmpx.text("gate: " + gate)]))
+  }
+  for action in model.rollout.actions {
+    children.push(@tmpx.p([], [@tmpx.text("action: " + action)]))
+  }
+  for surface in model.rollout.surfaces {
+    children.push(@tmpx.p([], [@tmpx.text("surface: " + surface)]))
+  }
+  @tmpx.section([@tmpx.data_attr("section", "rollout")], children)
+}
+
+///|
 fn render_workbench_with_ctx(
   model : @wb.WorkbenchModel,
   ctx : @view_components.ViewContext,
@@ -234,6 +291,7 @@ fn render_workbench_with_ctx(
   children.push(builder_form_section(model, ctx))
   children.push(validation_section(model))
   children.push(preview_section(model))
+  children.push(rollout_section(model))
   @view_components.render_root(ctx, children)
 }
 
