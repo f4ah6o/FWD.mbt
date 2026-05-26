@@ -1,0 +1,9 @@
+import {
+  "fwd/api_v6" @api,
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+}
+
+options(
+  is_main: true,
+)

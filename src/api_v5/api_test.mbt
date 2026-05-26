@@ -56,7 +56,7 @@ fn expect_response_json(
     let value = pair.1
     match value {
       String(text) =>
-        inspect(res.headers.get(key), content="Some(\"" + text + "\")")
+        inspect(res.headers.get(key), content="Some(" + text + ")")
       _ => fail("expected header must be string: " + key)
     }
   }
@@ -1372,7 +1372,7 @@ fn expect_response_html(
   inspect(res.status, content="200")
   inspect(
     res.headers.get("content-type"),
-    content="Some(\"text/html\")",
+    content="Some(text/html)",
   )
   let mut body = res.body
   if expected.has_suffix("\n") {
@@ -1408,7 +1408,7 @@ test "api v5.6 single job timeline mx" {
   inspect(res.status, content="200")
   inspect(
     res.headers.get("content-type"),
-    content="Some(\"text/html\")",
+    content="Some(text/html)",
   )
   // MX response should contain mx-target and mx-get
   inspect(res.body.contains("mx-target"), content="true")
@@ -1465,7 +1465,7 @@ test "api v5.6 no format falls back to json" {
   inspect(res.status, content="200")
   inspect(
     res.headers.get("content-type"),
-    content="Some(\"application/json\")",
+    content="Some(application/json)",
   )
 }
 
@@ -1514,7 +1514,7 @@ test "api v5.7 event detail mx" {
   inspect(res.status, content="200")
   inspect(
     res.headers.get("content-type"),
-    content="Some(\"text/html\")",
+    content="Some(text/html)",
   )
   inspect(res.body.contains("mx-target"), content="true")
   inspect(res.body.contains("mx-get"), content="true")
@@ -1589,7 +1589,7 @@ test "api v5.7 kind filter status_change" {
   inspect(res.status, content="200")
   inspect(
     res.headers.get("content-type"),
-    content="Some(\"application/json\")",
+    content="Some(application/json)",
   )
 }
 
@@ -1646,7 +1646,7 @@ test "api v5.8 export no kind filter unchanged" {
   inspect(res.status, content="200")
   inspect(
     res.headers.get("content-type"),
-    content="Some(\"application/jsonl\")",
+    content="Some(application/jsonl)",
   )
 }
 

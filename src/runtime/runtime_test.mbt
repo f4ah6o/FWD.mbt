@@ -63,8 +63,8 @@ test "compute available transitions" {
       let reasons = result.blocked_transitions[0].reasons
       inspect(reasons.length(), content="1")
       inspect(reasons[0].code(), content="RULE_NOT_SATISFIED")
-      inspect(find_context(reasons[0], "target"), content="Some(\"rule\")")
-      inspect(find_context(reasons[0], "level"), content="Some(\"info\")")
+      inspect(find_context(reasons[0], "target"), content="Some(rule)")
+      inspect(find_context(reasons[0], "level"), content="Some(info)")
     }
     Err(reason) => fail(reason.message())
   }

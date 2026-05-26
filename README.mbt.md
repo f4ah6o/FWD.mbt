@@ -35,6 +35,7 @@ authoring-first workbench surface です。
 - `GET /v6/workbench`
 - `GET /v6/workbench?case=purchase-request`
 - `GET /v6/workbench?format=mx`
+- `GET /v6/workbench?case=purchase-request&format=mx`
 - `POST /v6/workbench/preview`
 - `POST /v6/workbench/preview?format=mx`
 
@@ -53,19 +54,31 @@ authoring-first workbench surface です。
 
 - `case=purchase-request` で、備品購入申請を想定した 6 state / 6 transition の preset builder を読み込める
 - fixture: `examples/workbench_v6/purchase_request_expected.html`
+- MX fixture: `examples/workbench_v6/purchase_request_expected_mx.html`
 - preset は `schemaStatus=Released` / `rolloutMode=shadow` を持ち、
   「設計思想を保ったまま shadow で実運用を始める」導線をそのまま確認できる
+- shadow demo は deterministic contract として固定する。system of record は既存の人間・外部 system 側に残し、FWD は mirror された入力を validate / preview して drift を見る位置づけにする。
 
 ### Fixtures
 
 - `examples/workbench_v6/expected.html`
 - `examples/workbench_v6/expected_mx.html`
 - `examples/workbench_v6/expected_invalid.html`
+- `examples/workbench_v6/purchase_request_expected.html`
+- `examples/workbench_v6/purchase_request_expected_mx.html`
 
 ### Notes
 
 - 既存の `api_v2` 〜 `api_v5` frozen surface は変更しない
 - YAML export / graph editor / persistence は first slice の対象外
+- all-target gate は `src/workbench_v6`, `src/ui/workbench_v6`, `src/api_v6` に限定する
+- `src/ui/client` は browser DOM / mhx FFI 依存の JS-only smoke harness として扱う
+
+### Verification
+
+```
+just workbench-shadow-ci
+```
 
 ## Runtime (v1)
 
