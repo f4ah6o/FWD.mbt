@@ -104,7 +104,7 @@ test "api v4.5 timeline export page1 jsonl" {
     output = output + "\n"
   }
   inspect(output, content=expected)
-  inspect(res.headers.get("x-next-cursor"), content="Some(\"offset:2\")")
+  inspect(res.headers.get("x-next-cursor"), content="Some(offset:2)")
 }
 
 ///|

@@ -79,6 +79,22 @@ test "api v6 workbench practical case html" {
 }
 
 ///|
+test "api v6 workbench practical case mx" {
+  let expected = load_expected_api_v6(
+    "examples/workbench_v6/purchase_request_expected_mx.html",
+  )
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v6/workbench",
+    query: make_query([("case", "purchase-request"), ("format", "mx")]),
+    body: None,
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="200")
+  assert_api_v6_body(resp.body, expected)
+}
+
+///|
 test "api v6 workbench mx" {
   let expected = load_expected_api_v6("examples/workbench_v6/expected_mx.html")
   let req : ApiRequest = {
@@ -139,6 +155,22 @@ test "api v6 preview practical builder" {
 }
 
 ///|
+test "api v6 preview practical builder mx" {
+  let expected = load_expected_api_v6(
+    "examples/workbench_v6/purchase_request_expected_mx.html",
+  )
+  let req : ApiRequest = {
+    http_method: "POST",
+    path: "/v6/workbench/preview",
+    query: make_query([("format", "mx")]),
+    body: Some(purchase_request_preview_body()),
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="200")
+  assert_api_v6_body(resp.body, expected)
+}
+
+///|
 test "api v6 preview invalid rollout mode" {
   let req : ApiRequest = {
     http_method: "POST",
@@ -150,4 +182,30 @@ test "api v6 preview invalid rollout mode" {
   inspect(resp.status, content="200")
   assert_true(resp.body.contains("validation.code: WORKBENCH_FIELD_INVALID"))
   assert_true(resp.body.contains("readiness: blocked"))
+}
+
+///|
+test "api v6 invalid case returns json error" {
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v6/workbench",
+    query: make_query([("case", "unknown")]),
+    body: None,
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="400")
+  assert_true(resp.body.contains("\"code\": \"CASE_INVALID\""))
+}
+
+///|
+test "api v6 invalid format returns json error" {
+  let req : ApiRequest = {
+    http_method: "GET",
+    path: "/v6/workbench",
+    query: make_query([("format", "json")]),
+    body: None,
+  }
+  let resp = handle_request(req)
+  inspect(resp.status, content="400")
+  assert_true(resp.body.contains("\"code\": \"QUERY_INVALID\""))
 }

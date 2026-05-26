@@ -267,7 +267,7 @@ test "api v4.6 timeline job result page1" {
     output = output + "\n"
   }
   inspect(output, content=expected)
-  inspect(res.headers.get("x-next-cursor"), content="Some(\"offset:2\")")
+  inspect(res.headers.get("x-next-cursor"), content="Some(offset:2)")
 }
 
 ///|
