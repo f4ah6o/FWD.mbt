@@ -7,7 +7,7 @@
     "f4ah6o/mhx": "0.1.1",
     "f4ah6o/tmpx": "0.3.0",
     "moonbitlang/x": "0.4.38",
-    "f4ah6o/dslx": "0.1.1"
+    "f4ah6o/dslx": "0.1.2"
   },
   "license": "AGPL-3.0-only",
   "description": "Functional Work Design (FWD) meta-architecture prototype",

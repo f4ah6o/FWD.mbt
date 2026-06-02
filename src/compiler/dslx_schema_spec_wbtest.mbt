@@ -144,6 +144,33 @@ test "dslx schema compiler spec describes first slice" {
 }
 
 ///|
+test "dslx schema compiler project checks examples through dslx" {
+  let project = fwd_dslx_schema_compiler_project()
+  let example = fwd_dslx_schema_compiler_example()
+  match @dslx.fspc(project, "Fwd") {
+    Some(spec) => inspect(@dslx.name(spec), content="Fwd")
+    None => inspect("none", content="Fwd")
+  }
+  inspect(@dslx.fspc(project, "Missing") is None, content="true")
+  inspect(@dslx.runp(project, "Fwd", "sche", example.text).done, content="true")
+  inspect(fwd_dslx_schema_compiler_example_diagnostics().length(), content="0")
+  let missing = @dslx.runp(project, "Missing", "sche", example.text)
+  inspect(missing.done, content="false")
+  inspect(missing.digs[0].text, content="unknown project spec")
+  match missing.digs[0].hint {
+    Some(value) => inspect(value, content="Missing")
+    None => inspect("none", content="hint")
+  }
+  let invalid = @dslx.chex(
+    project,
+    "Fwd",
+    "sche",
+    @dslx.file("examples/invalid.dsl", "schema"),
+  )
+  inspect(invalid.length() > 0, content="true")
+}
+
+///|
 test "dslx compile slice matches existing compiler pipeline" {
   inspect(
     dslx_ir_json(dslx_sample_yaml()) == existing_ir_json(dslx_sample_yaml()),
