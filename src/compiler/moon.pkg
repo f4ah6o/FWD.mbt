@@ -2,5 +2,6 @@ import {
   "fwd/core",
   "fwd/schema",
   "fwd/ir",
+  "f4ah6o/dslx",
   "moonbitlang/core/json",
 }
