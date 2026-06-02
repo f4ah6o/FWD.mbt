@@ -127,11 +127,19 @@ fn existing_ir_json(input : String) -> Result[String, String] {
 
 ///|
 test "dslx schema compiler spec describes first slice" {
+  let spec = fwd_dslx_schema_compiler_spec()
+  let project = fwd_dslx_schema_compiler_project()
+  let files = @dslx.pack(project)
+  inspect(@dslx.name(spec), content="Fwd")
+  inspect(@dslx.vspc(spec).length(), content="0")
+  inspect(@dslx.vprj(project).length(), content="0")
+  inspect(files.length(), content="6")
+  inspect(files[0].path, content="README.md")
+  inspect(files[1].path, content="examples/schema.dsl")
+  inspect(files[2].path, content="Fwd/astx.mbt")
   inspect(
-    fwd_dslx_schema_compiler_spec(),
-    content=(
-      #|{name: fwd.schema.compiler.v1, nodes: [{name: Schema, fields: [{name: fwdVersion, typx: String, optional: false, aliases: [fwd_version]}, {name: schemaVersion, typx: String, optional: false, aliases: [schema_version]}, {name: states, typx: Array[StateDefinition], optional: false, aliases: []}, {name: entities, typx: Array[EntityDefinition], optional: true, aliases: []}, {name: transitions, typx: Array[TransitionDefinition], optional: false, aliases: []}, {name: rules, typx: Array[RuleDefinition], optional: true, aliases: []}, {name: reasons, typx: Array[ReasonDefinition], optional: true, aliases: []}, {name: boundaries, typx: Array[BoundaryDefinition], optional: true, aliases: []}, {name: effects, typx: Array[EffectDefinition], optional: true, aliases: []}]}, {name: StateDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}]}, {name: AttributeDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}, {name: type, typx: String, optional: false, aliases: [type_ref]}, {name: optional, typx: Bool, optional: true, aliases: []}]}, {name: EntityDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}, {name: initialState, typx: String, optional: false, aliases: [initial_state]}, {name: attributes, typx: Array[AttributeDefinition], optional: true, aliases: []}]}, {name: RuleExpression, fields: [{name: type, typx: String, optional: true, aliases: []}, {name: preset, typx: String, optional: true, aliases: []}, {name: impl, typx: String, optional: true, aliases: []}]}, {name: RuleDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}, {name: type, typx: String, optional: true, aliases: []}, {name: preset, typx: String, optional: true, aliases: []}, {name: impl, typx: String, optional: true, aliases: []}, {name: description, typx: String, optional: true, aliases: []}]}, {name: ReasonDefinition, fields: [{name: code, typx: String, optional: false, aliases: []}, {name: message, typx: String, optional: false, aliases: []}, {name: contextSchema, typx: String, optional: true, aliases: [context_schema]}]}, {name: BoundaryDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}]}, {name: EffectDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}, {name: kind, typx: sync|async, optional: true, aliases: []}]}, {name: TransitionDefinition, fields: [{name: name, typx: String, optional: false, aliases: []}, {name: from, typx: String, optional: false, aliases: []}, {name: to, typx: String, optional: false, aliases: []}, {name: rules, typx: Array[RuleExpression], optional: true, aliases: []}, {name: effects, typx: Array[String], optional: true, aliases: []}, {name: inputSchema, typx: String, optional: true, aliases: [input_schema]}]}], stages: [{name: parse_yaml, input: String, output: Schema}, {name: resolve_schema, input: Schema, output: ResolvedSchema}, {name: validate_schema, input: ResolvedSchema, output: Unit}, {name: emit_ir_from_schema, input: Schema, output: FwdIR}]}
-    ),
+    @dslx.runx(spec, "sche", "schema Schema title:text").done,
+    content="true",
   )
 }
 
