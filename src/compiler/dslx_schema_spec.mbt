@@ -11,12 +11,25 @@ fn fwd_dslx_schema_compiler_spec() -> @dslx.Dslx {
 }
 
 ///|
+fn fwd_dslx_schema_compiler_example() -> @dslx.File {
+  @dslx.file("examples/schema.dsl", "schema Schema title:text version:text\n")
+}
+
+///|
 fn fwd_dslx_schema_compiler_project() -> @dslx.Proj {
   @dslx.proj("fwd-schema-compiler")
   .dslx(fwd_dslx_schema_compiler_spec())
   .file(@dslx.file("README.md", "# FWD schema compiler\n"))
-  .exmp(
-    @dslx.file("examples/schema.dsl", "schema Schema title:text version:text\n"),
+  .exmp(fwd_dslx_schema_compiler_example())
+}
+
+///|
+fn fwd_dslx_schema_compiler_example_diagnostics() -> Array[@dslx.Diag] {
+  @dslx.chex(
+    fwd_dslx_schema_compiler_project(),
+    "Fwd",
+    "sche",
+    fwd_dslx_schema_compiler_example(),
   )
 }
 
