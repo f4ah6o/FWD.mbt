@@ -80,7 +80,13 @@ fn fwd_dslx_schema_compiler_spec() -> @dslx.Dslx {
         @dslx.refx("name"),
         @dslx.litx("->"),
         @dslx.refx("name"),
-        @dslx.many(@dslx.refx("tref")),
+        @dslx.optx(
+          @dslx.seqx([
+            @dslx.litx("{"),
+            @dslx.many(@dslx.refx("tref")),
+            @dslx.litx("}"),
+          ]),
+        ),
       ]),
     ),
   )
@@ -132,7 +138,7 @@ fn fwd_dslx_schema_compiler_spec() -> @dslx.Dslx {
 ///|
 fn fwd_dslx_schema_compiler_example() -> @dslx.File {
   @dslx.file(
-    "examples/schema.dsl", "schema Schema state Draft state Reviewing state Released entity Schema { title:text version:text } effect notifyDependentSchemas rule hasReview: preset allReferencesResolved transition submitForReview: Draft -> Reviewing rule hasAtLeastOneState rule hasAtLeastOneTransition transition approve: Reviewing -> Released rule hasReview transition deprecate: Released -> Released effect notifyDependentSchemas\n",
+    "examples/schema.dsl", "schema Schema state Draft state Reviewing state Released entity Schema { title:text version:text } effect notifyDependentSchemas rule hasReview: preset allReferencesResolved transition submitForReview: Draft -> Reviewing { rule hasAtLeastOneState rule hasAtLeastOneTransition } transition approve: Reviewing -> Released { rule hasReview } transition deprecate: Released -> Released { effect notifyDependentSchemas }\n",
   )
 }
 
@@ -155,6 +161,11 @@ fn fwd_dslx_schema_compiler_example_diagnostics() -> Array[@dslx.Diag] {
 }
 
 ///|
+/// Compile the FWD L1 text DSL into FWD-IR.
+///
+/// The parser starts from the `sche` dslx rule. Parse tree decode failures are
+/// reported as `ParseFailure`; semantic issues still flow through the existing
+/// resolve and validation stages.
 pub fn compile_dslx_l1(input : String) -> Result[@ir.FwdIR, CompileError] {
   match @dslx.runx(fwd_dslx_schema_compiler_spec(), "sche", input) {
     { done: true, tree: Some(tree), .. } => {

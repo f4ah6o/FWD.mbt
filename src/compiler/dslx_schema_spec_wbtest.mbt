@@ -60,9 +60,9 @@ fn dslx_sample_text() -> String {
     #|entity Schema { title:text version:text }
     #|effect notifyDependentSchemas
     #|rule hasReview: preset allReferencesResolved
-    #|transition submitForReview: Draft -> Reviewing rule hasAtLeastOneState rule hasAtLeastOneTransition
-    #|transition approve: Reviewing -> Released rule hasReview
-    #|transition deprecate: Released -> Released effect notifyDependentSchemas
+    #|transition submitForReview: Draft -> Reviewing { rule hasAtLeastOneState rule hasAtLeastOneTransition }
+    #|transition approve: Reviewing -> Released { rule hasReview }
+    #|transition deprecate: Released -> Released { effect notifyDependentSchemas }
   )
 }
 
@@ -73,7 +73,7 @@ fn dslx_text_missing_effect() -> String {
     #|state Draft
     #|state Released
     #|entity Schema { title:text }
-    #|transition submit: Draft -> Released effect notify
+    #|transition submit: Draft -> Released { effect notify }
   )
 }
 
@@ -85,7 +85,7 @@ fn dslx_text_conflicting_rule() -> String {
     #|state Released
     #|entity Schema { title:text }
     #|rule hasAtLeastOneState: preset hasAtLeastOneState
-    #|transition submit: Draft -> Released rule hasAtLeastOneState
+    #|transition submit: Draft -> Released { rule hasAtLeastOneState }
     #|effect notify
   )
 }
@@ -97,6 +97,18 @@ fn dslx_text_unknown_type() -> String {
     #|state Draft
     #|state Released
     #|entity Schema { title:blob }
+    #|transition submit: Draft -> Released
+    #|effect notify
+  )
+}
+
+///|
+fn dslx_text_entity_before_state() -> String {
+  (
+    #|schema Schema
+    #|entity Schema { title:text }
+    #|state Draft
+    #|state Released
     #|transition submit: Draft -> Released
     #|effect notify
   )
@@ -206,5 +218,13 @@ test "dslx compile slice rejects unsupported type during parse" {
   inspect(
     dslx_ir_json(dslx_text_unknown_type()),
     content="Err(parse error: unexpected input)",
+  )
+}
+
+///|
+test "dslx compile slice requires entity after state" {
+  inspect(
+    dslx_ir_json(dslx_text_entity_before_state()),
+    content="Err(parse error: entity requires a preceding state)",
   )
 }

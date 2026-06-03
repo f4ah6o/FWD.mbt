@@ -134,9 +134,21 @@ fn dslx_decode_transition(
   let rules : Array[@schema.RuleExpression] = []
   let effects : Array[String] = []
   let refs = dslx_child(seq, 6, "transition.refs")
-  dslx_expect_kind(refs, "many", "transition.refs")
-  for item in refs.kids {
-    dslx_decode_tref(item, rules, effects)
+  let ref_block = match refs.kind {
+    "seqx" => Some(refs)
+    "optx" => None
+    other =>
+      raise dslx_decode_error("expected transition ref block, got " + other)
+  }
+  match ref_block {
+    Some(block) => {
+      let ref_items = dslx_child(block, 1, "transition.refs.items")
+      dslx_expect_kind(ref_items, "many", "transition.refs.items")
+      for item in ref_items.kids {
+        dslx_decode_tref(item, rules, effects)
+      }
+    }
+    None => ()
   }
   {
     name: dslx_name(dslx_child(seq, 1, "transition.name"), "transition.name"),
@@ -207,7 +219,10 @@ fn dslx_decode_item(
   match body.kind {
     "refx:stat" => states.push(dslx_decode_state(body))
     "refx:enty" => {
-      let initial_state = if states.length() == 0 { "" } else { states[0].name }
+      if states.length() == 0 {
+        raise dslx_decode_error("entity requires a preceding state")
+      }
+      let initial_state = states[0].name
       entities.push(dslx_decode_entity(body, initial_state))
     }
     "refx:tran" => transitions.push(dslx_decode_transition(body))
@@ -250,6 +265,9 @@ fn format_dslx_diagnostics(digs : Array[@dslx.Diag]) -> String {
   if digs.length() == 0 {
     "dslx parse failed"
   } else {
-    digs[0].text
+    match digs[0].hint {
+      Some(value) => digs[0].text + ": " + value
+      None => digs[0].text
+    }
   }
 }
