@@ -1,6 +1,6 @@
 ///|
 fn usage() -> String {
-  "usage: fwdc <schema.yaml> [output.json]\n       fwdc presets\n       fwdc validate <schema.yaml> [--baseline <baseline.yaml>] [--format json|--json]\n       fwdc runtime available <schema.yaml> --state <state> [--input <json>]\n       fwdc runtime execute <schema.yaml> --state <state> --transition <id> [--input <json>]\n       fwdc hypermedia show <schema.yaml> --state <state> [--input <json>]\n       fwdc effects plan <schema.yaml> --entity <id> --state <state> --transition <id> [--input <json>]\n       fwdc effects execute --plan <json>\n       fwdc effects record --plan <plan.json> --cassette <cassette.json> [--out <execution.json>] --allow <prefix> [--allow <prefix>]\n       fwdc effects run --plan <plan.json> --config <config.json> [--cassette <cassette.json>]"
+  "usage: fwdc <schema.yaml> [output.json]\n       fwdc compile-dslx <schema.dsl> [output.json]\n       fwdc presets\n       fwdc validate <schema.yaml> [--baseline <baseline.yaml>] [--format json|--json]\n       fwdc validate-dslx <schema.dsl> [--json]\n       fwdc runtime available <schema.yaml> --state <state> [--input <json>]\n       fwdc runtime execute <schema.yaml> --state <state> --transition <id> [--input <json>]\n       fwdc hypermedia show <schema.yaml> --state <state> [--input <json>]\n       fwdc effects plan <schema.yaml> --entity <id> --state <state> --transition <id> [--input <json>]\n       fwdc effects execute --plan <json>\n       fwdc effects record --plan <plan.json> --cassette <cassette.json> [--out <execution.json>] --allow <prefix> [--allow <prefix>]\n       fwdc effects run --plan <plan.json> --config <config.json> [--cassette <cassette.json>]"
 }
 
 ///|
@@ -624,6 +624,90 @@ pub fn run(args : Array[String]) -> Int {
   if args[0] == "presets" {
     print_presets()
     return 0
+  }
+  if args[0] == "compile-dslx" {
+    if args.length() < 2 || args.length() > 3 {
+      println(usage())
+      return 1
+    }
+    let input_path = args[1]
+    let output_path = if args.length() == 3 { Some(args[2]) } else { None }
+    let input_opt = read_input(input_path)
+    return match input_opt {
+      Some(input) =>
+        match @compiler.compile_dslx_l1(input) {
+          Ok(ir) => {
+            let json = @compiler.ir_to_json(ir)
+            let output = json.stringify(indent=2)
+            match output_path {
+              Some(path) => if write_output(path, output) { 0 } else { 1 }
+              None => {
+                println(output)
+                0
+              }
+            }
+          }
+          Err(err) => {
+            println(@compiler.describe_error(err))
+            1
+          }
+        }
+      None => 1
+    }
+  }
+  if args[0] == "validate-dslx" {
+    if args.length() < 2 {
+      println(usage())
+      return 1
+    }
+    let input_path = args[1]
+    let mut json_output = false
+    for i = 2; i < args.length(); {
+      let arg = args[i]
+      if arg == "--json" {
+        json_output = true
+        continue i + 1
+      } else {
+        println(usage())
+        return 1
+      }
+    } nobreak {
+
+    }
+    return match read_input_result(input_path) {
+      Ok(input) =>
+        match @compiler.compile_dslx_l1(input) {
+          Ok(_) => {
+            if json_output {
+              println(@compiler.validation_json_string(true, []))
+            } else {
+              println("ok")
+            }
+            0
+          }
+          Err(err) => {
+            if json_output {
+              let reason = reason_from_compile_error(err)
+              println(@compiler.validation_json_string(false, [reason]))
+            } else {
+              println(@compiler.describe_error(err))
+            }
+            1
+          }
+        }
+      Err(err) => {
+        if json_output {
+          let reasons : Array[@core.Reason] = []
+          reasons.push(
+            @core.Reason::new("ReadFailure", "read error: " + err.to_string()),
+          )
+          println(@compiler.validation_json_string(false, reasons))
+        } else {
+          println("read error: " + err.to_string())
+        }
+        1
+      }
+    }
   }
   if args[0] == "validate" {
     if args.length() < 2 {
