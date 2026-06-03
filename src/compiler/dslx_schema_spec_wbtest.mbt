@@ -18,12 +18,10 @@ fn dslx_sample_yaml() -> String {
     #|      - name: version
     #|        type: String
     #|
-    #|reasons:
-    #|  - code: ValidationFailure
-    #|    message: Validation failed
-    #|
-    #|boundaries:
-    #|  - name: Reviewer
+    #|rules:
+    #|  - name: hasReview
+    #|    type: preset
+    #|    preset: allReferencesResolved
     #|
     #|transitions:
     #|  - name: submitForReview
@@ -37,7 +35,7 @@ fn dslx_sample_yaml() -> String {
     #|    from: Reviewing
     #|    to: Released
     #|    rules:
-    #|      - allReferencesResolved
+    #|      - hasReview
     #|
     #|  - name: deprecate
     #|    from: Released
@@ -47,58 +45,66 @@ fn dslx_sample_yaml() -> String {
     #|
     #|effects:
     #|  - name: notifyDependentSchemas
-    #|    kind: async
+    #|    kind: sync
     #|
   value
 }
 
 ///|
-fn dslx_yaml_missing_effect() -> String {
-  let value : String =
-    #|fwdVersion: "1.0"
-    #|schemaVersion: "1.0"
-    #|
-    #|states:
-    #|  - Draft
-    #|  - Released
-    #|
-    #|transitions:
-    #|  - name: submit
-    #|    from: Draft
-    #|    to: Released
-    #|    effects:
-    #|      - notify
-    #|
-  value
+fn dslx_sample_text() -> String {
+  (
+    #|schema Schema
+    #|state Draft
+    #|state Reviewing
+    #|state Released
+    #|entity Schema { title:text version:text }
+    #|effect notifyDependentSchemas
+    #|rule hasReview: preset allReferencesResolved
+    #|transition submitForReview: Draft -> Reviewing rule hasAtLeastOneState rule hasAtLeastOneTransition
+    #|transition approve: Reviewing -> Released rule hasReview
+    #|transition deprecate: Released -> Released effect notifyDependentSchemas
+  )
 }
 
 ///|
-fn dslx_yaml_conflicting_rule() -> String {
-  let value : String =
-    #|fwdVersion: "1.0"
-    #|schemaVersion: "1.0"
-    #|
-    #|states:
-    #|  - Draft
-    #|  - Released
-    #|
-    #|rules:
-    #|  - name: hasAtLeastOneState
-    #|    type: preset
-    #|
-    #|transitions:
-    #|  - name: submit
-    #|    from: Draft
-    #|    to: Released
-    #|    rules:
-    #|      - hasAtLeastOneState
-    #|
-  value
+fn dslx_text_missing_effect() -> String {
+  (
+    #|schema Schema
+    #|state Draft
+    #|state Released
+    #|entity Schema { title:text }
+    #|transition submit: Draft -> Released effect notify
+  )
+}
+
+///|
+fn dslx_text_conflicting_rule() -> String {
+  (
+    #|schema Schema
+    #|state Draft
+    #|state Released
+    #|entity Schema { title:text }
+    #|rule hasAtLeastOneState: preset hasAtLeastOneState
+    #|transition submit: Draft -> Released rule hasAtLeastOneState
+    #|effect notify
+  )
+}
+
+///|
+fn dslx_text_unknown_type() -> String {
+  (
+    #|schema Schema
+    #|state Draft
+    #|state Released
+    #|entity Schema { title:blob }
+    #|transition submit: Draft -> Released
+    #|effect notify
+  )
 }
 
 ///|
 fn dslx_ir_json(input : String) -> Result[String, String] {
-  match dslx_compile_yaml_first_slice(input) {
+  match compile_dslx_l1(input) {
     Ok(ir) => Ok(ir_to_json(ir).stringify(indent=2))
     Err(err) => Err(describe_error(err))
   }
@@ -137,10 +143,7 @@ test "dslx schema compiler spec describes first slice" {
   inspect(files[0].path, content="README.md")
   inspect(files[1].path, content="examples/schema.dsl")
   inspect(files[2].path, content="Fwd/astx.mbt")
-  inspect(
-    @dslx.runx(spec, "sche", "schema Schema title:text").done,
-    content="true",
-  )
+  inspect(@dslx.runx(spec, "sche", dslx_sample_text()).done, content="true")
 }
 
 ///|
@@ -173,7 +176,7 @@ test "dslx schema compiler project checks examples through dslx" {
 ///|
 test "dslx compile slice matches existing compiler pipeline" {
   inspect(
-    dslx_ir_json(dslx_sample_yaml()) == existing_ir_json(dslx_sample_yaml()),
+    dslx_ir_json(dslx_sample_text()) == existing_ir_json(dslx_sample_yaml()),
     content="true",
   )
 }
@@ -181,29 +184,27 @@ test "dslx compile slice matches existing compiler pipeline" {
 ///|
 test "dslx compile slice preserves validation failure behavior" {
   inspect(
-    dslx_ir_json(dslx_yaml_missing_effect()),
+    dslx_ir_json(dslx_text_missing_effect()),
     content=(
       #|Err(validation error: unknown_effect: transition effect is not defined)
     ),
-  )
-  inspect(
-    dslx_ir_json(dslx_yaml_missing_effect()) ==
-    existing_ir_json(dslx_yaml_missing_effect()),
-    content="true",
   )
 }
 
 ///|
 test "dslx compile slice preserves resolve failure behavior" {
   inspect(
-    dslx_ir_json(dslx_yaml_conflicting_rule()),
+    dslx_ir_json(dslx_text_conflicting_rule()),
     content=(
       #|Err(resolve error: rule name conflicts with builtin: hasAtLeastOneState)
     ),
   )
+}
+
+///|
+test "dslx compile slice rejects unsupported type during parse" {
   inspect(
-    dslx_ir_json(dslx_yaml_conflicting_rule()) ==
-    existing_ir_json(dslx_yaml_conflicting_rule()),
-    content="true",
+    dslx_ir_json(dslx_text_unknown_type()),
+    content="Err(parse error: unexpected input)",
   )
 }
