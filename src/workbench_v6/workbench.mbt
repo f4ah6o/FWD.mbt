@@ -72,6 +72,32 @@ fn has_any_text(text : String) -> Bool {
 }
 
 ///|
+fn is_dslx_name_start(ch : Int) -> Bool {
+  (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
+}
+
+///|
+fn is_dslx_name_continue(ch : Int) -> Bool {
+  is_dslx_name_start(ch) || (ch >= '0' && ch <= '9')
+}
+
+///|
+fn has_valid_dslx_name(value : String) -> Bool {
+  if value.length() == 0 {
+    return false
+  }
+  if !is_dslx_name_start(value[0].to_int()) {
+    return false
+  }
+  for i in 1..<value.length() {
+    if !is_dslx_name_continue(value[i].to_int()) {
+      return false
+    }
+  }
+  true
+}
+
+///|
 fn has_valid_schema_status(value : String) -> Bool {
   match value {
     "Draft" | "Reviewing" | "Released" | "Deprecated" => true
@@ -106,6 +132,20 @@ fn workbench_field_reason(
 }
 
 ///|
+fn workbench_dslx_name_reason(field : String, value : String) -> @core.Reason {
+  workbench_field_reason(field, value, "[A-Za-z_][A-Za-z0-9_]*")
+}
+
+///|
+fn validate_dslx_name(field : String, value : String) -> @core.Reason? {
+  if value.length() == 0 || has_valid_dslx_name(value) {
+    None
+  } else {
+    Some(workbench_dslx_name_reason(field, value))
+  }
+}
+
+///|
 fn validate_workbench_controls(builder : BuilderState) -> @core.Reason? {
   if !has_valid_schema_status(builder.schema_status) {
     return Some(
@@ -124,6 +164,30 @@ fn validate_workbench_controls(builder : BuilderState) -> @core.Reason? {
         "simulation, shadow, assisted, enforced",
       ),
     )
+  }
+  match validate_dslx_name("entity_name", builder.entity_name) {
+    Some(reason) => return Some(reason)
+    None => ()
+  }
+  for state in compact_states(builder) {
+    match validate_dslx_name("state", state) {
+      Some(reason) => return Some(reason)
+      None => ()
+    }
+  }
+  for transition in compact_transitions(builder) {
+    match validate_dslx_name("transition.name", transition.name) {
+      Some(reason) => return Some(reason)
+      None => ()
+    }
+    match validate_dslx_name("transition.from", transition.from) {
+      Some(reason) => return Some(reason)
+      None => ()
+    }
+    match validate_dslx_name("transition.to", transition.to) {
+      Some(reason) => return Some(reason)
+      None => ()
+    }
   }
   None
 }
@@ -155,6 +219,57 @@ fn compact_transitions(builder : BuilderState) -> Array[BuilderTransition] {
     }
   }
   transitions
+}
+
+///|
+fn dslx_state_order(builder : BuilderState) -> Array[String] {
+  let states = compact_states(builder)
+  let mut initial_index : Int? = None
+  for i in 0..<states.length() {
+    if initial_index is None && states[i] == builder.initial_state {
+      initial_index = Some(i)
+    }
+  }
+  match initial_index {
+    None => states
+    Some(index) => {
+      let ordered : Array[String] = []
+      ordered.push(states[index])
+      for i in 0..<states.length() {
+        if i != index {
+          ordered.push(states[i])
+        }
+      }
+      ordered
+    }
+  }
+}
+
+///|
+pub fn builder_to_dslx_l1(builder : BuilderState) -> String {
+  let sb = StringBuilder::new()
+  sb.write_string("schema ")
+  sb.write_string(builder.entity_name)
+  for state in dslx_state_order(builder) {
+    sb.write_char('\n')
+    sb.write_string("state ")
+    sb.write_string(state)
+  }
+  sb.write_char('\n')
+  sb.write_string("entity ")
+  sb.write_string(builder.entity_name)
+  sb.write_string(" { }")
+  for transition in compact_transitions(builder) {
+    sb.write_char('\n')
+    sb.write_string("transition ")
+    sb.write_string(transition.name)
+    sb.write_string(": ")
+    sb.write_string(transition.from)
+    sb.write_string(" -> ")
+    sb.write_string(transition.to)
+  }
+  sb.write_char('\n')
+  sb.to_string()
 }
 
 ///|
@@ -487,11 +602,13 @@ pub fn evaluate_builder(builder : BuilderState) -> WorkbenchModel {
     Err(err) =>
       return workbench_model(builder, Some(compile_error_reason(err)), [])
   }
+  // Keep schema validation before the dslx pass so builder-only invalid states
+  // are reported with the same semantic reasons as the older schema path.
   match @compiler.validate_schema(resolved) {
     Ok(_) => ()
     Err(reason) => return workbench_model(builder, Some(reason), [])
   }
-  let ir = match @compiler.emit_ir(resolved.schema) {
+  let ir = match @compiler.compile_dslx_l1(builder_to_dslx_l1(builder)) {
     Ok(value) => value
     Err(err) =>
       return workbench_model(builder, Some(compile_error_reason(err)), [])

@@ -17,6 +17,22 @@ test "builder_to_schema compacts blank slots" {
 }
 
 ///|
+test "builder_to_dslx_l1 default builder compiles" {
+  let source = builder_to_dslx_l1(default_builder())
+  match @compiler.compile_dslx_l1(source) {
+    Ok(ir) => {
+      inspect(ir.state_graph.nodes.length(), content="3")
+      inspect(ir.transitions.length(), content="2")
+      inspect(ir.entities.contains("Request"), content="true")
+    }
+    Err(err) =>
+      fail(
+        "expected generated dslx to compile: " + @compiler.describe_error(err),
+      )
+  }
+}
+
+///|
 test "evaluate_builder valid default preview" {
   let model = evaluate_builder(default_builder())
   match model.validation_reason {
@@ -53,6 +69,45 @@ test "evaluate_builder invalid transition target" {
   }
   inspect(model.previews.length(), content="0")
   inspect(model.rollout.readiness, content="blocked")
+}
+
+///|
+test "evaluate_builder preserves invalid initial state validation" {
+  let builder : BuilderState = {
+    entity_name: "Request",
+    initial_state: "Missing",
+    schema_status: default_schema_status(),
+    rollout_mode: default_rollout_mode(),
+    states: ["Draft", "Approved"],
+    transitions: [{ name: "approve", from: "Draft", to: "Approved" }],
+  }
+  let model = evaluate_builder(builder)
+  match model.validation_reason {
+    Some(reason) => inspect(reason.code(), content="unknown_state")
+    None => fail("expected validation error")
+  }
+  inspect(model.previews.length(), content="0")
+}
+
+///|
+test "evaluate_builder rejects non dslx identifiers before compile" {
+  let builder : BuilderState = {
+    entity_name: "Request",
+    initial_state: "Needs Review",
+    schema_status: default_schema_status(),
+    rollout_mode: default_rollout_mode(),
+    states: ["Needs Review", "Approved"],
+    transitions: [{ name: "approve", from: "Needs Review", to: "Approved" }],
+  }
+  let model = evaluate_builder(builder)
+  match model.validation_reason {
+    Some(reason) => {
+      inspect(reason.code(), content="WORKBENCH_FIELD_INVALID")
+      inspect(reason.message(), content="unsupported state: Needs Review")
+    }
+    None => fail("expected dslx identifier validation error")
+  }
+  inspect(model.previews.length(), content="0")
 }
 
 ///|
