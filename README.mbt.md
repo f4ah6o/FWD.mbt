@@ -4,7 +4,9 @@
 
 ```
 moon run cli -- <schema.yaml> [output.json]
+moon run cli -- compile-dslx <schema.dsl> [output.json]
 moon run cli -- validate <schema.yaml>
+moon run cli -- validate-dslx <schema.dsl> [--json]
 moon run cli -- presets
 moon run cli -- runtime available <schema.yaml> --state <state> [--input <json>]
 moon run cli -- runtime execute <schema.yaml> --state <state> --transition <id> [--input <json>]
@@ -12,6 +14,7 @@ moon run cli -- runtime execute <schema.yaml> --state <state> --transition <id> 
 
 - If `output.json` is omitted, JSON IR is printed to stdout.
 - Example input: `examples/schema_v1.yaml`.
+- dslx L1 example input: `examples/schema.dsl`.
 
 ### Validation JSON Output (v1.1)
 

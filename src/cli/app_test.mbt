@@ -13,6 +13,76 @@ fn read_text_cli(path : String, label : String) -> String raise {
 }
 
 ///|
+fn write_text_cli(path : String, text : String, label : String) -> Unit raise {
+  let result : Result[Unit, @fs.IOError] = try? @fs.write_string_to_file(
+    path, text,
+  )
+  match result {
+    Ok(_) => ()
+    Err(err) => fail("write failed: " + label + ": " + err.to_string())
+  }
+}
+
+///|
+fn remove_file_cli(path : String) -> Unit {
+  let result : Result[Unit, @fs.IOError] = try? @fs.remove_file(path)
+  ignore(result)
+}
+
+///|
+fn dslx_example_ir_json_cli() -> String raise {
+  let input = read_text_cli("examples/schema.dsl", "dslx example")
+  match @compiler.compile_dslx_l1(input) {
+    Ok(ir) => @compiler.ir_to_json(ir).stringify(indent=2)
+    Err(err) => fail(@compiler.describe_error(err))
+  }
+}
+
+///|
+test "run compile dslx writes ir json" {
+  let output_path = ".mooncakes/dslx_cli_app_test_output.json"
+  remove_file_cli(output_path)
+  inspect(
+    run(["compile-dslx", "examples/schema.dsl", output_path]),
+    content="0",
+  )
+  let output = read_text_cli(output_path, "dslx cli output")
+  inspect(output, content=dslx_example_ir_json_cli())
+  remove_file_cli(output_path)
+}
+
+///|
+test "run validate dslx" {
+  inspect(run(["validate-dslx", "examples/schema.dsl"]), content="0")
+}
+
+///|
+test "run validate dslx json output" {
+  let ok_json = @compiler.validation_json_string(true, [])
+  inspect(run(["validate-dslx", "examples/schema.dsl", "--json"]), content="0")
+  assert_true(ok_json.contains("\"ok\": true"))
+}
+
+///|
+test "run validate dslx failure" {
+  let input_path = ".mooncakes/dslx_cli_app_test_invalid.dsl"
+  remove_file_cli(input_path)
+  write_text_cli(
+    input_path,
+    (
+      #|schema Schema
+      #|state Draft
+      #|state Released
+      #|entity Schema { title:text }
+      #|transition submit: Draft -> Released { effect notify }
+    ),
+    "invalid dslx",
+  )
+  inspect(run(["validate-dslx", input_path]), content="1")
+  remove_file_cli(input_path)
+}
+
+///|
 test "run validate examples" {
   inspect(
     run(["validate", "examples/fwd_schema_change_valid.yaml"]),
