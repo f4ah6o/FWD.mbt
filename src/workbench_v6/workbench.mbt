@@ -158,6 +158,55 @@ fn compact_transitions(builder : BuilderState) -> Array[BuilderTransition] {
 }
 
 ///|
+fn dslx_state_order(builder : BuilderState) -> Array[String] {
+  let states = compact_states(builder)
+  let mut initial_index = -1
+  for i in 0..<states.length() {
+    if initial_index == -1 && states[i] == builder.initial_state {
+      initial_index = i
+    }
+  }
+  if initial_index == -1 {
+    return states
+  }
+  let ordered : Array[String] = []
+  ordered.push(states[initial_index])
+  for i in 0..<states.length() {
+    if i != initial_index {
+      ordered.push(states[i])
+    }
+  }
+  ordered
+}
+
+///|
+pub fn builder_to_dslx_l1(builder : BuilderState) -> String {
+  let sb = StringBuilder::new()
+  sb.write_string("schema ")
+  sb.write_string(builder.entity_name)
+  for state in dslx_state_order(builder) {
+    sb.write_char('\n')
+    sb.write_string("state ")
+    sb.write_string(state)
+  }
+  sb.write_char('\n')
+  sb.write_string("entity ")
+  sb.write_string(builder.entity_name)
+  sb.write_string(" { }")
+  for transition in compact_transitions(builder) {
+    sb.write_char('\n')
+    sb.write_string("transition ")
+    sb.write_string(transition.name)
+    sb.write_string(": ")
+    sb.write_string(transition.from)
+    sb.write_string(" -> ")
+    sb.write_string(transition.to)
+  }
+  sb.write_char('\n')
+  sb.to_string()
+}
+
+///|
 pub fn builder_to_schema(builder : BuilderState) -> @schema.Schema {
   let states : Array[@schema.StateDefinition] = []
   for state in compact_states(builder) {
@@ -491,7 +540,7 @@ pub fn evaluate_builder(builder : BuilderState) -> WorkbenchModel {
     Ok(_) => ()
     Err(reason) => return workbench_model(builder, Some(reason), [])
   }
-  let ir = match @compiler.emit_ir(resolved.schema) {
+  let ir = match @compiler.compile_dslx_l1(builder_to_dslx_l1(builder)) {
     Ok(value) => value
     Err(err) =>
       return workbench_model(builder, Some(compile_error_reason(err)), [])
