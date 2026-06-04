@@ -90,6 +90,27 @@ test "evaluate_builder preserves invalid initial state validation" {
 }
 
 ///|
+test "evaluate_builder rejects non dslx identifiers before compile" {
+  let builder : BuilderState = {
+    entity_name: "Request",
+    initial_state: "Needs Review",
+    schema_status: default_schema_status(),
+    rollout_mode: default_rollout_mode(),
+    states: ["Needs Review", "Approved"],
+    transitions: [{ name: "approve", from: "Needs Review", to: "Approved" }],
+  }
+  let model = evaluate_builder(builder)
+  match model.validation_reason {
+    Some(reason) => {
+      inspect(reason.code(), content="WORKBENCH_FIELD_INVALID")
+      inspect(reason.message(), content="unsupported state: Needs Review")
+    }
+    None => fail("expected dslx identifier validation error")
+  }
+  inspect(model.previews.length(), content="0")
+}
+
+///|
 test "purchase request case provides practical preview" {
   let builder = purchase_request_builder()
   inspect(state_slot_count(builder), content="6")
