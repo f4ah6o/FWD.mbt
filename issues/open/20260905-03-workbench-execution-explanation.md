@@ -78,3 +78,5 @@ all-target対象にJS専用 `src/ui/client` を混ぜない。JS smokeは既存j
 新しい画面のHTMLを目視確認し、入力・blocked理由・再現結果・定義差分を辿れることを記録する。
 本issueの完了を「実運用の承認システムが完成した」とは扱わない。
 DB、kintone接続、BPMN、帳票、SQL、多段/並列承認、汎用rule editorは対象外。
+
+- 再確認: 2026-10-09、main `0b9404c` 時点 — `src/workbench_v6/explanation.mbt`、`src/ui/workbench_v6/explanation_view.mbt`、`/v6/workbench/explain` ルートは未実装のため引き続き Open。

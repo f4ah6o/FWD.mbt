@@ -85,3 +85,5 @@ git diff --check
 本issue単独で実装・検証する。既存のfixtureは新しい動作に合わせて書き換えない。
 完了記録には追加API、fixture、実行結果を記載する。
 日時・乱数・ネットワーク・DB・外部rule評価・既存APIのversion upは対象外。
+
+- 再確認: 2026-10-09、main `0b9404c` 時点 — `src/execution_trace_v1/`・`examples/execution_trace_v1/` は未作成のため引き続き Open。

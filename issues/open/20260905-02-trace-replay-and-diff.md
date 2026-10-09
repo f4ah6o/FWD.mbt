@@ -73,3 +73,5 @@ git diff --check
 元のtraceを書き換えてテストを通すことは禁止。不一致を検出できるfixtureを必ず残す。
 完了記録に「一致」「保存結果の不一致」「同versionの定義変更」の3例を載せる。
 既存compiler baseline-diffの再実装、永続ストア、マイグレーション適用、外部effects実行は対象外。
+
+- 再確認: 2026-10-09、main `0b9404c` 時点 — `src/execution_trace_v1/` 未作成(FWD-01 未着手)のため引き続き Open。
