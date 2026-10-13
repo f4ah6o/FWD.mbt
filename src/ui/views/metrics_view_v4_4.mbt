@@ -2,16 +2,16 @@
 /// v4.4 metrics HTML projection (with drilldown wiring).
 pub(all) struct V4_4MetricsWindowView {
   entity_id : String
-  from_logical_time : Int
-  to_logical_time : Int
+  from_logical_time : Int32
+  to_logical_time : Int32
 }
 
 ///|
 pub(all) struct V4_4MetricsCountsView {
-  ok : Int
-  failed : Int
-  blocked : Int
-  denied : Int
+  ok : Int32
+  failed : Int32
+  blocked : Int32
+  denied : Int32
 }
 
 ///|

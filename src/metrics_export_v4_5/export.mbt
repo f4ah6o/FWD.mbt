@@ -19,7 +19,7 @@ fn counts_json(counts : @metrics_v3_6.MetricCounts) -> Json {
 }
 
 ///|
-fn option_number(value : Int?) -> Json {
+fn option_number(value : Int32?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
     None => Json::null()
@@ -79,7 +79,7 @@ fn csv_cell(value : String) -> String {
 }
 
 ///|
-fn option_to_string(value : Int?) -> String {
+fn option_to_string(value : Int32?) -> String {
   match value {
     Some(v) => v.to_string()
     None => ""

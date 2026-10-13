@@ -1,15 +1,9 @@
 ///|
 fn setup_v5_7_test_events() -> Unit {
   @job_timeline_v5_4.reset_for_test()
-  @job_timeline_v5_4.record_status_change(
-    "job-1", 0, "queued", "queued", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-1", 1, "queued", "running", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-1", 2, "running", "done", [],
-  )
+  @job_timeline_v5_4.record_status_change("job-1", 0, "queued", "queued", [])
+  @job_timeline_v5_4.record_status_change("job-1", 1, "queued", "running", [])
+  @job_timeline_v5_4.record_status_change("job-1", 2, "running", "done", [])
 }
 
 ///|
@@ -39,14 +33,8 @@ test "v5.7 parse_event_id valid" {
 ///|
 test "v5.7 parse_event_id invalid format" {
   inspect(parse_event_id("bad") is None, content="true")
-  inspect(
-    parse_event_id("job-1:abc:1:status_change") is None,
-    content="true",
-  )
-  inspect(
-    parse_event_id("job-1:1:1:unknown_kind") is None,
-    content="true",
-  )
+  inspect(parse_event_id("job-1:abc:1:status_change") is None, content="true")
+  inspect(parse_event_id("job-1:1:1:unknown_kind") is None, content="true")
 }
 
 ///|
@@ -186,18 +174,10 @@ test "v5.8 parse_event_id retention_check" {
 ///|
 fn setup_v5_8_mixed_events() -> Unit {
   @job_timeline_v5_4.reset_for_test()
-  @job_timeline_v5_4.record_status_change(
-    "job-1", 0, "queued", "queued", [],
-  )
-  @job_timeline_v5_4.record_policy_decision(
-    "job-1", 1, "approved", [],
-  )
-  @job_timeline_v5_4.record_retention_check(
-    "job-1", 2, "retained", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-1", 3, "queued", "running", [],
-  )
+  @job_timeline_v5_4.record_status_change("job-1", 0, "queued", "queued", [])
+  @job_timeline_v5_4.record_policy_decision("job-1", 1, "approved", [])
+  @job_timeline_v5_4.record_retention_check("job-1", 2, "retained", [])
+  @job_timeline_v5_4.record_status_change("job-1", 3, "queued", "running", [])
 }
 
 ///|

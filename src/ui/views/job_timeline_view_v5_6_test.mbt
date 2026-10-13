@@ -1,8 +1,5 @@
 ///|
-fn read_text_view_v5_6(
-  path : String,
-  label : String,
-) -> Result[String, String] {
+fn read_text_view_v5_6(path : String, label : String) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -19,9 +16,7 @@ fn load_expected_v5_6(path : String) -> String raise {
 }
 
 ///|
-fn make_test_page_v5_6(
-  has_more : Bool,
-) -> @job_timeline_v5_5.JobTimelinePage {
+fn make_test_page_v5_6(has_more : Bool) -> @job_timeline_v5_5.JobTimelinePage {
   let events : Array[@job_timeline_v5_4.JobTimelineEvent] = [
     {
       job_id: "job-1",
@@ -42,7 +37,7 @@ fn make_test_page_v5_6(
       reasons: [],
     },
   ]
-  { events, offset: 0, limit: 2, has_more }
+  { events, offset: 0, limit: 2, has_more, }
 }
 
 ///|
@@ -58,7 +53,7 @@ fn make_test_page2_v5_6() -> @job_timeline_v5_5.JobTimelinePage {
       reasons: [],
     },
   ]
-  { events, offset: 2, limit: 2, has_more: false }
+  { events, offset: 2, limit: 2, has_more: false, }
 }
 
 ///|
@@ -74,7 +69,7 @@ fn make_test_filtered_page_v5_6() -> @job_timeline_v5_5.JobTimelinePage {
       reasons: [],
     },
   ]
-  { events, offset: 0, limit: 10, has_more: false }
+  { events, offset: 0, limit: 10, has_more: false, }
 }
 
 ///|
@@ -101,7 +96,7 @@ fn make_test_batch_page_v5_6(
       reasons: [],
     },
   ]
-  { events, offset: 0, limit: 2, has_more }
+  { events, offset: 0, limit: 2, has_more, }
 }
 
 ///|

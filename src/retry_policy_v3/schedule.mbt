@@ -1,6 +1,6 @@
 ///|
 /// Deterministic retry schedule (v3).
-fn pow_int(base : Int, exp : Int) -> Int {
+fn pow_int(base : Int32, exp : Int32) -> Int32 {
   let mut acc = 1
   for _i in 0..<exp {
     acc = acc * base
@@ -9,7 +9,7 @@ fn pow_int(base : Int, exp : Int) -> Int {
 }
 
 ///|
-fn backoff_delay(backoff : BackoffPolicy, attempt_index : Int) -> Int {
+fn backoff_delay(backoff : BackoffPolicy, attempt_index : Int32) -> Int32 {
   match backoff.kind {
     BackoffKind::Fixed => backoff.delay_ms
     BackoffKind::Exponential =>
@@ -20,8 +20,8 @@ fn backoff_delay(backoff : BackoffPolicy, attempt_index : Int) -> Int {
 ///|
 /// Returns delay schedule in milliseconds for each attempt.
 /// Attempt 1 is always 0 (immediate).
-pub fn retry_schedule(policy : RetryPolicy) -> Array[Int] {
-  let delays : Array[Int] = []
+pub fn retry_schedule(policy : RetryPolicy) -> Array[Int32] {
+  let delays : Array[Int32] = []
   for i in 0..<policy.max_attempts {
     if i == 0 {
       delays.push(0)

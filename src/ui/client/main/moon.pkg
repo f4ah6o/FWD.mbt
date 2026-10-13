@@ -2,7 +2,8 @@ import {
   "fwd/ui/client",
 }
 
+pkgtype(kind: "executable")
+
 options(
-  is_main: true,
   targets: { "main.mbt": [ "js" ], "main_stub.mbt": [ "not", "js" ] },
 )

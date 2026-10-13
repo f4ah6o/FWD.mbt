@@ -7,8 +7,8 @@ test "builder_to_schema compacts blank slots" {
     rollout_mode: default_rollout_mode(),
     states: ["Draft", "Approved", ""],
     transitions: [
-      { name: "approve", from: "Draft", to: "Approved" },
-      { name: "", from: "", to: "" },
+      { name: "approve", from: "Draft", to: "Approved", },
+      { name: "", from: "", to: "", },
     ],
   }
   let schema = builder_to_schema(builder)
@@ -60,7 +60,7 @@ test "evaluate_builder invalid transition target" {
     schema_status: default_schema_status(),
     rollout_mode: default_rollout_mode(),
     states: ["Draft"],
-    transitions: [{ name: "approve", from: "Draft", to: "Approved" }],
+    transitions: [{ name: "approve", from: "Draft", to: "Approved", }],
   }
   let model = evaluate_builder(builder)
   match model.validation_reason {
@@ -79,7 +79,7 @@ test "evaluate_builder preserves invalid initial state validation" {
     schema_status: default_schema_status(),
     rollout_mode: default_rollout_mode(),
     states: ["Draft", "Approved"],
-    transitions: [{ name: "approve", from: "Draft", to: "Approved" }],
+    transitions: [{ name: "approve", from: "Draft", to: "Approved", }],
   }
   let model = evaluate_builder(builder)
   match model.validation_reason {
@@ -97,7 +97,7 @@ test "evaluate_builder rejects non dslx identifiers before compile" {
     schema_status: default_schema_status(),
     rollout_mode: default_rollout_mode(),
     states: ["Needs Review", "Approved"],
-    transitions: [{ name: "approve", from: "Needs Review", to: "Approved" }],
+    transitions: [{ name: "approve", from: "Needs Review", to: "Approved", }],
   }
   let model = evaluate_builder(builder)
   match model.validation_reason {
@@ -148,9 +148,9 @@ test "invalid rollout mode returns explicit validation error" {
     rollout_mode: "broken",
     states: ["Draft", "Approved", "Rejected"],
     transitions: [
-      { name: "approve", from: "Draft", to: "Approved" },
-      { name: "reject", from: "Draft", to: "Rejected" },
-      { name: "", from: "", to: "" },
+      { name: "approve", from: "Draft", to: "Approved", },
+      { name: "reject", from: "Draft", to: "Rejected", },
+      { name: "", from: "", to: "", },
     ],
   }
   let model = evaluate_builder(builder)

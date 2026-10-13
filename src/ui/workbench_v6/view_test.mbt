@@ -36,9 +36,9 @@ fn invalid_builder() -> @wb.BuilderState {
     rollout_mode: @wb.default_rollout_mode(),
     states: ["Draft", "", ""],
     transitions: [
-      { name: "approve", from: "Draft", to: "Approved" },
-      { name: "", from: "", to: "" },
-      { name: "", from: "", to: "" },
+      { name: "approve", from: "Draft", to: "Approved", },
+      { name: "", from: "", to: "", },
+      { name: "", from: "", to: "", },
     ],
   }
 }

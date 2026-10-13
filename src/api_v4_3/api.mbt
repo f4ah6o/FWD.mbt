@@ -11,30 +11,30 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_jsonl(status : Int, body : String) -> ApiResponse {
+fn response_jsonl(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/jsonl"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_csv(status : Int, body : String) -> ApiResponse {
+fn response_csv(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/csv"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -63,7 +63,7 @@ fn missing_query_reason(name : String) -> @core.Reason {
 }
 
 ///|
-fn parse_int(value : String) -> Int? {
+fn parse_int(value : String) -> Int32? {
   if value.length() == 0 {
     return None
   }
@@ -81,8 +81,8 @@ fn parse_int(value : String) -> Int? {
 ///|
 fn build_snapshot(
   entity_id : String,
-  from_time : Int?,
-  to_time : Int?,
+  from_time : Int32?,
+  to_time : Int32?,
 ) -> @metrics_v3_6.MetricsSnapshot {
   {
     window: {
@@ -90,19 +90,19 @@ fn build_snapshot(
       from_logical_time: from_time,
       to_logical_time: to_time,
     },
-    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1, },
     by_kind: [
       {
         kind: @metrics_v3_6.MetricKind::Transition,
-        counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+        counts: { ok: 1, failed: 0, blocked: 0, denied: 0, },
       },
       {
         kind: @metrics_v3_6.MetricKind::Policy,
-        counts: { ok: 0, failed: 0, blocked: 0, denied: 1 },
+        counts: { ok: 0, failed: 0, blocked: 0, denied: 1, },
       },
       {
         kind: @metrics_v3_6.MetricKind::Effect,
-        counts: { ok: 0, failed: 1, blocked: 0, denied: 0 },
+        counts: { ok: 0, failed: 1, blocked: 0, denied: 0, },
       },
     ],
   }

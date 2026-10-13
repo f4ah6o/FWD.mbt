@@ -11,23 +11,23 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -58,15 +58,19 @@ fn parse_format(value : String) -> String? {
 ///|
 fn metrics_view() -> @views.V4MetricsView {
   {
-    window: { entity_id: "order-1", from_logical_time: 10, to_logical_time: 12 },
-    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
+    window: {
+      entity_id: "order-1",
+      from_logical_time: 10,
+      to_logical_time: 12,
+    },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1, },
     by_kind: [
       {
         kind: "transition",
-        counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+        counts: { ok: 1, failed: 0, blocked: 0, denied: 0, },
       },
-      { kind: "policy", counts: { ok: 0, failed: 0, blocked: 0, denied: 1 } },
-      { kind: "effect", counts: { ok: 0, failed: 1, blocked: 0, denied: 0 } },
+      { kind: "policy", counts: { ok: 0, failed: 0, blocked: 0, denied: 1, }, },
+      { kind: "effect", counts: { ok: 0, failed: 1, blocked: 0, denied: 0, }, },
     ],
   }
 }

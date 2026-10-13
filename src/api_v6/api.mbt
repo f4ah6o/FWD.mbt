@@ -8,23 +8,23 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -99,28 +99,28 @@ fn parse_builder_case(
 }
 
 ///|
-fn substring_from(value : String, start : Int) -> String {
+fn substring_from(value : String, start : Int32) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
 
 ///|
-fn substring_range(value : String, start : Int, end : Int) -> String {
+fn substring_range(value : String, start : Int32, end : Int32) -> String {
   let sb = StringBuilder::new()
   let limit = if end < value.length() { end } else { value.length() }
   for i in start..<limit {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
 
 ///|
-fn find_char(value : String, target : Int) -> Int {
+fn find_char(value : String, target : Int32) -> Int32 {
   for i in 0..<value.length() {
     if value[i].to_int() == target {
       return i
@@ -130,7 +130,7 @@ fn find_char(value : String, target : Int) -> Int {
 }
 
 ///|
-fn hex_value(ch : Int) -> Int? {
+fn hex_value(ch : Int32) -> Int32? {
   if ch >= '0'.to_int() && ch <= '9'.to_int() {
     Some(ch - '0'.to_int())
   } else if ch >= 'A'.to_int() && ch <= 'F'.to_int() {
@@ -149,7 +149,7 @@ fn url_decode(value : String) -> String {
   while i < value.length() {
     let ch = value[i].to_int()
     if ch == '+'.to_int() {
-      sb.write_char(Int::unsafe_to_char(' '.to_int()))
+      sb.write_char(Int32::unsafe_to_char(' '.to_int()))
       i = i + 1
       continue
     }
@@ -158,14 +158,14 @@ fn url_decode(value : String) -> String {
       let lo = hex_value(value[i + 2].to_int())
       match (hi, lo) {
         (Some(h), Some(l)) => {
-          sb.write_char(Int::unsafe_to_char(h * 16 + l))
+          sb.write_char(Int32::unsafe_to_char(h * 16 + l))
           i = i + 3
           continue
         }
         _ => ()
       }
     }
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
     i = i + 1
   }
   sb.to_string()
@@ -215,7 +215,7 @@ fn field_or_default(
 }
 
 ///|
-fn decimal_value(ch : Int) -> Int? {
+fn decimal_value(ch : Int32) -> Int32? {
   if ch >= '0'.to_int() && ch <= '9'.to_int() {
     Some(ch - '0'.to_int())
   } else {
@@ -224,7 +224,7 @@ fn decimal_value(ch : Int) -> Int? {
 }
 
 ///|
-fn parse_nonzero_int(value : String) -> Int? {
+fn parse_nonzero_int(value : String) -> Int32? {
   if value.length() == 0 {
     return None
   }
@@ -244,7 +244,7 @@ fn parse_nonzero_int(value : String) -> Int? {
 }
 
 ///|
-fn slot_count(fields : Map[String, String], field_name : String) -> Int {
+fn slot_count(fields : Map[String, String], field_name : String) -> Int32 {
   match fields.get(field_name) {
     Some(value) =>
       match parse_nonzero_int(value) {

@@ -17,14 +17,14 @@ fn load_expected_v4(path : String) -> String raise {
 
 ///|
 fn reason_v4(message : String, hint : String?) -> V4ReasonView {
-  { message, hint }
+  { message, hint, }
 }
 
 ///|
 test "v4 resource html fixture" {
   let expected = load_expected_v4("examples/v4/html/resource_expected.html")
   let view : V4ResourceView = {
-    entity: { id: "order-1", state: "Draft", logical_time: 12 },
+    entity: { id: "order-1", state: "Draft", logical_time: 12, },
     draft_reason: "Need approval",
     field_errors: [
       {
@@ -73,7 +73,7 @@ test "v4 resource html fixture" {
 test "v4 resource mx html fixture" {
   let expected = load_expected_v4("examples/v4/html/resource_mx_expected.html")
   let view : V4ResourceView = {
-    entity: { id: "order-1", state: "Draft", logical_time: 12 },
+    entity: { id: "order-1", state: "Draft", logical_time: 12, },
     draft_reason: "Need approval",
     field_errors: [
       {

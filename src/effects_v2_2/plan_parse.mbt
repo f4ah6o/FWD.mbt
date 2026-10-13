@@ -126,7 +126,7 @@ fn parse_items(
               Ok(value) => value
               Err(reason) => return Err(reason)
             }
-            items.push({ effect_id, kind, payload, idempotency_key })
+            items.push({ effect_id, kind, payload, idempotency_key, })
           }
           _ => return Err(invalid_plan_reason("item must be object"))
         }
@@ -182,5 +182,5 @@ pub fn parse_plan_json(
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({ plan_version, entity_id, transition_id, status, items, reasons })
+  Ok({ plan_version, entity_id, transition_id, status, items, reasons, })
 }

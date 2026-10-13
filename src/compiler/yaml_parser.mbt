@@ -3,9 +3,9 @@
 
 ///|
 priv struct Line {
-  indent : Int
+  indent : Int32
   text : String
-  line_no : Int
+  line_no : Int32
 }
 
 ///|
@@ -33,7 +33,10 @@ fn strip_comment(line : String) -> String {
 }
 
 ///|
-fn count_indent(line : String, line_no : Int) -> (Int, String) raise YamlError {
+fn count_indent(
+  line : String,
+  line_no : Int32,
+) -> (Int32, String) raise YamlError {
   let mut count = 0
   for c in line {
     if c == ' ' {
@@ -65,7 +68,7 @@ fn to_lines(input : String) -> Array[Line] raise YamlError {
     }
     let (indent, rest) = count_indent(trimmed_end.to_string(), line_no)
     let text = rest.trim_end().to_string()
-    lines.push({ indent, text, line_no })
+    lines.push({ indent, text, line_no, })
   }
   lines
 }
@@ -73,7 +76,7 @@ fn to_lines(input : String) -> Array[Line] raise YamlError {
 ///|
 fn try_split_key_value(
   text : String,
-  line_no : Int,
+  line_no : Int32,
 ) -> (String, String?)? raise YamlError {
   let mut in_single = false
   let mut in_double = false
@@ -104,7 +107,7 @@ fn try_split_key_value(
 ///|
 fn split_key_value(
   text : String,
-  line_no : Int,
+  line_no : Int32,
 ) -> (String, String?) raise YamlError {
   match try_split_key_value(text, line_no) {
     Some(pair) => pair
@@ -113,7 +116,10 @@ fn split_key_value(
 }
 
 ///|
-fn parse_double_quoted(text : String, line_no : Int) -> String raise YamlError {
+fn parse_double_quoted(
+  text : String,
+  line_no : Int32,
+) -> String raise YamlError {
   if !text.has_prefix("\"") || !text.has_suffix("\"") {
     raise YamlError::new("unterminated double-quoted string", line_no)
   }
@@ -147,7 +153,10 @@ fn parse_double_quoted(text : String, line_no : Int) -> String raise YamlError {
 }
 
 ///|
-fn parse_single_quoted(text : String, line_no : Int) -> String raise YamlError {
+fn parse_single_quoted(
+  text : String,
+  line_no : Int32,
+) -> String raise YamlError {
   if !text.has_prefix("'") || !text.has_suffix("'") {
     raise YamlError::new("unterminated single-quoted string", line_no)
   }
@@ -155,7 +164,7 @@ fn parse_single_quoted(text : String, line_no : Int) -> String raise YamlError {
 }
 
 ///|
-fn parse_scalar(text : String, line_no : Int) -> YamlValue raise YamlError {
+fn parse_scalar(text : String, line_no : Int32) -> YamlValue raise YamlError {
   let trimmed = text.trim().to_string()
   if trimmed.is_empty() {
     return YamlValue::String("")
@@ -181,9 +190,9 @@ fn parse_scalar(text : String, line_no : Int) -> YamlValue raise YamlError {
 ///|
 fn parse_block(
   lines : Array[Line],
-  start : Int,
-  indent : Int,
-) -> (YamlValue, Int) raise YamlError {
+  start : Int32,
+  indent : Int32,
+) -> (YamlValue, Int32) raise YamlError {
   if start >= lines.length() {
     raise YamlError::new("unexpected end of input", 0)
   }
@@ -201,9 +210,9 @@ fn parse_block(
 ///|
 fn parse_list(
   lines : Array[Line],
-  start : Int,
-  indent : Int,
-) -> (YamlValue, Int) raise YamlError {
+  start : Int32,
+  indent : Int32,
+) -> (YamlValue, Int32) raise YamlError {
   let items : Array[YamlValue] = []
   let mut idx = start
   while idx < lines.length() {
@@ -281,9 +290,9 @@ fn parse_list(
 ///|
 fn parse_map(
   lines : Array[Line],
-  start : Int,
-  indent : Int,
-) -> (YamlValue, Int) raise YamlError {
+  start : Int32,
+  indent : Int32,
+) -> (YamlValue, Int32) raise YamlError {
   let entries : Array[(String, YamlValue)] = []
   let mut idx = start
   while idx < lines.length() {

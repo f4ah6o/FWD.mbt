@@ -17,11 +17,11 @@ pub(all) enum AttemptStatus {
 
 ///|
 pub(all) struct Attempt {
-  attempt : Int
-  logical_time : Int
-  sequence : Int
+  attempt : Int32
+  logical_time : Int32
+  sequence : Int32
   status : AttemptStatus
-  delay_ms : Int
+  delay_ms : Int32
   reason : @core.Reason?
 }
 

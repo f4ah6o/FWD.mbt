@@ -63,7 +63,7 @@ pub fn event_id(event : @job_timeline_v5_4.JobTimelineEvent) -> String {
 /// Returns None for invalid format.
 pub fn parse_event_id(s : String) -> JobTimelineDetailQuery? {
   // Split by ':' — collect colon positions
-  let colon_positions : Array[Int] = []
+  let colon_positions : Array[Int32] = []
   for i = 0; i < s.length(); i = i + 1 {
     if s[i] == ':' {
       colon_positions.push(i)
@@ -98,11 +98,11 @@ pub fn parse_event_id(s : String) -> JobTimelineDetailQuery? {
   if job_id.length() == 0 {
     return None
   }
-  Some({ job_id, logical_time, sequence, kind })
+  Some({ job_id, logical_time, sequence, kind, })
 }
 
 ///|
-fn parse_int_string(s : String) -> Int? {
+fn parse_int_string(s : String) -> Int32? {
   if s.length() == 0 {
     return None
   }
@@ -119,22 +119,22 @@ fn parse_int_string(s : String) -> Int? {
 }
 
 ///|
-fn substring_from(value : String, start : Int) -> String {
+fn substring_from(value : String, start : Int32) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
 
 ///|
-fn substring_range(value : String, start : Int, end_ : Int) -> String {
+fn substring_range(value : String, start : Int32, end_ : Int32) -> String {
   let sb = StringBuilder::new()
   let limit = if end_ < value.length() { end_ } else { value.length() }
   for i in start..<limit {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
@@ -144,8 +144,8 @@ fn substring_range(value : String, start : Int, end_ : Int) -> String {
 /// Returns None if the event is not found.
 pub fn find_event(
   events : Array[@job_timeline_v5_4.JobTimelineEvent],
-  logical_time : Int,
-  sequence : Int,
+  logical_time : Int32,
+  sequence : Int32,
   kind : @job_timeline_v5_4.JobTimelineKind,
 ) -> JobTimelineDetail? {
   let target_kind = kind_string(kind)
@@ -159,7 +159,7 @@ pub fn find_event(
       } else {
         None
       }
-      return Some({ event, prev_event: prev, next_event: next })
+      return Some({ event, prev_event: prev, next_event: next, })
     }
   }
   None

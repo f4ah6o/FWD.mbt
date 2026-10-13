@@ -4,8 +4,8 @@
 ///|
 pub(all) struct EventIdParts {
   entity_id : String
-  logical_time : Int
-  sequence : Int
+  logical_time : Int32
+  sequence : Int32
   kind : String
 }
 
@@ -50,7 +50,7 @@ fn split_colon(value : String) -> Array[String] {
 }
 
 ///|
-fn parse_uint_from(value : String, start : Int) -> Int? {
+fn parse_uint_from(value : String, start : Int32) -> Int32? {
   if start >= value.length() {
     return None
   }
@@ -102,5 +102,5 @@ pub fn parse_event_id(value : String) -> EventIdParts? {
 pub fn detail_from_event(
   event : @timeline_v3.TimelineEvent,
 ) -> TimelineEventDetail {
-  { event_id: event_id(event), event }
+  { event_id: event_id(event), event, }
 }

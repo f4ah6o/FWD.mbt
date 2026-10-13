@@ -45,10 +45,11 @@ fn advance_progress(
   status : @export_job_v5.JobStatus,
 ) -> @export_job_v5.JobProgress {
   match status {
-    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total }
-    @export_job_v5.JobStatus::Running => { processed: 1, total: progress.total }
+    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total, }
+    @export_job_v5.JobStatus::Running =>
+      { processed: 1, total: progress.total, }
     @export_job_v5.JobStatus::Done =>
-      { processed: progress.total, total: progress.total }
+      { processed: progress.total, total: progress.total, }
     _ => progress
   }
 }
@@ -103,7 +104,7 @@ pub fn create_job(
   let job : JobRecordV54 = {
     id,
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: progress_total },
+    progress: { processed: 0, total: progress_total, },
     policies,
     format,
     reasons: [],

@@ -12,16 +12,16 @@ pub enum YamlValue {
 
 ///|
 pub(all) suberror YamlError {
-  YamlError(line~ : Int, message~ : String)
+  YamlError(line~ : Int32, message~ : String)
 }
 
 ///|
-fn YamlError::new(message : String, line : Int) -> YamlError {
+fn YamlError::new(message : String, line : Int32) -> YamlError {
   YamlError::YamlError(line~, message~)
 }
 
 ///|
-pub impl Show for YamlError with output(self, logger) {
+pub impl Show for YamlError with fn output(self, logger) {
   match self {
     YamlError::YamlError(line~, message~) =>
       logger

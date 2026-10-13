@@ -857,7 +857,9 @@ test "api v5.1 retention hierarchy" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5_1/retention/case_hierarchy.response.json")
+  expect_response_json(
+    res, "fixtures/v5_1/retention/case_hierarchy.response.json",
+  )
 }
 
 ///|
@@ -868,7 +870,9 @@ test "api v5.1 retention precedence" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(res, "fixtures/v5_1/retention/case_precedence.response.json")
+  expect_response_json(
+    res, "fixtures/v5_1/retention/case_precedence.response.json",
+  )
 }
 
 ///|
@@ -887,9 +891,9 @@ test "api v5.1 retention post expiry visibility" {
 ///|
 test "api v5.1 observability job view" {
   let job : @export_job_v5.JobRecord = {
-    id: { value: "job-11" },
+    id: { value: "job-11", },
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: 3 },
+    progress: { processed: 0, total: 3, },
     retention: {
       axis: @export_job_v5.RetentionAxis::PollCount,
       ttl_polls: 3,
@@ -918,7 +922,7 @@ test "api v5.1 observability batch view" {
     child_ids: ["job-111", "job-112"],
     child_specs: [],
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: 2 },
+    progress: { processed: 0, total: 2, },
     retention: {
       axis: @export_job_v5.RetentionAxis::PollCount,
       ttl_polls: 6,
@@ -952,8 +956,7 @@ test "api v5.2 retention multi-axis poll wins" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_2/retention/case_multi_axis_poll_wins.response.json",
+    res, "fixtures/v5_2/retention/case_multi_axis_poll_wins.response.json",
   )
 }
 
@@ -968,8 +971,7 @@ test "api v5.2 retention multi-axis logical time wins" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_2/retention/case_multi_axis_logical_time_wins.response.json",
+    res, "fixtures/v5_2/retention/case_multi_axis_logical_time_wins.response.json",
   )
 }
 
@@ -984,8 +986,7 @@ test "api v5.2 retention multi-axis both expired" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_2/retention/case_multi_axis_both_expired.response.json",
+    res, "fixtures/v5_2/retention/case_multi_axis_both_expired.response.json",
   )
 }
 
@@ -1000,8 +1001,7 @@ test "api v5.2 retention multi-axis none expired" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_2/retention/case_multi_axis_none_expired.response.json",
+    res, "fixtures/v5_2/retention/case_multi_axis_none_expired.response.json",
   )
 }
 
@@ -1016,8 +1016,7 @@ test "api v5.2 retention single axis poll count" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_2/retention/case_single_axis_poll_count.response.json",
+    res, "fixtures/v5_2/retention/case_single_axis_poll_count.response.json",
   )
 }
 
@@ -1032,8 +1031,7 @@ test "api v5.2 retention single axis logical time" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_2/retention/case_single_axis_logical_time.response.json",
+    res, "fixtures/v5_2/retention/case_single_axis_logical_time.response.json",
   )
 }
 
@@ -1048,8 +1046,7 @@ test "api v5.3 retention multi-axis poll wins" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_multi_axis_poll_wins.response.json",
+    res, "fixtures/v5_3/retention/case_multi_axis_poll_wins.response.json",
   )
 }
 
@@ -1064,8 +1061,7 @@ test "api v5.3 retention multi-axis logical time wins" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_multi_axis_logical_time_wins.response.json",
+    res, "fixtures/v5_3/retention/case_multi_axis_logical_time_wins.response.json",
   )
 }
 
@@ -1080,8 +1076,7 @@ test "api v5.3 retention multi-axis event count wins" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_multi_axis_event_count_wins.response.json",
+    res, "fixtures/v5_3/retention/case_multi_axis_event_count_wins.response.json",
   )
 }
 
@@ -1096,8 +1091,7 @@ test "api v5.3 retention multi-axis all three expired" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_multi_axis_all_three_expired.response.json",
+    res, "fixtures/v5_3/retention/case_multi_axis_all_three_expired.response.json",
   )
 }
 
@@ -1112,8 +1106,7 @@ test "api v5.3 retention multi-axis none expired" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_multi_axis_none_expired.response.json",
+    res, "fixtures/v5_3/retention/case_multi_axis_none_expired.response.json",
   )
 }
 
@@ -1128,8 +1121,7 @@ test "api v5.3 retention single axis poll count" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_single_axis_poll_count.response.json",
+    res, "fixtures/v5_3/retention/case_single_axis_poll_count.response.json",
   )
 }
 
@@ -1144,8 +1136,7 @@ test "api v5.3 retention single axis logical time" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_single_axis_logical_time.response.json",
+    res, "fixtures/v5_3/retention/case_single_axis_logical_time.response.json",
   )
 }
 
@@ -1160,8 +1151,7 @@ test "api v5.3 retention single axis event count" {
     ),
   })
   expect_response_json(
-    res,
-    "fixtures/v5_3/retention/case_single_axis_event_count.response.json",
+    res, "fixtures/v5_3/retention/case_single_axis_event_count.response.json",
   )
 }
 
@@ -1175,7 +1165,10 @@ test "api v5.4 timeline normal lifecycle" {
       ttl_seconds: 120,
     },
   ]
-  let job = @job_store_v5_4.create_job(@export_job_v5.ResultFormat::Jsonl, policies)
+  let job = @job_store_v5_4.create_job(
+    @export_job_v5.ResultFormat::Jsonl,
+    policies,
+  )
   // step: queued → running
   ignore(@job_store_v5_4.step_job(job.id.value))
   // step: running → done
@@ -1187,8 +1180,7 @@ test "api v5.4 timeline normal lifecycle" {
     body: None,
   })
   expect_response_json(
-    res,
-    "fixtures/v5_4/timeline/case_normal_lifecycle.response.json",
+    res, "fixtures/v5_4/timeline/case_normal_lifecycle.response.json",
   )
 }
 
@@ -1202,7 +1194,10 @@ test "api v5.4 timeline canceled" {
       ttl_seconds: 120,
     },
   ]
-  let job = @job_store_v5_4.create_job(@export_job_v5.ResultFormat::Jsonl, policies)
+  let job = @job_store_v5_4.create_job(
+    @export_job_v5.ResultFormat::Jsonl,
+    policies,
+  )
   // step: queued → running
   ignore(@job_store_v5_4.step_job(job.id.value))
   // cancel: running → canceled
@@ -1214,8 +1209,7 @@ test "api v5.4 timeline canceled" {
     body: None,
   })
   expect_response_json(
-    res,
-    "fixtures/v5_4/timeline/case_canceled.response.json",
+    res, "fixtures/v5_4/timeline/case_canceled.response.json",
   )
 }
 
@@ -1230,7 +1224,10 @@ test "api v5.4 timeline expired" {
       ttl_seconds: 60,
     },
   ]
-  let job = @job_store_v5_4.create_job(@export_job_v5.ResultFormat::Jsonl, policies)
+  let job = @job_store_v5_4.create_job(
+    @export_job_v5.ResultFormat::Jsonl,
+    policies,
+  )
   // step: queued → running (poll_count=1 < threshold=2)
   ignore(@job_store_v5_4.step_job(job.id.value))
   // step: running → expired (poll_count=2 >= threshold=2)
@@ -1241,10 +1238,7 @@ test "api v5.4 timeline expired" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(
-    res,
-    "fixtures/v5_4/timeline/case_expired.response.json",
-  )
+  expect_response_json(res, "fixtures/v5_4/timeline/case_expired.response.json")
 }
 
 ///|
@@ -1257,8 +1251,7 @@ test "api v5.4 timeline job not found" {
     body: None,
   })
   expect_response_json(
-    res,
-    "fixtures/v5_4/timeline/case_job_not_found.response.json",
+    res, "fixtures/v5_4/timeline/case_job_not_found.response.json",
   )
 }
 
@@ -1292,10 +1285,7 @@ test "api v5.5 paginated page 1" {
     query: query_map([("limit", "2")]),
     body: None,
   })
-  expect_response_json(
-    res,
-    "fixtures/v5_5/timeline/case_page1.response.json",
-  )
+  expect_response_json(res, "fixtures/v5_5/timeline/case_page1.response.json")
 }
 
 ///|
@@ -1307,10 +1297,7 @@ test "api v5.5 paginated page 2" {
     query: query_map([("limit", "2"), ("cursor", "offset:2")]),
     body: None,
   })
-  expect_response_json(
-    res,
-    "fixtures/v5_5/timeline/case_page2.response.json",
-  )
+  expect_response_json(res, "fixtures/v5_5/timeline/case_page2.response.json")
 }
 
 ///|
@@ -1323,8 +1310,7 @@ test "api v5.5 filtered by logical time" {
     body: None,
   })
   expect_response_json(
-    res,
-    "fixtures/v5_5/timeline/case_filtered.response.json",
+    res, "fixtures/v5_5/timeline/case_filtered.response.json",
   )
 }
 
@@ -1338,10 +1324,10 @@ test "api v5.5 JSONL export" {
     body: None,
   })
   inspect(res.status, content="200")
-  let expected = match read_text_api(
-    "fixtures/v5_5/timeline/case_export.response.jsonl",
-    "expected",
-  ) {
+  let expected = match
+    read_text_api(
+      "fixtures/v5_5/timeline/case_export.response.jsonl", "expected",
+    ) {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
@@ -1358,8 +1344,7 @@ test "api v5.5 invalid cursor" {
     body: None,
   })
   expect_response_json(
-    res,
-    "fixtures/v5_5/timeline/case_invalid_cursor.response.json",
+    res, "fixtures/v5_5/timeline/case_invalid_cursor.response.json",
   )
 }
 
@@ -1370,10 +1355,7 @@ fn expect_response_html(
 ) -> Unit raise {
   let expected = load_expected(expected_path)
   inspect(res.status, content="200")
-  inspect(
-    res.headers.get("content-type"),
-    content="Some(text/html)",
-  )
+  inspect(res.headers.get("content-type"), content="Some(text/html)")
   let mut body = res.body
   if expected.has_suffix("\n") {
     body = body + "\n"
@@ -1390,10 +1372,7 @@ test "api v5.6 single job timeline html" {
     query: query_map([("limit", "2"), ("format", "html")]),
     body: None,
   })
-  expect_response_html(
-    res,
-    "fixtures/v5_6/timeline/page1_expected.html",
-  )
+  expect_response_html(res, "fixtures/v5_6/timeline/page1_expected.html")
 }
 
 ///|
@@ -1406,10 +1385,7 @@ test "api v5.6 single job timeline mx" {
     body: None,
   })
   inspect(res.status, content="200")
-  inspect(
-    res.headers.get("content-type"),
-    content="Some(text/html)",
-  )
+  inspect(res.headers.get("content-type"), content="Some(text/html)")
   // MX response should contain mx-target and mx-get
   inspect(res.body.contains("mx-target"), content="true")
   inspect(res.body.contains("mx-get"), content="true")
@@ -1428,10 +1404,7 @@ test "api v5.6 single job timeline page2 html" {
     ]),
     body: None,
   })
-  expect_response_html(
-    res,
-    "fixtures/v5_6/timeline/page2_expected.html",
-  )
+  expect_response_html(res, "fixtures/v5_6/timeline/page2_expected.html")
 }
 
 ///|
@@ -1447,10 +1420,7 @@ test "api v5.6 single job timeline filtered html" {
     ]),
     body: None,
   })
-  expect_response_html(
-    res,
-    "fixtures/v5_6/timeline/filtered_expected.html",
-  )
+  expect_response_html(res, "fixtures/v5_6/timeline/filtered_expected.html")
 }
 
 ///|
@@ -1463,10 +1433,7 @@ test "api v5.6 no format falls back to json" {
     body: None,
   })
   inspect(res.status, content="200")
-  inspect(
-    res.headers.get("content-type"),
-    content="Some(application/json)",
-  )
+  inspect(res.headers.get("content-type"), content="Some(application/json)")
 }
 
 ///|
@@ -1479,10 +1446,7 @@ test "api v5.7 event detail json" {
     query: query_map([]),
     body: None,
   })
-  expect_response_json(
-    res,
-    "fixtures/v5_7/timeline/case_detail.response.json",
-  )
+  expect_response_json(res, "fixtures/v5_7/timeline/case_detail.response.json")
 }
 
 ///|
@@ -1495,10 +1459,7 @@ test "api v5.7 event detail html" {
     query: query_map([("format", "html")]),
     body: None,
   })
-  expect_response_html(
-    res,
-    "fixtures/v5_7/timeline/detail_expected.html",
-  )
+  expect_response_html(res, "fixtures/v5_7/timeline/detail_expected.html")
 }
 
 ///|
@@ -1512,10 +1473,7 @@ test "api v5.7 event detail mx" {
     body: None,
   })
   inspect(res.status, content="200")
-  inspect(
-    res.headers.get("content-type"),
-    content="Some(text/html)",
-  )
+  inspect(res.headers.get("content-type"), content="Some(text/html)")
   inspect(res.body.contains("mx-target"), content="true")
   inspect(res.body.contains("mx-get"), content="true")
 }
@@ -1530,10 +1488,7 @@ test "api v5.7 event detail first event html" {
     query: query_map([("format", "html")]),
     body: None,
   })
-  expect_response_html(
-    res,
-    "fixtures/v5_7/timeline/detail_first_expected.html",
-  )
+  expect_response_html(res, "fixtures/v5_7/timeline/detail_first_expected.html")
 }
 
 ///|
@@ -1546,10 +1501,7 @@ test "api v5.7 event detail last event html" {
     query: query_map([("format", "html")]),
     body: None,
   })
-  expect_response_html(
-    res,
-    "fixtures/v5_7/timeline/detail_last_expected.html",
-  )
+  expect_response_html(res, "fixtures/v5_7/timeline/detail_last_expected.html")
 }
 
 ///|
@@ -1587,10 +1539,7 @@ test "api v5.7 kind filter status_change" {
     body: None,
   })
   inspect(res.status, content="200")
-  inspect(
-    res.headers.get("content-type"),
-    content="Some(application/json)",
-  )
+  inspect(res.headers.get("content-type"), content="Some(application/json)")
 }
 
 ///|
@@ -1624,13 +1573,9 @@ fn setup_v5_8_mixed_kind_job() -> String {
   // step: running → done
   ignore(@job_store_v5_4.step_job(job.id.value))
   // Add policy decision event
-  @job_timeline_v5_4.record_policy_decision(
-    job.id.value, 3, "approved", [],
-  )
+  @job_timeline_v5_4.record_policy_decision(job.id.value, 3, "approved", [])
   // Add retention check event
-  @job_timeline_v5_4.record_retention_check(
-    job.id.value, 4, "retained", [],
-  )
+  @job_timeline_v5_4.record_retention_check(job.id.value, 4, "retained", [])
   job.id.value
 }
 
@@ -1644,10 +1589,7 @@ test "api v5.8 export no kind filter unchanged" {
     body: None,
   })
   inspect(res.status, content="200")
-  inspect(
-    res.headers.get("content-type"),
-    content="Some(application/jsonl)",
-  )
+  inspect(res.headers.get("content-type"), content="Some(application/jsonl)")
 }
 
 ///|
@@ -1725,10 +1667,7 @@ test "api v5.8 mixed kinds filter on timeline list" {
   let res = handle_request({
     http_method: "GET",
     path: "/v5.5/export/jobs/" + job_id + "/timeline",
-    query: query_map([
-      ("kind", "policy_decision"),
-      ("limit", "10"),
-    ]),
+    query: query_map([("kind", "policy_decision"), ("limit", "10")]),
     body: None,
   })
   inspect(res.status, content="200")

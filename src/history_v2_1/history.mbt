@@ -11,7 +11,7 @@ pub(all) enum HistoryResult {
 
 ///|
 pub(all) struct HistoryEvent {
-  event_id : Int
+  event_id : Int32
   transition : String
   from_state : String
   to_state : String
@@ -22,7 +22,7 @@ pub(all) struct HistoryEvent {
 
 ///|
 pub fn HistoryEvent::new(
-  event_id : Int,
+  event_id : Int32,
   transition : String,
   from_state : String,
   to_state : String,
@@ -30,18 +30,18 @@ pub fn HistoryEvent::new(
   result : HistoryResult,
   reasons : Array[@core.Reason],
 ) -> HistoryEvent {
-  { event_id, transition, from_state, to_state, payload, result, reasons }
+  { event_id, transition, from_state, to_state, payload, result, reasons, }
 }
 
 ///|
 pub(all) struct HistoryStore {
   mut entries : Map[String, Array[HistoryEvent]]
-  mut next_event_id : Int
+  mut next_event_id : Int32
 }
 
 ///|
 pub fn HistoryStore::new() -> HistoryStore {
-  { entries: Map::new(), next_event_id: 1 }
+  { entries: Map::new(), next_event_id: 1, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn HistoryStore::append(
 }
 
 ///|
-fn compare_event_id(a : HistoryEvent, b : HistoryEvent) -> Int {
+fn compare_event_id(a : HistoryEvent, b : HistoryEvent) -> Int32 {
   if a.event_id < b.event_id {
     -1
   } else if a.event_id > b.event_id {

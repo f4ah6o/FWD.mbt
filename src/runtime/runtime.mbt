@@ -20,7 +20,7 @@ pub(all) struct RuntimeResult {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -60,10 +60,10 @@ pub fn compute_available_transitions(
       }
     }
     if reasons.length() == 0 {
-      available.push({ id: tr.name, to: tr.to.value() })
+      available.push({ id: tr.name, to: tr.to.value(), })
     } else {
-      blocked.push({ id: tr.name, reasons })
+      blocked.push({ id: tr.name, reasons, })
     }
   }
-  Ok({ available_transitions: available, blocked_transitions: blocked })
+  Ok({ available_transitions: available, blocked_transitions: blocked, })
 }

@@ -1,10 +1,10 @@
 ///|
 /// v4.4 metrics detail HTML projection.
 pub(all) struct V4_4MetricsCountsDetailView {
-  ok : Int
-  failed : Int
-  blocked : Int
-  denied : Int
+  ok : Int32
+  failed : Int32
+  blocked : Int32
+  denied : Int32
 }
 
 ///|

@@ -11,23 +11,23 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -69,7 +69,7 @@ fn parse_format(value : String) -> String? {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -83,7 +83,7 @@ fn compare_string(a : String, b : String) -> Int {
 fn compare_event(
   a : @timeline_v3.TimelineEvent,
   b : @timeline_v3.TimelineEvent,
-) -> Int {
+) -> Int32 {
   let by_entity = compare_string(a.entity_id, b.entity_id)
   if by_entity != 0 {
     return by_entity
@@ -148,7 +148,7 @@ fn events_for_entity(entity : String) -> Array[@timeline_v3.TimelineEvent] {
 fn find_index(
   sorted : Array[@timeline_v3.TimelineEvent],
   event_id : String,
-) -> Int? {
+) -> Int32? {
   for i in 0..<sorted.length() {
     if @timeline_event_v3_4.event_id(sorted[i]) == event_id {
       return Some(i)
@@ -158,11 +158,11 @@ fn find_index(
 }
 
 ///|
-fn substring_from(value : String, start : Int) -> String {
+fn substring_from(value : String, start : Int32) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }

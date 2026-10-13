@@ -1,5 +1,5 @@
 ///|
-fn rf_compare_string(a : String, b : String) -> Int {
+fn rf_compare_string(a : String, b : String) -> Int32 {
   let len_a = a.length()
   let len_b = b.length()
   let min_len = if len_a < len_b { len_a } else { len_b }

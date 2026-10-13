@@ -239,11 +239,11 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
       Err(msg) => return Err(msg)
     }
   }
-  Ok({ required, level_enum, target_enum, code_pattern: code_pattern_value })
+  Ok({ required, level_enum, target_enum, code_pattern: code_pattern_value, })
 }
 
 ///|
-fn is_code_char(ch : Int) -> Bool {
+fn is_code_char(ch : Int32) -> Bool {
   (ch >= 65 && ch <= 90) || (ch >= 48 && ch <= 57) || ch == 95
 }
 

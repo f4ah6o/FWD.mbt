@@ -14,8 +14,8 @@ pub(all) enum RecordStatus {
 pub(all) struct Record {
   key : String
   status : RecordStatus
-  reserved_at : Int
-  done_at : Int
+  reserved_at : Int32
+  done_at : Int32
   result_ref : String
 }
 
@@ -31,7 +31,7 @@ pub(all) enum DecisionKind {
 pub(all) struct Decision {
   key : String
   kind : DecisionKind
-  logical_time : Int
-  reserved_at : Int
+  logical_time : Int32
+  reserved_at : Int32
   result_ref : String
 }

@@ -1,6 +1,6 @@
 ///|
 /// Deterministic in-memory job store (v4.6).
-let counter : Ref[Int] = @ref.new(0)
+let counter : Ref[Int32] = @ref.new(0)
 
 ///|
 let store : Ref[Map[String, @export_job_v4_6.JobRecord]] = @ref.new(Map::new())

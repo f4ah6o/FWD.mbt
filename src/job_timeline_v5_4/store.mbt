@@ -7,15 +7,15 @@ let timeline_store : Ref[Map[String, Array[JobTimelineEvent]]] = @ref.new(
 
 ///|
 /// Sequence counter per job_id per logical_time.
-let sequence_counters : Ref[Map[String, Int]] = @ref.new(Map::new())
+let sequence_counters : Ref[Map[String, Int32]] = @ref.new(Map::new())
 
 ///|
-fn sequence_key(job_id : String, logical_time : Int) -> String {
+fn sequence_key(job_id : String, logical_time : Int32) -> String {
   job_id + ":" + logical_time.to_string()
 }
 
 ///|
-fn next_sequence(job_id : String, logical_time : Int) -> Int {
+fn next_sequence(job_id : String, logical_time : Int32) -> Int32 {
   let key = sequence_key(job_id, logical_time)
   let current = match sequence_counters.val.get(key) {
     Some(n) => n
@@ -44,7 +44,7 @@ pub fn record_event(event : JobTimelineEvent) -> Unit {
 /// Record a status change event with auto-sequencing.
 pub fn record_status_change(
   job_id : String,
-  logical_time : Int,
+  logical_time : Int32,
   from_status : String,
   to_status : String,
   reasons : Array[@export_job_v5.ReasonV1],
@@ -66,7 +66,7 @@ pub fn record_status_change(
 /// Record a policy decision event with auto-sequencing.
 pub fn record_policy_decision(
   job_id : String,
-  logical_time : Int,
+  logical_time : Int32,
   to_status : String,
   reasons : Array[@export_job_v5.ReasonV1],
 ) -> Unit {
@@ -87,7 +87,7 @@ pub fn record_policy_decision(
 /// Record a retention check event with auto-sequencing.
 pub fn record_retention_check(
   job_id : String,
-  logical_time : Int,
+  logical_time : Int32,
   to_status : String,
   reasons : Array[@export_job_v5.ReasonV1],
 ) -> Unit {
@@ -123,9 +123,7 @@ pub fn get_timeline(job_id : String) -> Array[JobTimelineEvent] {
 ///|
 /// Get timeline for a batch (aggregate of child job timelines).
 /// child_ids are the IDs of child jobs.
-pub fn get_batch_timeline(
-  child_ids : Array[String],
-) -> Array[JobTimelineEvent] {
+pub fn get_batch_timeline(child_ids : Array[String]) -> Array[JobTimelineEvent] {
   let all_events : Array[JobTimelineEvent] = []
   for child_id in child_ids {
     match timeline_store.val.get(child_id) {
@@ -141,7 +139,7 @@ pub fn get_batch_timeline(
 }
 
 ///|
-fn compare_event(a : JobTimelineEvent, b : JobTimelineEvent) -> Int {
+fn compare_event(a : JobTimelineEvent, b : JobTimelineEvent) -> Int32 {
   let by_job = compare_string(a.job_id, b.job_id)
   if by_job != 0 {
     return by_job
@@ -160,7 +158,7 @@ fn compare_event(a : JobTimelineEvent, b : JobTimelineEvent) -> Int {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {

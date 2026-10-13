@@ -50,10 +50,11 @@ fn advance_progress(
   status : @export_job_v5.JobStatus,
 ) -> @export_job_v5.JobProgress {
   match status {
-    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total }
-    @export_job_v5.JobStatus::Running => { processed: 1, total: progress.total }
+    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total, }
+    @export_job_v5.JobStatus::Running =>
+      { processed: 1, total: progress.total, }
     @export_job_v5.JobStatus::Done =>
-      { processed: progress.total, total: progress.total }
+      { processed: progress.total, total: progress.total, }
     _ => progress
   }
 }
@@ -83,7 +84,7 @@ pub fn reset_for_test() -> Unit {
 ///|
 /// Seed deterministic state for fixture-driven tests.
 pub fn seed_for_test(
-  next_id : Int,
+  next_id : Int32,
   jobs : Array[@export_job_v5.JobRecord],
 ) -> Unit {
   @export_job_v5.seed_id_for_test(next_id)
@@ -104,7 +105,7 @@ pub fn create_job(
   let job : @export_job_v5.JobRecord = {
     id,
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: progress_total },
+    progress: { processed: 0, total: progress_total, },
     retention,
     format,
     reasons: [],

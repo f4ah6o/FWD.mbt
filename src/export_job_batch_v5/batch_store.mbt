@@ -44,11 +44,12 @@ fn child_progress(
   status : @export_job_v5.JobStatus,
 ) -> @export_job_v5.JobProgress {
   match status {
-    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress_total }
-    @export_job_v5.JobStatus::Running => { processed: 1, total: progress_total }
+    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress_total, }
+    @export_job_v5.JobStatus::Running =>
+      { processed: 1, total: progress_total, }
     @export_job_v5.JobStatus::Done =>
-      { processed: progress_total, total: progress_total }
-    _ => { processed: 0, total: progress_total }
+      { processed: progress_total, total: progress_total, }
+    _ => { processed: 0, total: progress_total, }
   }
 }
 
@@ -74,7 +75,7 @@ fn is_terminal(status : @export_job_v5.JobStatus) -> Bool {
 
 ///|
 fn should_expire(
-  poll_count : Int,
+  poll_count : Int32,
   retention : @export_job_v5.Retention,
 ) -> Bool {
   poll_count >= retention.ttl_polls
@@ -87,9 +88,9 @@ fn child_record(
   retention : @export_job_v5.Retention,
 ) -> @export_job_v5.JobRecord {
   {
-    id: { value: id_value },
+    id: { value: id_value, },
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: progress_total },
+    progress: { processed: 0, total: progress_total, },
     retention,
     format,
     reasons: [],
@@ -185,7 +186,7 @@ fn batch_progress(child_ids : Array[String]) -> @export_job_v5.JobProgress {
       None => ()
     }
   }
-  { processed: done_count, total: child_ids.length() }
+  { processed: done_count, total: child_ids.length(), }
 }
 
 ///|
@@ -229,7 +230,7 @@ pub fn reset_for_test() -> Unit {
 
 ///|
 /// Seed deterministic state for fixture-driven tests.
-pub fn seed_for_test(next_id : Int, batches : Array[BatchJobRecord]) -> Unit {
+pub fn seed_for_test(next_id : Int32, batches : Array[BatchJobRecord]) -> Unit {
   @export_job_v5.seed_id_for_test(next_id)
   let seeded : Map[String, BatchJobRecord] = Map::new()
   for batch in batches {
@@ -256,7 +257,7 @@ pub fn create_batch(
     child_ids,
     child_specs,
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: child_specs.length() },
+    progress: { processed: 0, total: child_specs.length(), },
     retention,
     format,
     reasons: [],

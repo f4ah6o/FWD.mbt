@@ -18,7 +18,7 @@ pub(all) enum ItemStatus {
 pub(all) struct AuditItem {
   effect_id : String
   status : ItemStatus
-  duration_ms : Int
+  duration_ms : Int32
   reason : @core.Reason?
 }
 
@@ -26,8 +26,8 @@ pub(all) struct AuditItem {
 pub(all) struct AuditEvent {
   entity_id : String
   transition_id : String
-  logical_time : Int
-  sequence : Int
+  logical_time : Int32
+  sequence : Int32
   status : AuditStatus
   items : Array[AuditItem]
   reasons : Array[@core.Reason]

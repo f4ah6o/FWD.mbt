@@ -6,7 +6,7 @@ pub(all) struct Snapshot {
   entity_id : String
   state : String
   payload : Json?
-  version : Int
+  version : Int32
 }
 
 ///|
@@ -14,9 +14,9 @@ pub fn Snapshot::new(
   entity_id : String,
   state : String,
   payload : Json?,
-  version : Int,
+  version : Int32,
 ) -> Snapshot {
-  { entity_id, state, payload, version }
+  { entity_id, state, payload, version, }
 }
 
 ///|
@@ -26,7 +26,7 @@ pub(all) struct Store {
 
 ///|
 pub fn Store::new() -> Store {
-  { snapshots: Map::new() }
+  { snapshots: Map::new(), }
 }
 
 ///|
@@ -40,7 +40,7 @@ pub fn Store::get(self : Store, entity_id : String) -> Snapshot? {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {

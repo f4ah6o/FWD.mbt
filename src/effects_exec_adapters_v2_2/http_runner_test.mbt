@@ -1,6 +1,6 @@
 ///|
 fn dummy_send(_req : HttpRequest) -> Result[HttpResponse, @core.Reason] {
-  Ok({ status: 200, body: "ok" })
+  Ok({ status: 200, body: "ok", })
 }
 
 ///|

@@ -11,7 +11,7 @@ pub(all) struct CassetteRequest {
 
 ///|
 pub(all) struct CassetteResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
@@ -29,7 +29,7 @@ pub(all) struct Cassette {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -152,7 +152,7 @@ fn parse_request(
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({ http_method, url, headers, body })
+  Ok({ http_method, url, headers, body, })
 }
 
 ///|
@@ -172,7 +172,7 @@ fn parse_response(
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({ status, headers, body })
+  Ok({ status, headers, body, })
 }
 
 ///|
@@ -224,10 +224,10 @@ pub fn parse_cassette_json(
           Ok(value) => value
           Err(reason) => return Err(reason)
         }
-        entries.push({ request, response })
+        entries.push({ request, response, })
       }
       _ => return Err(invalid_cassette_reason("entry must be object"))
     }
   }
-  Ok({ cassette_version, entries })
+  Ok({ cassette_version, entries, })
 }

@@ -14,26 +14,26 @@ pub(all) enum RetentionAxisV53 {
 pub(all) struct RetentionPolicyV53 {
   axis : RetentionAxisV53
   /// Expiry threshold: ttl_polls for PollCount, max_logical_time for LogicalTime, max_events for EventCount.
-  threshold : Int
+  threshold : Int32
   /// Informational TTL (MUST NOT be interpreted as wall-clock seconds).
-  ttl_seconds : Int
+  ttl_seconds : Int32
 }
 
 ///|
 /// Input to multi-axis retention evaluation.
 pub(all) struct MultiAxisEvalInput {
   policies : Array[RetentionPolicyV53]
-  current_poll_count : Int
-  current_logical_time : Int
-  current_event_count : Int
+  current_poll_count : Int32
+  current_logical_time : Int32
+  current_event_count : Int32
 }
 
 ///|
 /// Per-axis evaluation result.
 pub(all) struct AxisEvalResult {
   axis : RetentionAxisV53
-  threshold : Int
-  current : Int
+  threshold : Int32
+  current : Int32
   expired : Bool
 }
 
@@ -42,6 +42,6 @@ pub(all) struct AxisEvalResult {
 pub(all) struct RetentionEvalResult {
   axes : Array[AxisEvalResult]
   effective_axis : String
-  effective_threshold : Int
+  effective_threshold : Int32
   expired : Bool
 }

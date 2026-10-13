@@ -1,0 +1,19 @@
+name = "fwd"
+
+version = "0.1.0"
+
+preferred_target = "js"
+
+import {
+  "moonbitlang/async@0.16.4",
+  "f4ah6o/mhx@0.1.1",
+  "f4ah6o/tmpx@0.4.0",
+  "moonbitlang/x@0.5.5",
+  "f4ah6o/dslx@0.1.2",
+}
+
+license = "AGPL-3.0-only"
+
+description = "Functional Work Design (FWD) meta-architecture prototype"
+
+source = "src"

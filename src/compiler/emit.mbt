@@ -39,9 +39,9 @@ fn build_state_graph(
     nodes[from_tag] = ()
     nodes[to_tag] = ()
     let to_map = edges.get_or_init(from_tag, () => Map::new())
-    to_map[to_tag] = { name: transition.name }
+    to_map[to_tag] = { name: transition.name, }
   }
-  { nodes, edges }
+  { nodes, edges, }
 }
 
 ///|
@@ -89,7 +89,7 @@ pub fn emit_ir_from_schema(schema : @schema.Schema) -> @ir.FwdIR {
   }
   let effects : Map[String, @ir.EffectSpec] = Map::new()
   for effect in schema.effects {
-    effects[effect.name] = { name: effect.name, kind: effect.kind }
+    effects[effect.name] = { name: effect.name, kind: effect.kind, }
   }
   {
     version: "1.0",

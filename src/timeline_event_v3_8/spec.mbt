@@ -5,18 +5,18 @@
 pub(all) struct TimelineEventQuery {
   entity_id : String
   kind : String?
-  from_logical_time : Int?
-  to_logical_time : Int?
-  limit : Int
+  from_logical_time : Int32?
+  to_logical_time : Int32?
+  limit : Int32
   cursor : String?
 }
 
 ///|
 pub(all) struct TimelineEventCursor {
   entity_id : String
-  offset : Int
-  limit : Int
+  offset : Int32
+  limit : Int32
   kind : String?
-  from_logical_time : Int?
-  to_logical_time : Int?
+  from_logical_time : Int32?
+  to_logical_time : Int32?
 }

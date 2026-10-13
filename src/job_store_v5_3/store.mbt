@@ -45,10 +45,11 @@ fn advance_progress(
   status : @export_job_v5.JobStatus,
 ) -> @export_job_v5.JobProgress {
   match status {
-    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total }
-    @export_job_v5.JobStatus::Running => { processed: 1, total: progress.total }
+    @export_job_v5.JobStatus::Queued => { processed: 0, total: progress.total, }
+    @export_job_v5.JobStatus::Running =>
+      { processed: 1, total: progress.total, }
     @export_job_v5.JobStatus::Done =>
-      { processed: progress.total, total: progress.total }
+      { processed: progress.total, total: progress.total, }
     _ => progress
   }
 }
@@ -82,7 +83,7 @@ pub fn reset_for_test() -> Unit {
 }
 
 ///|
-pub fn seed_for_test(next_id : Int, jobs : Array[JobRecordV53]) -> Unit {
+pub fn seed_for_test(next_id : Int32, jobs : Array[JobRecordV53]) -> Unit {
   @export_job_v5.seed_id_for_test(next_id)
   let seeded : Map[String, JobRecordV53] = Map::new()
   for job in jobs {
@@ -100,7 +101,7 @@ pub fn create_job(
   let job : JobRecordV53 = {
     id,
     status: @export_job_v5.JobStatus::Queued,
-    progress: { processed: 0, total: progress_total },
+    progress: { processed: 0, total: progress_total, },
     policies,
     format,
     reasons: [],
