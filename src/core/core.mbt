@@ -40,7 +40,7 @@ pub(all) struct Reason {
 
 ///|
 pub fn Reason::new(code : String, message : String) -> Reason {
-  { code, message, context: [] }
+  { code, message, context: [], }
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn Reason::with_context(
   message : String,
   context : Array[(String, String)],
 ) -> Reason {
-  { code, message, context }
+  { code, message, context, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub(all) struct Entity[S, D] {
 
 ///|
 pub fn[S, D] Entity::new(state : S, data : D) -> Entity[S, D] {
-  { state, data }
+  { state, data, }
 }
 
 ///|

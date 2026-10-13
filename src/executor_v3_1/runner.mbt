@@ -17,7 +17,7 @@ fn reason_effect_fallback() -> @core.Reason {
 fn audit_executed(
   entity : String,
   transition : String,
-  logical_time : Int,
+  logical_time : Int32,
 ) -> @execution_audit_v3.AuditEvent {
   {
     entity_id: entity,
@@ -34,7 +34,7 @@ fn audit_executed(
 fn audit_blocked(
   entity : String,
   transition : String,
-  logical_time : Int,
+  logical_time : Int32,
   reasons : Array[@core.Reason],
 ) -> @execution_audit_v3.AuditEvent {
   {
@@ -52,7 +52,7 @@ fn audit_blocked(
 fn audit_failed(
   entity : String,
   transition : String,
-  logical_time : Int,
+  logical_time : Int32,
   reason : @core.Reason,
 ) -> @execution_audit_v3.AuditEvent {
   {
@@ -106,7 +106,7 @@ pub fn execute_plan_detail(
   plan : @effects_v2_2.EffectsPlan,
   idempotency : @idempotency_v3.Decision,
   retry_policy : @retry_policy_v3.RetryPolicy,
-  logical_time_start : Int,
+  logical_time_start : Int32,
   allowlist : Array[String],
   send : (@effects_exec_adapters_v2_2.HttpRequest) -> Result[
     @effects_exec_adapters_v2_2.HttpResponse,

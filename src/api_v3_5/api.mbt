@@ -11,23 +11,23 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_jsonl(status : Int, body : String) -> ApiResponse {
+fn response_jsonl(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/jsonl"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -56,7 +56,7 @@ fn missing_query_reason(name : String) -> @core.Reason {
 }
 
 ///|
-fn parse_int(value : String) -> Int? {
+fn parse_int(value : String) -> Int32? {
   if value.length() == 0 {
     return None
   }
@@ -148,8 +148,8 @@ fn apply_kind_filter(
 ///|
 fn apply_time_filter(
   events : Array[@timeline_v3.TimelineEvent],
-  from_time : Int?,
-  to_time : Int?,
+  from_time : Int32?,
+  to_time : Int32?,
 ) -> Array[@timeline_v3.TimelineEvent] {
   let filtered : Array[@timeline_v3.TimelineEvent] = []
   for event in events {

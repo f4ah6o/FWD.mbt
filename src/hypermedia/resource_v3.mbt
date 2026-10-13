@@ -20,7 +20,7 @@ pub(all) struct ResourceV3 {
 }
 
 ///|
-fn compare_string_v3(a : String, b : String) -> Int {
+fn compare_string_v3(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -55,7 +55,7 @@ pub fn resource_v3_from_ir(ir : @ir.FwdIR, state : String) -> ResourceV3 {
       can_execute: false,
     })
   }
-  { state, transitions }
+  { state, transitions, }
 }
 
 ///|

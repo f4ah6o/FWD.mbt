@@ -4,7 +4,7 @@
 ///|
 pub(all) struct RunnerConfig {
   allowlist : Array[String]
-  timeout_ms : Int?
+  timeout_ms : Int32?
 }
 
 ///|
@@ -41,7 +41,7 @@ fn extract_allowlist(
 }
 
 ///|
-fn extract_timeout(obj : Map[String, Json]) -> Int? {
+fn extract_timeout(obj : Map[String, Json]) -> Int32? {
   match obj.get("timeoutMs") {
     Some(Number(value, ..)) => Some(value.to_int())
     _ => None
@@ -69,5 +69,5 @@ pub fn parse_config_json(
     Err(reason) => return Err(reason)
   }
   let timeout_ms = extract_timeout(obj)
-  Ok({ allowlist, timeout_ms })
+  Ok({ allowlist, timeout_ms, })
 }

@@ -11,7 +11,7 @@ pub(all) struct HttpRequest {
 
 ///|
 pub(all) struct HttpResponse {
-  status : Int
+  status : Int32
   body : String
 }
 

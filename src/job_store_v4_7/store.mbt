@@ -1,6 +1,6 @@
 ///|
 /// Deterministic in-memory job store (v4.7).
-let counter : Ref[Int] = @ref.new(0)
+let counter : Ref[Int32] = @ref.new(0)
 
 ///|
 let store : Ref[Map[String, @export_job_v4_7.JobRecord]] = @ref.new(Map::new())
@@ -33,11 +33,11 @@ fn next_progress(
 ) -> @export_job_v4_7.JobProgress {
   match status {
     @export_job_v4_7.JobStatus::Queued =>
-      { processed: 0, total: progress.total }
+      { processed: 0, total: progress.total, }
     @export_job_v4_7.JobStatus::Running =>
-      { processed: 1, total: progress.total }
+      { processed: 1, total: progress.total, }
     @export_job_v4_7.JobStatus::Done =>
-      { processed: progress.total, total: progress.total }
+      { processed: progress.total, total: progress.total, }
     @export_job_v4_7.JobStatus::Failed => progress
   }
 }
@@ -60,7 +60,7 @@ pub fn create_job(
     kind,
     status: @export_job_v4_7.JobStatus::Queued,
     input,
-    progress: { processed: 0, total: progress_total },
+    progress: { processed: 0, total: progress_total, },
     ttl_seconds,
     reasons: [],
     poll_count: 0,

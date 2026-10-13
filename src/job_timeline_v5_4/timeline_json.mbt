@@ -82,7 +82,10 @@ fn batch_event_json(event : JobTimelineEvent) -> Json {
 
 ///|
 /// Produce the JSON string for a single job's timeline.
-pub fn timeline_json(job_id : String, events : Array[JobTimelineEvent]) -> String {
+pub fn timeline_json(
+  job_id : String,
+  events : Array[JobTimelineEvent],
+) -> String {
   let obj : Map[String, Json] = Map::new()
   obj["jobVersion"] = Json::string("5.4")
   obj["jobId"] = Json::string(job_id)

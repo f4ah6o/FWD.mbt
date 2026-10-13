@@ -19,7 +19,7 @@ fn counts_json(counts : MetricCounts) -> Json {
 }
 
 ///|
-fn option_number(value : Int?) -> Json {
+fn option_number(value : Int32?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
     None => Json::null()

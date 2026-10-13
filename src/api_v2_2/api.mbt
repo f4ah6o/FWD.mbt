@@ -10,14 +10,14 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   body : String
   content_type : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
-  { status, body, content_type: "application/json" }
+fn response_json(status : Int32, body : String) -> ApiResponse {
+  { status, body, content_type: "application/json", }
 }
 
 ///|

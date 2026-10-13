@@ -33,9 +33,7 @@ fn job_timeline_event_id_v5_6(
 }
 
 ///|
-fn job_timeline_reason_message_v5_6(
-  reason : @export_job_v5.ReasonV1,
-) -> String {
+fn job_timeline_reason_message_v5_6(reason : @export_job_v5.ReasonV1) -> String {
   reason.message
 }
 
@@ -45,16 +43,12 @@ fn job_timeline_event_node_v5_6(
 ) -> @tmpx.Node {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(
-    @tmpx.p(
-      [],
-      [@tmpx.text("logicalTime: " + event.logical_time.to_string())],
-    ),
+    @tmpx.p([], [@tmpx.text("logicalTime: " + event.logical_time.to_string())]),
   )
   nodes.push(
-    @tmpx.p(
-      [],
-      [@tmpx.text("kind: " + job_timeline_kind_string_v5_6(event.kind))],
-    ),
+    @tmpx.p([], [
+      @tmpx.text("kind: " + job_timeline_kind_string_v5_6(event.kind)),
+    ]),
   )
   nodes.push(@tmpx.p([], [@tmpx.text("from: " + event.from_status)]))
   nodes.push(@tmpx.p([], [@tmpx.text("to: " + event.to_status)]))
@@ -74,10 +68,9 @@ fn job_timeline_event_node_v5_6(
 
 ///|
 fn job_timeline_pager_node_v5_6() -> @tmpx.Node {
-  @tmpx.div(
-    [@tmpx.class_("fwd-job-timeline-pager")],
-    [@tmpx.button([], [@tmpx.text("Next")])],
-  )
+  @tmpx.div([@tmpx.class_("fwd-job-timeline-pager")], [
+    @tmpx.button([], [@tmpx.text("Next")]),
+  ])
 }
 
 ///|

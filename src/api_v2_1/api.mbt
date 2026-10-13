@@ -10,7 +10,7 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
@@ -30,17 +30,17 @@ pub fn ApiState::new() -> ApiState {
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -413,7 +413,7 @@ fn parse_request_path(req : ApiRequest) -> (ApiRequest, String) {
       }
     }
   }
-  ({ http_method: req.http_method, path, body: req.body }, format)
+  ({ http_method: req.http_method, path, body: req.body, }, format)
 }
 
 ///|

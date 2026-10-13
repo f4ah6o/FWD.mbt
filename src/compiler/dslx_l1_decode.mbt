@@ -6,7 +6,7 @@ fn dslx_decode_error(message : String) -> DecodeError {
 ///|
 fn dslx_child(
   tree : @dslx.Tree,
-  index : Int,
+  index : Int32,
   ctx : String,
 ) -> @dslx.Tree raise DecodeError {
   if index < tree.kids.length() {
@@ -78,7 +78,7 @@ fn dslx_decode_state(
 ) -> @schema.StateDefinition raise DecodeError {
   let seq = dslx_ref_payload(tree, "stat", "state")
   dslx_expect_kind(seq, "seqx", "state")
-  { name: dslx_name(dslx_child(seq, 1, "state.name"), "state.name") }
+  { name: dslx_name(dslx_child(seq, 1, "state.name"), "state.name"), }
 }
 
 ///|

@@ -29,12 +29,8 @@ fn setup_3_event_timeline() -> Unit {
   @job_timeline_v5_4.reset_for_test()
   let job_id = "job-1"
   @job_timeline_v5_4.record_status_change(job_id, 0, "queued", "queued", [])
-  @job_timeline_v5_4.record_status_change(
-    job_id, 1, "queued", "running", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    job_id, 2, "running", "done", [],
-  )
+  @job_timeline_v5_4.record_status_change(job_id, 1, "queued", "running", [])
+  @job_timeline_v5_4.record_status_change(job_id, 2, "running", "done", [])
 }
 
 ///|
@@ -141,31 +137,14 @@ test "v5.5 cursor encode/decode roundtrip" {
 ///|
 test "v5.5 batch paginated page 1" {
   @job_timeline_v5_4.reset_for_test()
-  @job_timeline_v5_4.record_status_change(
-    "job-2", 0, "queued", "queued", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-2", 1, "queued", "running", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-2", 2, "running", "done", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-3", 0, "queued", "queued", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-3", 1, "queued", "running", [],
-  )
-  @job_timeline_v5_4.record_status_change(
-    "job-3", 2, "running", "done", [],
-  )
-  let page = match query_batch_timeline(
-    ["job-2", "job-3"],
-    None,
-    None,
-    2,
-    None,
-  ) {
+  @job_timeline_v5_4.record_status_change("job-2", 0, "queued", "queued", [])
+  @job_timeline_v5_4.record_status_change("job-2", 1, "queued", "running", [])
+  @job_timeline_v5_4.record_status_change("job-2", 2, "running", "done", [])
+  @job_timeline_v5_4.record_status_change("job-3", 0, "queued", "queued", [])
+  @job_timeline_v5_4.record_status_change("job-3", 1, "queued", "running", [])
+  @job_timeline_v5_4.record_status_change("job-3", 2, "running", "done", [])
+  let page = match
+    query_batch_timeline(["job-2", "job-3"], None, None, 2, None) {
     Ok(p) => p
     Err(msg) => fail(msg)
   }

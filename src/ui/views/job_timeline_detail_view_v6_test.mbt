@@ -47,7 +47,7 @@ fn make_test_detail_middle_v6() -> @job_timeline_v5_7.JobTimelineDetail {
     to_status: "done",
     reasons: [],
   }
-  { event, prev_event: Some(prev), next_event: Some(next) }
+  { event, prev_event: Some(prev), next_event: Some(next), }
 }
 
 ///|
@@ -70,7 +70,7 @@ fn make_test_detail_first_v6() -> @job_timeline_v5_7.JobTimelineDetail {
     to_status: "running",
     reasons: [],
   }
-  { event, prev_event: None, next_event: Some(next) }
+  { event, prev_event: None, next_event: Some(next), }
 }
 
 ///|
@@ -93,7 +93,7 @@ fn make_test_detail_last_v6() -> @job_timeline_v5_7.JobTimelineDetail {
     to_status: "running",
     reasons: [],
   }
-  { event, prev_event: Some(prev), next_event: None }
+  { event, prev_event: Some(prev), next_event: None, }
 }
 
 ///|

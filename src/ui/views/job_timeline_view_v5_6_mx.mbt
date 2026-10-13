@@ -12,10 +12,9 @@ fn job_timeline_pager_node_v5_6_mx(
     page.limit.to_string() +
     "&cursor=offset:" +
     next_offset.to_string()
-  @tmpx.div(
-    [@tmpx.class_("fwd-job-timeline-pager")],
-    [@tmpx.button([@tmpx.mx_get(url)], [@tmpx.text("Next")])],
-  )
+  @tmpx.div([@tmpx.class_("fwd-job-timeline-pager")], [
+    @tmpx.button([@tmpx.mx_get(url)], [@tmpx.text("Next")]),
+  ])
 }
 
 ///|

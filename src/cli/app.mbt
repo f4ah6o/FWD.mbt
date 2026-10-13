@@ -44,7 +44,7 @@ fn write_output(path : String, output : String) -> Bool {
 fn record_send_stub(
   _req : @effects_exec_adapters_v2_2.HttpRequest,
 ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-  Ok({ status: 200, body: "{\"ok\":true}" })
+  Ok({ status: 200, body: "{\"ok\":true}", })
 }
 
 ///|
@@ -84,7 +84,7 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
 }
 
 ///|
-pub fn run(args : Array[String]) -> Int {
+pub fn run(args : Array[String]) -> Int32 {
   if args.length() == 0 {
     println(usage())
     return 1

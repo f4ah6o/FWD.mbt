@@ -33,7 +33,7 @@ pub fn result_version_v2_2() -> String {
 
 ///|
 fn item_status_executed(effect_id : String) -> ExecutionItem {
-  { effect_id, status: ExecutionStatus::Executed, reason: None }
+  { effect_id, status: ExecutionStatus::Executed, reason: None, }
 }
 
 ///|

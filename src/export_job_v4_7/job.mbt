@@ -17,24 +17,24 @@ pub(all) enum JobStatus {
 
 ///|
 pub(all) struct JobProgress {
-  processed : Int
-  total : Int
+  processed : Int32
+  total : Int32
 }
 
 ///|
 pub(all) struct MetricsJobInput {
   entity_id : String
-  from_logical_time : Int?
-  to_logical_time : Int?
+  from_logical_time : Int32?
+  to_logical_time : Int32?
   format : String
 }
 
 ///|
 pub(all) struct TimelineJobInput {
   entity_id : String
-  from_logical_time : Int?
-  to_logical_time : Int?
-  limit : Int
+  from_logical_time : Int32?
+  to_logical_time : Int32?
+  limit : Int32
   cursor : String?
   format : String
 }
@@ -52,9 +52,9 @@ pub(all) struct JobRecord {
   status : JobStatus
   input : JobInput
   progress : JobProgress
-  ttl_seconds : Int
+  ttl_seconds : Int32
   reasons : Array[@core.Reason]
-  poll_count : Int
+  poll_count : Int32
 }
 
 ///|

@@ -3,7 +3,7 @@
 
 ///|
 /// Encode cursor as "offset:N".
-pub fn encode_cursor(offset : Int) -> String {
+pub fn encode_cursor(offset : Int32) -> String {
   "offset:" + offset.to_string()
 }
 
@@ -30,7 +30,7 @@ pub fn decode_cursor(s : String) -> JobTimelineCursor? {
     }
   }
   if valid {
-    Some({ offset: value })
+    Some({ offset: value, })
   } else {
     None
   }
@@ -40,8 +40,8 @@ pub fn decode_cursor(s : String) -> JobTimelineCursor? {
 /// Filter events by logical time range.
 pub fn filter_events(
   events : Array[@job_timeline_v5_4.JobTimelineEvent],
-  from_logical_time : Int?,
-  to_logical_time : Int?,
+  from_logical_time : Int32?,
+  to_logical_time : Int32?,
 ) -> Array[@job_timeline_v5_4.JobTimelineEvent] {
   let filtered : Array[@job_timeline_v5_4.JobTimelineEvent] = []
   for event in events {
@@ -64,8 +64,8 @@ pub fn filter_events(
 /// Apply pagination to a filtered event list.
 pub fn paginate(
   events : Array[@job_timeline_v5_4.JobTimelineEvent],
-  offset : Int,
-  limit : Int,
+  offset : Int32,
+  limit : Int32,
 ) -> JobTimelinePage {
   let page : Array[@job_timeline_v5_4.JobTimelineEvent] = []
   let total = events.length()
@@ -77,7 +77,7 @@ pub fn paginate(
     idx = idx + 1
   }
   let has_more = offset + limit < total
-  { events: page, offset, limit, has_more }
+  { events: page, offset, limit, has_more, }
 }
 
 ///|
@@ -106,9 +106,9 @@ pub fn query_timeline(
 /// Execute a batch query: get batch events, filter, paginate.
 pub fn query_batch_timeline(
   child_ids : Array[String],
-  from_logical_time : Int?,
-  to_logical_time : Int?,
-  limit : Int,
+  from_logical_time : Int32?,
+  to_logical_time : Int32?,
+  limit : Int32,
   cursor : String?,
 ) -> Result[JobTimelinePage, String] {
   let offset = match cursor {

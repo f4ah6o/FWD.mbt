@@ -59,7 +59,7 @@ fn reason_field(reason : @core.Reason) -> String {
 }
 
 ///|
-fn kind_rank(kind : String) -> Int {
+fn kind_rank(kind : String) -> Int32 {
   if kind == "stateRemoved" {
     0
   } else if kind == "transitionRemoved" {
@@ -72,7 +72,7 @@ fn kind_rank(kind : String) -> Int {
 }
 
 ///|
-fn field_rank(field : String) -> Int {
+fn field_rank(field : String) -> Int32 {
   if field == "from" {
     0
   } else if field == "to" {
@@ -85,7 +85,7 @@ fn field_rank(field : String) -> Int {
 }
 
 ///|
-fn compare_int(a : Int, b : Int) -> Int {
+fn compare_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -96,7 +96,7 @@ fn compare_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -107,7 +107,7 @@ fn compare_string(a : String, b : String) -> Int {
 }
 
 ///|
-fn reason_rank(reason : @core.Reason) -> Int {
+fn reason_rank(reason : @core.Reason) -> Int32 {
   let code = reason.code()
   if code == "STATE_REMOVED" ||
     code == "TRANSITION_REMOVED" ||
@@ -121,7 +121,7 @@ fn reason_rank(reason : @core.Reason) -> Int {
 }
 
 ///|
-fn compare_reason(a : @core.Reason, b : @core.Reason) -> Int {
+fn compare_reason(a : @core.Reason, b : @core.Reason) -> Int32 {
   let rank = compare_int(reason_rank(a), reason_rank(b))
   if rank != 0 {
     return rank

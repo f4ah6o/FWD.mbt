@@ -1,5 +1,5 @@
 ///|
-fn max_int(a : Int, b : Int) -> Int {
+fn max_int(a : Int32, b : Int32) -> Int32 {
   if a > b {
     a
   } else {
@@ -26,9 +26,9 @@ pub fn default_builder() -> BuilderState {
     rollout_mode: default_rollout_mode(),
     states: ["Draft", "Approved", "Rejected"],
     transitions: [
-      { name: "approve", from: "Draft", to: "Approved" },
-      { name: "reject", from: "Draft", to: "Rejected" },
-      { name: "", from: "", to: "" },
+      { name: "approve", from: "Draft", to: "Approved", },
+      { name: "reject", from: "Draft", to: "Rejected", },
+      { name: "", from: "", to: "", },
     ],
   }
 }
@@ -44,16 +44,16 @@ pub fn purchase_request_builder() -> BuilderState {
       "Draft", "Submitted", "ManagerApproved", "FinanceApproved", "Ordered", "Rejected",
     ],
     transitions: [
-      { name: "submit", from: "Draft", to: "Submitted" },
-      { name: "manager_approve", from: "Submitted", to: "ManagerApproved" },
-      { name: "manager_reject", from: "Submitted", to: "Rejected" },
+      { name: "submit", from: "Draft", to: "Submitted", },
+      { name: "manager_approve", from: "Submitted", to: "ManagerApproved", },
+      { name: "manager_reject", from: "Submitted", to: "Rejected", },
       {
         name: "finance_approve",
         from: "ManagerApproved",
         to: "FinanceApproved",
       },
-      { name: "finance_reject", from: "ManagerApproved", to: "Rejected" },
-      { name: "place_order", from: "FinanceApproved", to: "Ordered" },
+      { name: "finance_reject", from: "ManagerApproved", to: "Rejected", },
+      { name: "place_order", from: "FinanceApproved", to: "Ordered", },
     ],
   }
 }
@@ -72,12 +72,12 @@ fn has_any_text(text : String) -> Bool {
 }
 
 ///|
-fn is_dslx_name_start(ch : Int) -> Bool {
+fn is_dslx_name_start(ch : Int32) -> Bool {
   (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'
 }
 
 ///|
-fn is_dslx_name_continue(ch : Int) -> Bool {
+fn is_dslx_name_continue(ch : Int32) -> Bool {
   is_dslx_name_start(ch) || (ch >= '0' && ch <= '9')
 }
 
@@ -224,7 +224,7 @@ fn compact_transitions(builder : BuilderState) -> Array[BuilderTransition] {
 ///|
 fn dslx_state_order(builder : BuilderState) -> Array[String] {
   let states = compact_states(builder)
-  let mut initial_index : Int? = None
+  let mut initial_index : Int32? = None
   for i in 0..<states.length() {
     if initial_index is None && states[i] == builder.initial_state {
       initial_index = Some(i)
@@ -276,7 +276,7 @@ pub fn builder_to_dslx_l1(builder : BuilderState) -> String {
 pub fn builder_to_schema(builder : BuilderState) -> @schema.Schema {
   let states : Array[@schema.StateDefinition] = []
   for state in compact_states(builder) {
-    states.push({ name: state })
+    states.push({ name: state, })
   }
   let transitions : Array[@schema.TransitionDefinition] = []
   for transition in compact_transitions(builder) {
@@ -309,7 +309,7 @@ pub fn builder_to_schema(builder : BuilderState) -> @schema.Schema {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -343,15 +343,15 @@ fn preview_from_runtime(
 ) -> StatePreview {
   let available : Array[PreviewTransition] = []
   for transition in result.available_transitions {
-    available.push({ id: transition.id, to: transition.to })
+    available.push({ id: transition.id, to: transition.to, })
   }
   let blocked : Array[PreviewBlockedTransition] = []
   for transition in result.blocked_transitions {
-    blocked.push({ id: transition.id, reasons: transition.reasons })
+    blocked.push({ id: transition.id, reasons: transition.reasons, })
   }
   available.sort_by((a, b) => compare_string(a.id, b.id))
   blocked.sort_by((a, b) => compare_string(a.id, b.id))
-  { state, available, blocked }
+  { state, available, blocked, }
 }
 
 ///|
@@ -624,11 +624,11 @@ pub fn evaluate_builder(builder : BuilderState) -> WorkbenchModel {
 }
 
 ///|
-pub fn state_slot_count(builder : BuilderState) -> Int {
+pub fn state_slot_count(builder : BuilderState) -> Int32 {
   max_int(3, builder.states.length())
 }
 
 ///|
-pub fn transition_slot_count(builder : BuilderState) -> Int {
+pub fn transition_slot_count(builder : BuilderState) -> Int32 {
   max_int(3, builder.transitions.length())
 }

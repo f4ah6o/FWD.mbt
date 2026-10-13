@@ -9,7 +9,7 @@ fn kind_string(kind : TimelineKind) -> String {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -20,7 +20,7 @@ fn compare_string(a : String, b : String) -> Int {
 }
 
 ///|
-fn compare_event(a : TimelineEvent, b : TimelineEvent) -> Int {
+fn compare_event(a : TimelineEvent, b : TimelineEvent) -> Int32 {
   let by_entity = compare_string(a.entity_id, b.entity_id)
   if by_entity != 0 {
     return by_entity

@@ -11,8 +11,8 @@ pub(all) enum JobTimelineKind {
 /// Ordering: (job_id, logical_time, sequence) — deterministic, append-only.
 pub(all) struct JobTimelineEvent {
   job_id : String
-  logical_time : Int
-  sequence : Int
+  logical_time : Int32
+  sequence : Int32
   kind : JobTimelineKind
   from_status : String
   to_status : String

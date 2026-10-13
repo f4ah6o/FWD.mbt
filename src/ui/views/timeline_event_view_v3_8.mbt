@@ -48,7 +48,7 @@ fn event_detail_node_v3_8(event : @timeline_v3.TimelineEvent) -> @tmpx.Node {
 fn filter_form_v3_8(
   entity_id : String,
   kind : String?,
-  limit : Int,
+  limit : Int32,
   cursor : String?,
 ) -> @tmpx.Node {
   let children : Array[@tmpx.Node] = []
@@ -115,7 +115,7 @@ pub fn render_timeline_event_list_v3_8(
   entity_id : String,
   events : Array[@timeline_v3.TimelineEvent],
   kind : String?,
-  limit : Int,
+  limit : Int32,
   next_cursor : String?,
 ) -> String {
   let nodes : Array[@tmpx.Node] = []

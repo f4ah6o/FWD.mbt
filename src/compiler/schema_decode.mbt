@@ -12,7 +12,7 @@ fn DecodeError::new(message : String) -> DecodeError {
 }
 
 ///|
-pub impl Show for DecodeError with output(self, logger) {
+pub impl Show for DecodeError with fn output(self, logger) {
   match self {
     DecodeError::DecodeError(message) => logger.write_string(message)
   }
@@ -138,7 +138,7 @@ fn decode_attribute(
     Some(v) => as_bool(v, "attribute.optional")
     None => false
   }
-  { name, type_ref, optional }
+  { name, type_ref, optional, }
 }
 
 ///|
@@ -161,7 +161,7 @@ fn decode_entity(
   for raw in attrs_raw {
     attrs.push(decode_attribute(raw))
   }
-  { name, initial_state, attributes: attrs }
+  { name, initial_state, attributes: attrs, }
 }
 
 ///|
@@ -216,7 +216,7 @@ fn decode_rule_def(
 ) -> @schema.RuleDefinition raise DecodeError {
   match value {
     String(name) =>
-      { name, expr: @schema.RuleExpression::Preset(name), description: None }
+      { name, expr: @schema.RuleExpression::Preset(name), description: None, }
     Map(items) => {
       let name_value = map_find(items, "name").unwrap_or(YamlValue::String(""))
       let name = as_string(name_value, "rule.name")
@@ -233,7 +233,7 @@ fn decode_rule_def(
         None => decode_rule_expr_from_map(items)
       }
       let description = optional_string(items, "description")
-      { name, expr, description }
+      { name, expr, description, }
     }
     _ => raise DecodeError::new("invalid rule definition")
   }
@@ -254,7 +254,7 @@ fn decode_reason(
     Some(v) => Some(v)
     None => optional_string(items, "context_schema")
   }
-  { code, message, context_schema }
+  { code, message, context_schema, }
 }
 
 ///|
@@ -286,7 +286,7 @@ fn decode_effect(
   } else {
     @core.EffectKind::Sync
   }
-  { name, kind }
+  { name, kind, }
 }
 
 ///|
@@ -314,7 +314,7 @@ fn decode_transition(
     Some(v) => Some(v)
     None => optional_string(items, "input_schema")
   }
-  { name, from, to, rules, effects, input_schema }
+  { name, from, to, rules, effects, input_schema, }
 }
 
 ///|

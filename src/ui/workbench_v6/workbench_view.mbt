@@ -9,7 +9,7 @@ fn hint_text(reason : @core.Reason) -> String? {
 }
 
 ///|
-fn state_value(builder : @wb.BuilderState, index : Int) -> String {
+fn state_value(builder : @wb.BuilderState, index : Int32) -> String {
   if index < builder.states.length() {
     builder.states[index]
   } else {
@@ -20,12 +20,12 @@ fn state_value(builder : @wb.BuilderState, index : Int) -> String {
 ///|
 fn transition_value(
   builder : @wb.BuilderState,
-  index : Int,
+  index : Int32,
 ) -> @wb.BuilderTransition {
   if index < builder.transitions.length() {
     builder.transitions[index]
   } else {
-    { name: "", from: "", to: "" }
+    { name: "", from: "", to: "", }
   }
 }
 

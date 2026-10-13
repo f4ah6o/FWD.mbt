@@ -8,7 +8,7 @@ fn read_text_store(path : String, label : String) -> Result[String, String] {
 }
 
 ///|
-fn make_payload(amount : Int) -> Json {
+fn make_payload(amount : Int32) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["amount"] = Json::number(amount.to_double())
   Json::object(obj)

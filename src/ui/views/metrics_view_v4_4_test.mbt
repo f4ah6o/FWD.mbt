@@ -20,23 +20,27 @@ fn load_expected_metrics_v4_4(path : String) -> String raise {
 
 ///|
 fn counts_view_v4_4(
-  ok : Int,
-  failed : Int,
-  blocked : Int,
-  denied : Int,
+  ok : Int32,
+  failed : Int32,
+  blocked : Int32,
+  denied : Int32,
 ) -> V4_4MetricsCountsView {
-  { ok, failed, blocked, denied }
+  { ok, failed, blocked, denied, }
 }
 
 ///|
 fn sample_view_v4_4() -> V4_4MetricsView {
   {
-    window: { entity_id: "order-1", from_logical_time: 10, to_logical_time: 12 },
+    window: {
+      entity_id: "order-1",
+      from_logical_time: 10,
+      to_logical_time: 12,
+    },
     total: counts_view_v4_4(1, 1, 0, 1),
     by_kind: [
-      { kind: "transition", counts: counts_view_v4_4(1, 0, 0, 0) },
-      { kind: "policy", counts: counts_view_v4_4(0, 0, 0, 1) },
-      { kind: "effect", counts: counts_view_v4_4(0, 1, 0, 0) },
+      { kind: "transition", counts: counts_view_v4_4(1, 0, 0, 0), },
+      { kind: "policy", counts: counts_view_v4_4(0, 0, 0, 1), },
+      { kind: "effect", counts: counts_view_v4_4(0, 1, 0, 0), },
     ],
   }
 }

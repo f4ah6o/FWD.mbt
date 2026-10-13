@@ -2,8 +2,8 @@
 /// Query parameters for event detail lookup (v5.7).
 pub(all) struct JobTimelineDetailQuery {
   job_id : String
-  logical_time : Int
-  sequence : Int
+  logical_time : Int32
+  sequence : Int32
   kind : @job_timeline_v5_4.JobTimelineKind
 }
 

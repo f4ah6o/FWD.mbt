@@ -11,23 +11,23 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -76,7 +76,7 @@ fn parse_format(value : String) -> String? {
 ///|
 fn resource_view() -> @views.V4ResourceView {
   {
-    entity: { id: "order-1", state: "Draft", logical_time: 12 },
+    entity: { id: "order-1", state: "Draft", logical_time: 12, },
     draft_reason: "Need approval",
     field_errors: [
       {
@@ -89,7 +89,7 @@ fn resource_view() -> @views.V4ResourceView {
     ],
     policy: {
       decision: "deny",
-      reasons: [{ message: "Policy denied execution", hint: None }],
+      reasons: [{ message: "Policy denied execution", hint: None, }],
     },
     effects: {
       plan_status: "planned",
@@ -109,7 +109,7 @@ fn resource_view() -> @views.V4ResourceView {
           kind: "policy",
           ref_id: "policy:submit",
           status: "deny",
-          reasons: [{ message: "Policy denied execution", hint: None }],
+          reasons: [{ message: "Policy denied execution", hint: None, }],
         },
       ],
     },
@@ -245,7 +245,7 @@ fn timeline_list_view() -> @views.V4TimelineListView {
       reasons,
     })
   }
-  { cursor: "offset:0", next_cursor: Some("offset:2"), events: view_events }
+  { cursor: "offset:0", next_cursor: Some("offset:2"), events: view_events, }
 }
 
 ///|
@@ -339,11 +339,11 @@ fn timeline_detail_json() -> String {
 }
 
 ///|
-fn substring_from(value : String, start : Int) -> String {
+fn substring_from(value : String, start : Int32) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }

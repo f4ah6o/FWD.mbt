@@ -50,7 +50,7 @@ pub fn replay_transport(
   ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
     for entry in cassette.entries {
       if requests_match(entry, req) {
-        return Ok({ status: entry.response.status, body: entry.response.body })
+        return Ok({ status: entry.response.status, body: entry.response.body, })
       }
     }
     Err(replay_miss_reason())

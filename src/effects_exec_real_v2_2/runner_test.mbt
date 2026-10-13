@@ -19,7 +19,7 @@ fn load_fixture(path : String) -> String raise {
 fn fake_send(
   _req : @effects_exec_adapters_v2_2.HttpRequest,
 ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-  Ok({ status: 200, body: "{\"ok\":true}" })
+  Ok({ status: 200, body: "{\"ok\":true}", })
 }
 
 ///|

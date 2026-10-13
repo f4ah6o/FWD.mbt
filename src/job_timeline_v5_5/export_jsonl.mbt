@@ -58,8 +58,8 @@ pub fn export_jsonl(
 /// Export filtered events as JSONL for a single job.
 pub fn export_job_jsonl(
   job_id : String,
-  from_logical_time : Int?,
-  to_logical_time : Int?,
+  from_logical_time : Int32?,
+  to_logical_time : Int32?,
 ) -> String {
   let events = @job_timeline_v5_4.get_timeline(job_id)
   let filtered = filter_events(events, from_logical_time, to_logical_time)
@@ -70,8 +70,8 @@ pub fn export_job_jsonl(
 /// Export filtered events as JSONL for a batch (aggregate child events).
 pub fn export_batch_jsonl(
   child_ids : Array[String],
-  from_logical_time : Int?,
-  to_logical_time : Int?,
+  from_logical_time : Int32?,
+  to_logical_time : Int32?,
 ) -> String {
   let events = @job_timeline_v5_4.get_batch_timeline(child_ids)
   let filtered = filter_events(events, from_logical_time, to_logical_time)

@@ -59,7 +59,7 @@ fn plan_with_url() -> @effects_v2_2.EffectsPlan {
 fn audit_executed(
   entity : String,
   transition : String,
-  logical_time : Int,
+  logical_time : Int32,
 ) -> @execution_audit_v3.AuditEvent {
   {
     entity_id: entity,
@@ -76,7 +76,7 @@ fn audit_executed(
 fn audit_failed(
   entity : String,
   transition : String,
-  logical_time : Int,
+  logical_time : Int32,
   reason : @core.Reason,
 ) -> @execution_audit_v3.AuditEvent {
   {
@@ -105,7 +105,7 @@ test "executor executed fixture" {
   fn send(
     _req : @effects_exec_adapters_v2_2.HttpRequest,
   ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-    Ok({ status: 200, body: "" })
+    Ok({ status: 200, body: "", })
   }
   let detail : ExecutionDetail = {
     execution_version: execution_version_v3_1(),
@@ -162,7 +162,7 @@ test "executor retry then success fixture" {
     if calls == 1 {
       Err(reason("EFFECT_HTTP_FAILED", "HTTP request failed", "effect"))
     } else {
-      Ok({ status: 200, body: "" })
+      Ok({ status: 200, body: "", })
     }
   }
   let detail : ExecutionDetail = {
@@ -225,7 +225,7 @@ test "executor idempotent duplicate fixture" {
   fn send(
     _req : @effects_exec_adapters_v2_2.HttpRequest,
   ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-    Ok({ status: 200, body: "" })
+    Ok({ status: 200, body: "", })
   }
   let detail : ExecutionDetail = {
     execution_version: execution_version_v3_1(),

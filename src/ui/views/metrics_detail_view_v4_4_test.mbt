@@ -25,7 +25,7 @@ test "v4.4 metrics detail html fixture" {
   )
   let view : V4_4MetricsDetailView = {
     kind: "transition",
-    counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+    counts: { ok: 1, failed: 0, blocked: 0, denied: 0, },
   }
   let mut output = render_metrics_detail_html_v4_4(view)
   if expected.has_suffix("\n") {

@@ -26,8 +26,8 @@ pub(all) enum JobStatus {
 ///|
 /// Progress MUST include `total`; percent is intentionally excluded.
 pub(all) struct JobProgress {
-  processed : Int
-  total : Int
+  processed : Int32
+  total : Int32
 }
 
 ///|
@@ -39,9 +39,9 @@ pub(all) enum RetentionAxis {
 ///|
 pub(all) struct Retention {
   axis : RetentionAxis
-  ttl_polls : Int
+  ttl_polls : Int32
   /// Logical TTL units for API compatibility (MUST NOT be interpreted as wall-clock seconds).
-  ttl_seconds : Int
+  ttl_seconds : Int32
 }
 
 ///|
@@ -60,5 +60,5 @@ pub(all) struct JobRecord {
   retention : Retention
   format : ResultFormat
   reasons : Array[ReasonV1]
-  poll_count : Int
+  poll_count : Int32
 }

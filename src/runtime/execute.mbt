@@ -38,7 +38,7 @@ fn collect_effects(
   for name in effect_refs {
     if ir.effects.contains(name) {
       let spec = ir.effects[name]
-      effects.push({ name: spec.name, kind: spec.kind })
+      effects.push({ name: spec.name, kind: spec.kind, })
     }
   }
   effects

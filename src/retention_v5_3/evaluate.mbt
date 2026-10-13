@@ -15,7 +15,7 @@ fn axis_string(axis : RetentionAxisV53) -> String {
 fn current_for_axis(
   axis : RetentionAxisV53,
   input : MultiAxisEvalInput,
-) -> Int {
+) -> Int32 {
   match axis {
     RetentionAxisV53::PollCount => input.current_poll_count
     RetentionAxisV53::LogicalTime => input.current_logical_time
@@ -30,7 +30,7 @@ fn eval_single_axis(
 ) -> AxisEvalResult {
   let current = current_for_axis(policy.axis, input)
   let expired = current >= policy.threshold
-  { axis: policy.axis, threshold: policy.threshold, current, expired }
+  { axis: policy.axis, threshold: policy.threshold, current, expired, }
 }
 
 ///|
@@ -56,7 +56,7 @@ pub fn evaluate_multi_axis(input : MultiAxisEvalInput) -> RetentionEvalResult {
       any_expired = true
     }
   }
-  { axes, effective_axis, effective_threshold, expired: any_expired }
+  { axes, effective_axis, effective_threshold, expired: any_expired, }
 }
 
 ///|

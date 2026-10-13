@@ -20,7 +20,7 @@ pub(all) struct Resource {
 }
 
 ///|
-fn compare_string(a : String, b : String) -> Int {
+fn compare_string(a : String, b : String) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -34,13 +34,13 @@ fn compare_string(a : String, b : String) -> Int {
 pub fn resource_from_runtime(result : @runtime.RuntimeResult) -> Resource {
   let available : Array[ResourceTransition] = []
   for tr in result.available_transitions {
-    available.push({ id: tr.id, to: tr.to })
+    available.push({ id: tr.id, to: tr.to, })
   }
   let blocked : Array[ResourceBlockedTransition] = []
   for tr in result.blocked_transitions {
-    blocked.push({ id: tr.id, reasons: tr.reasons })
+    blocked.push({ id: tr.id, reasons: tr.reasons, })
   }
   available.sort_by((a, b) => compare_string(a.id, b.id))
   blocked.sort_by((a, b) => compare_string(a.id, b.id))
-  { available_transitions: available, blocked_transitions: blocked }
+  { available_transitions: available, blocked_transitions: blocked, }
 }

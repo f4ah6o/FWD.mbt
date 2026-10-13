@@ -6,11 +6,11 @@ pub(all) struct Store {
 
 ///|
 pub fn new_store() -> Store {
-  { records: Map::new() }
+  { records: Map::new(), }
 }
 
 ///|
-fn reserved_decision(key : String, logical_time : Int) -> Decision {
+fn reserved_decision(key : String, logical_time : Int32) -> Decision {
   {
     key,
     kind: DecisionKind::Reserved,
@@ -23,8 +23,8 @@ fn reserved_decision(key : String, logical_time : Int) -> Decision {
 ///|
 fn conflict_decision(
   key : String,
-  logical_time : Int,
-  reserved_at : Int,
+  logical_time : Int32,
+  reserved_at : Int32,
 ) -> Decision {
   {
     key,
@@ -38,18 +38,18 @@ fn conflict_decision(
 ///|
 fn done_decision(
   key : String,
-  logical_time : Int,
-  reserved_at : Int,
+  logical_time : Int32,
+  reserved_at : Int32,
   result_ref : String,
 ) -> Decision {
-  { key, kind: DecisionKind::Done, logical_time, reserved_at, result_ref }
+  { key, kind: DecisionKind::Done, logical_time, reserved_at, result_ref, }
 }
 
 ///|
 fn already_done_decision(
   key : String,
-  logical_time : Int,
-  reserved_at : Int,
+  logical_time : Int32,
+  reserved_at : Int32,
   result_ref : String,
 ) -> Decision {
   {
@@ -62,7 +62,7 @@ fn already_done_decision(
 }
 
 ///|
-pub fn reserve(store : Store, key : String, logical_time : Int) -> Decision {
+pub fn reserve(store : Store, key : String, logical_time : Int32) -> Decision {
   match store.records.get(key) {
     Some(record) =>
       match record.status {
@@ -94,7 +94,7 @@ pub fn mark_done(
   store : Store,
   key : String,
   result_ref : String,
-  logical_time : Int,
+  logical_time : Int32,
 ) -> Decision {
   match store.records.get(key) {
     Some(record) =>

@@ -1,6 +1,6 @@
 ///|
 /// JSON projection for timeline event list query/cursor (v3.8).
-fn option_number(value : Int?) -> Json {
+fn option_number(value : Int32?) -> Json {
   match value {
     Some(v) => Json::number(v.to_double())
     None => Json::null()
@@ -18,7 +18,7 @@ fn option_string(value : String?) -> Json {
 ///|
 pub fn cursor_from_query(
   query : TimelineEventQuery,
-  offset : Int,
+  offset : Int32,
 ) -> TimelineEventCursor {
   {
     entity_id: query.entity_id,
@@ -43,7 +43,7 @@ pub fn cursor_json(cursor : TimelineEventCursor) -> Json {
 }
 
 ///|
-fn parse_uint_from(value : String, start : Int) -> Int? {
+fn parse_uint_from(value : String, start : Int32) -> Int32? {
   if start >= value.length() {
     return None
   }
@@ -64,7 +64,7 @@ pub fn encode_cursor(cursor : TimelineEventCursor) -> String {
 }
 
 ///|
-pub fn decode_cursor(value : String) -> Int? {
+pub fn decode_cursor(value : String) -> Int32? {
   if value.has_prefix("offset:") {
     parse_uint_from(value, 7)
   } else {

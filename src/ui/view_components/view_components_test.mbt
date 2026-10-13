@@ -1,13 +1,13 @@
 ///|
 test "root_node plain has class only" {
-  let ctx : ViewContext = { enable_mx: false, root_class: "test-root" }
+  let ctx : ViewContext = { enable_mx: false, root_class: "test-root", }
   let html = render_root(ctx, [@tmpx.text("hello")])
   inspect(html, content="<div class=\"test-root\">hello</div>")
 }
 
 ///|
 test "root_node mx has mx-target and mx-swap" {
-  let ctx : ViewContext = { enable_mx: true, root_class: "test-root" }
+  let ctx : ViewContext = { enable_mx: true, root_class: "test-root", }
   let html = render_root(ctx, [@tmpx.text("hello")])
   inspect(
     html,
@@ -17,7 +17,7 @@ test "root_node mx has mx-target and mx-swap" {
 
 ///|
 test "pager_node plain buttons have no mx-get" {
-  let ctx : ViewContext = { enable_mx: false, root_class: "x" }
+  let ctx : ViewContext = { enable_mx: false, root_class: "x", }
   let node = pager_node(ctx, [("Next", "/url")])
   let html = @tmpx.render(node)
   inspect(
@@ -28,7 +28,7 @@ test "pager_node plain buttons have no mx-get" {
 
 ///|
 test "pager_node mx buttons have mx-get" {
-  let ctx : ViewContext = { enable_mx: true, root_class: "x" }
+  let ctx : ViewContext = { enable_mx: true, root_class: "x", }
   let node = pager_node(ctx, [("Next", "/url")])
   let html = @tmpx.render(node)
   inspect(
@@ -39,7 +39,7 @@ test "pager_node mx buttons have mx-get" {
 
 ///|
 test "pager_node mx multiple buttons" {
-  let ctx : ViewContext = { enable_mx: true, root_class: "x" }
+  let ctx : ViewContext = { enable_mx: true, root_class: "x", }
   let node = pager_node(ctx, [("Prev", "/prev"), ("Next", "/next")])
   let html = @tmpx.render(node)
   inspect(
@@ -57,12 +57,7 @@ test "field_node renders label and value" {
 
 ///|
 test "item_node renders class and data attribute" {
-  let node = item_node(
-    "fwd-item",
-    "event-id",
-    "abc",
-    [@tmpx.text("content")],
-  )
+  let node = item_node("fwd-item", "event-id", "abc", [@tmpx.text("content")])
   let html = @tmpx.render(node)
   inspect(
     html,

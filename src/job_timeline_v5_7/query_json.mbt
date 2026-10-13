@@ -39,9 +39,7 @@ fn reason_v1_json(reason : @export_job_v5.ReasonV1) -> Json {
 }
 
 ///|
-fn event_detail_json(
-  event : @job_timeline_v5_4.JobTimelineEvent,
-) -> Json {
+fn event_detail_json(event : @job_timeline_v5_4.JobTimelineEvent) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["logicalTime"] = Json::number(event.logical_time.to_double())
   obj["sequence"] = Json::number(event.sequence.to_double())

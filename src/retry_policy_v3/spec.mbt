@@ -10,14 +10,14 @@ pub(all) enum BackoffKind {
 ///|
 pub(all) struct BackoffPolicy {
   kind : BackoffKind
-  delay_ms : Int
-  factor : Int
+  delay_ms : Int32
+  factor : Int32
 }
 
 ///|
 pub(all) struct RetryPolicy {
   policy_version : String
-  max_attempts : Int
+  max_attempts : Int32
   backoff : BackoffPolicy
 }
 

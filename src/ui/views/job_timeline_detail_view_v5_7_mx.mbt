@@ -14,9 +14,7 @@ fn job_timeline_detail_pager_node_v5_7_mx(
 ///|
 fn detail_nodes_v5_7_mx(view : JobTimelineDetailView) -> Array[@tmpx.Node] {
   let nodes : Array[@tmpx.Node] = []
-  nodes.push(
-    job_timeline_detail_event_node_v5_7(view.detail.event),
-  )
+  nodes.push(job_timeline_detail_event_node_v5_7(view.detail.event))
   let pager : Array[@tmpx.Node] = []
   match view.detail.prev_event {
     Some(prev) =>
@@ -41,9 +39,7 @@ fn detail_nodes_v5_7_mx(view : JobTimelineDetailView) -> Array[@tmpx.Node] {
     None => ()
   }
   if pager.length() > 0 {
-    nodes.push(
-      @tmpx.div([@tmpx.class_("fwd-job-timeline-pager")], pager),
-    )
+    nodes.push(@tmpx.div([@tmpx.class_("fwd-job-timeline-pager")], pager))
   }
   nodes
 }

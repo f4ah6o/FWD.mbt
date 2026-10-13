@@ -36,9 +36,7 @@ fn render_job_timeline_with_ctx(
       view.page.limit.to_string() +
       "&cursor=offset:" +
       next_offset.to_string()
-    children.push(
-      @view_components.pager_node(ctx, [("Next", url)]),
-    )
+    children.push(@view_components.pager_node(ctx, [("Next", url)]))
   }
   @view_components.render_root(ctx, children)
 }
@@ -49,10 +47,7 @@ fn job_timeline_event_node_v6(
 ) -> @tmpx.Node {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(
-    @view_components.field_node(
-      "logicalTime",
-      event.logical_time.to_string(),
-    ),
+    @view_components.field_node("logicalTime", event.logical_time.to_string()),
   )
   nodes.push(
     @view_components.field_node(

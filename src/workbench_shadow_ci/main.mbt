@@ -77,7 +77,7 @@ fn purchase_request_body() -> String {
 fn check_error(
   label : String,
   req : @api.ApiRequest,
-  expected_status : Int,
+  expected_status : Int32,
   expected_code : String,
 ) -> Bool {
   let resp = @api.handle_request(req)

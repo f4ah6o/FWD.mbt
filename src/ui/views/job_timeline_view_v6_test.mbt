@@ -1,8 +1,5 @@
 ///|
-fn read_text_view_v6(
-  path : String,
-  label : String,
-) -> Result[String, String] {
+fn read_text_view_v6(path : String, label : String) -> Result[String, String] {
   let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
   match result {
     Ok(text) => Ok(text)
@@ -19,9 +16,7 @@ fn load_expected_v6(path : String) -> String raise {
 }
 
 ///|
-fn make_test_page_v6(
-  has_more : Bool,
-) -> @job_timeline_v5_5.JobTimelinePage {
+fn make_test_page_v6(has_more : Bool) -> @job_timeline_v5_5.JobTimelinePage {
   let events : Array[@job_timeline_v5_4.JobTimelineEvent] = [
     {
       job_id: "job-1",
@@ -42,7 +37,7 @@ fn make_test_page_v6(
       reasons: [],
     },
   ]
-  { events, offset: 0, limit: 2, has_more }
+  { events, offset: 0, limit: 2, has_more, }
 }
 
 ///|
@@ -58,14 +53,12 @@ fn make_test_page2_v6() -> @job_timeline_v5_5.JobTimelinePage {
       reasons: [],
     },
   ]
-  { events, offset: 2, limit: 2, has_more: false }
+  { events, offset: 2, limit: 2, has_more: false, }
 }
 
 ///|
 test "v6 job timeline page1 html fixture" {
-  let expected = load_expected_v6(
-    "fixtures/v5_6/timeline/page1_expected.html",
-  )
+  let expected = load_expected_v6("fixtures/v5_6/timeline/page1_expected.html")
   let view : JobTimelinePageView = {
     job_id: "job-1",
     base_url: "/v5.5/export/jobs/job-1/timeline",
@@ -97,9 +90,7 @@ test "v6 job timeline page1 mx html fixture" {
 
 ///|
 test "v6 job timeline page2 html fixture" {
-  let expected = load_expected_v6(
-    "fixtures/v5_6/timeline/page2_expected.html",
-  )
+  let expected = load_expected_v6("fixtures/v5_6/timeline/page2_expected.html")
   let view : JobTimelinePageView = {
     job_id: "job-1",
     base_url: "/v5.5/export/jobs/job-1/timeline",

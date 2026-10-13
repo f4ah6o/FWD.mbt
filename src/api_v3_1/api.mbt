@@ -11,16 +11,16 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -80,7 +80,7 @@ fn extract_string_field(
 fn extract_int_field(
   obj : Map[String, Json],
   name : String,
-) -> Result[Int, @core.Reason] {
+) -> Result[Int32, @core.Reason] {
   match obj.get(name) {
     Some(Number(value, ..)) => Ok(value.to_int())
     Some(_) => Err(invalid_body_reason("field must be number: " + name))
@@ -153,7 +153,7 @@ fn extract_idempotency(
     "already_done" => @idempotency_v3.DecisionKind::AlreadyDone
     _ => return Err(invalid_body_reason("unknown idempotency kind"))
   }
-  Ok({ key, kind, logical_time, reserved_at, result_ref })
+  Ok({ key, kind, logical_time, reserved_at, result_ref, })
 }
 
 ///|
@@ -236,7 +236,7 @@ fn handle_execute(req : ApiRequest) -> ApiResponse {
         ),
       )
     } else {
-      Ok({ status: 200, body: "" })
+      Ok({ status: 200, body: "", })
     }
   }
   let detail = @executor_v3_1.execute_plan_detail(

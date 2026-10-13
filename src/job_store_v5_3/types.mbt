@@ -7,7 +7,7 @@ pub(all) struct JobRecordV53 {
   policies : Array[@retention_v5_3.RetentionPolicyV53]
   format : @export_job_v5.ResultFormat
   reasons : Array[@export_job_v5.ReasonV1]
-  poll_count : Int
-  logical_time : Int
-  event_count : Int
+  poll_count : Int32
+  logical_time : Int32
+  event_count : Int32
 }

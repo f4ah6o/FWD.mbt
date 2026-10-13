@@ -15,7 +15,7 @@ pub(all) struct V4FieldErrorView {
 pub(all) struct V4EntityView {
   id : String
   state : String
-  logical_time : Int
+  logical_time : Int32
 }
 
 ///|

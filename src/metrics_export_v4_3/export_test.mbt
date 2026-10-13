@@ -26,19 +26,19 @@ fn build_snapshot_v4_3() -> @metrics_v3_6.MetricsSnapshot {
       from_logical_time: Some(10),
       to_logical_time: Some(12),
     },
-    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1, },
     by_kind: [
       {
         kind: @metrics_v3_6.MetricKind::Transition,
-        counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+        counts: { ok: 1, failed: 0, blocked: 0, denied: 0, },
       },
       {
         kind: @metrics_v3_6.MetricKind::Policy,
-        counts: { ok: 0, failed: 0, blocked: 0, denied: 1 },
+        counts: { ok: 0, failed: 0, blocked: 0, denied: 1, },
       },
       {
         kind: @metrics_v3_6.MetricKind::Effect,
-        counts: { ok: 0, failed: 1, blocked: 0, denied: 0 },
+        counts: { ok: 0, failed: 1, blocked: 0, denied: 0, },
       },
     ],
   }

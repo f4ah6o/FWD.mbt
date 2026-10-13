@@ -64,10 +64,7 @@ fn job_timeline_detail_event_node_v6(
 ) -> @tmpx.Node {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(
-    @view_components.field_node(
-      "logicalTime",
-      event.logical_time.to_string(),
-    ),
+    @view_components.field_node("logicalTime", event.logical_time.to_string()),
   )
   nodes.push(
     @view_components.field_node(

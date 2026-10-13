@@ -2,8 +2,8 @@
 /// Timeline job execution helpers (v4.7).
 fn apply_time_filter(
   events : Array[@timeline_v3.TimelineEvent],
-  from_time : Int?,
-  to_time : Int?,
+  from_time : Int32?,
+  to_time : Int32?,
 ) -> Array[@timeline_v3.TimelineEvent] {
   let filtered : Array[@timeline_v3.TimelineEvent] = []
   for event in events {
@@ -23,7 +23,7 @@ fn apply_time_filter(
 }
 
 ///|
-fn cursor_offset(value : String?) -> Int {
+fn cursor_offset(value : String?) -> Int32 {
   match value {
     Some(cursor) =>
       match @timeline_event_v3_8.decode_cursor(cursor) {
@@ -37,7 +37,7 @@ fn cursor_offset(value : String?) -> Int {
 ///|
 fn build_next_cursor(
   input : @export_job_v4_7.TimelineJobInput,
-  offset : Int,
+  offset : Int32,
 ) -> String? {
   Some(
     @timeline_event_v3_8.encode_cursor(

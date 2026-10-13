@@ -8,7 +8,7 @@ pub(all) struct Recorder {
 
 ///|
 pub fn Recorder::new() -> Recorder {
-  { entries: [] }
+  { entries: [], }
 }
 
 ///|
@@ -18,7 +18,7 @@ pub fn Recorder::append(self : Recorder, entry : CassetteEntry) -> Unit {
 
 ///|
 pub fn Recorder::to_cassette(self : Recorder, version : String) -> Cassette {
-  { cassette_version: version, entries: self.entries }
+  { cassette_version: version, entries: self.entries, }
 }
 
 ///|
@@ -37,7 +37,7 @@ fn request_from_http(
 fn response_from_http(
   resp : @effects_exec_adapters_v2_2.HttpResponse,
 ) -> CassetteResponse {
-  { status: resp.status, headers: Map::new(), body: resp.body }
+  { status: resp.status, headers: Map::new(), body: resp.body, }
 }
 
 ///|

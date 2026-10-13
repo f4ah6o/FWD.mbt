@@ -45,5 +45,5 @@ pub fn resolve_schema(
     schema_rule_set[rule.name] = ()
     rule_index[rule.name] = Schema
   }
-  Ok({ schema, rule_index })
+  Ok({ schema, rule_index, })
 }

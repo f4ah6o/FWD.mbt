@@ -14,20 +14,12 @@ fn job_timeline_detail_event_node_v5_7(
 ) -> @tmpx.Node {
   let nodes : Array[@tmpx.Node] = []
   nodes.push(
-    @tmpx.p(
-      [],
-      [@tmpx.text("logicalTime: " + event.logical_time.to_string())],
-    ),
+    @tmpx.p([], [@tmpx.text("logicalTime: " + event.logical_time.to_string())]),
   )
   nodes.push(
-    @tmpx.p(
-      [],
-      [
-        @tmpx.text(
-          "kind: " + job_timeline_kind_string_v5_6(event.kind),
-        ),
-      ],
-    ),
+    @tmpx.p([], [
+      @tmpx.text("kind: " + job_timeline_kind_string_v5_6(event.kind)),
+    ]),
   )
   nodes.push(@tmpx.p([], [@tmpx.text("from: " + event.from_status)]))
   nodes.push(@tmpx.p([], [@tmpx.text("to: " + event.to_status)]))
@@ -53,9 +45,7 @@ fn job_timeline_detail_pager_node_v5_7(label : String) -> @tmpx.Node {
 ///|
 fn detail_nodes_v5_7(view : JobTimelineDetailView) -> Array[@tmpx.Node] {
   let nodes : Array[@tmpx.Node] = []
-  nodes.push(
-    job_timeline_detail_event_node_v5_7(view.detail.event),
-  )
+  nodes.push(job_timeline_detail_event_node_v5_7(view.detail.event))
   let pager : Array[@tmpx.Node] = []
   match view.detail.prev_event {
     Some(_) => pager.push(job_timeline_detail_pager_node_v5_7("Prev"))
@@ -66,9 +56,7 @@ fn detail_nodes_v5_7(view : JobTimelineDetailView) -> Array[@tmpx.Node] {
     None => ()
   }
   if pager.length() > 0 {
-    nodes.push(
-      @tmpx.div([@tmpx.class_("fwd-job-timeline-pager")], pager),
-    )
+    nodes.push(@tmpx.div([@tmpx.class_("fwd-job-timeline-pager")], pager))
   }
   nodes
 }
@@ -78,9 +66,6 @@ pub fn render_job_timeline_detail_html_v5_7(
   view : JobTimelineDetailView,
 ) -> String {
   let nodes = detail_nodes_v5_7(view)
-  let root = @tmpx.div(
-    [@tmpx.class_("fwd-job-timeline-detail")],
-    nodes,
-  )
+  let root = @tmpx.div([@tmpx.class_("fwd-job-timeline-detail")], nodes)
   @tmpx.render(root)
 }

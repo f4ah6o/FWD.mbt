@@ -4,17 +4,17 @@ fn rj_json_string(value : String) -> Json {
 }
 
 ///|
-fn is_ascii_lower(ch : Int) -> Bool {
+fn is_ascii_lower(ch : Int32) -> Bool {
   ch >= 97 && ch <= 122
 }
 
 ///|
-fn is_ascii_upper(ch : Int) -> Bool {
+fn is_ascii_upper(ch : Int32) -> Bool {
   ch >= 65 && ch <= 90
 }
 
 ///|
-fn is_ascii_digit(ch : Int) -> Bool {
+fn is_ascii_digit(ch : Int32) -> Bool {
   ch >= 48 && ch <= 57
 }
 
@@ -30,17 +30,17 @@ fn normalize_code(code : String) -> String {
       if (prev_is_lower || prev_is_digit) && !prev_is_underscore {
         sb.write_char('_')
       }
-      sb.write_char(Int::unsafe_to_char(ch))
+      sb.write_char(Int32::unsafe_to_char(ch))
       prev_is_underscore = false
       prev_is_lower = false
       prev_is_digit = false
     } else if is_ascii_lower(ch) {
-      sb.write_char(Int::unsafe_to_char(ch - 32))
+      sb.write_char(Int32::unsafe_to_char(ch - 32))
       prev_is_underscore = false
       prev_is_lower = true
       prev_is_digit = false
     } else if is_ascii_digit(ch) {
-      sb.write_char(Int::unsafe_to_char(ch))
+      sb.write_char(Int32::unsafe_to_char(ch))
       prev_is_underscore = false
       prev_is_lower = false
       prev_is_digit = true
