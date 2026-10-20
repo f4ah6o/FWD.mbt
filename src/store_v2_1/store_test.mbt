@@ -1,6 +1,8 @@
 ///|
 fn read_text_store(path : String, label : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -8,7 +10,7 @@ fn read_text_store(path : String, label : String) -> Result[String, String] {
 }
 
 ///|
-fn make_payload(amount : Int) -> Json {
+fn make_payload(amount : Int32) -> Json {
   let obj : Map[String, Json] = Map::new()
   obj["amount"] = Json::number(amount.to_double())
   Json::object(obj)

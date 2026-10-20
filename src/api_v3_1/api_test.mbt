@@ -1,6 +1,8 @@
 ///|
 fn read_text_api(path : String, label : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -144,7 +146,9 @@ test "api v3.1 execute missing allowlist" {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(body)) catch {
+    error => Err(error)
+  }
   let mut out_body = "{}"
   match parsed {
     Ok(Object(map)) => {
@@ -178,7 +182,9 @@ test "api v3.1 execute missing idempotency" {
     Ok(text) => text
     Err(msg) => fail(msg)
   }
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(body)) catch {
+    error => Err(error)
+  }
   let mut out_body = "{}"
   match parsed {
     Ok(Object(map)) => {

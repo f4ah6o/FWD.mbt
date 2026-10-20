@@ -1,6 +1,8 @@
 ///|
 fn read_text_export(path : String, label : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -24,19 +26,19 @@ test "metrics export jsonl fixture" {
       from_logical_time: Some(10),
       to_logical_time: Some(12),
     },
-    total: { ok: 1, failed: 1, blocked: 0, denied: 1 },
+    total: { ok: 1, failed: 1, blocked: 0, denied: 1, },
     by_kind: [
       {
         kind: @metrics_v3_6.MetricKind::Transition,
-        counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+        counts: { ok: 1, failed: 0, blocked: 0, denied: 0, },
       },
       {
         kind: @metrics_v3_6.MetricKind::Policy,
-        counts: { ok: 0, failed: 0, blocked: 0, denied: 1 },
+        counts: { ok: 0, failed: 0, blocked: 0, denied: 1, },
       },
       {
         kind: @metrics_v3_6.MetricKind::Effect,
-        counts: { ok: 0, failed: 1, blocked: 0, denied: 0 },
+        counts: { ok: 0, failed: 1, blocked: 0, denied: 0, },
       },
     ],
   }

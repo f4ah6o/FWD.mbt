@@ -1,6 +1,8 @@
 ///|
 fn read_fixture(path : String) -> String raise {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => text
     Err(err) => fail("read fixture: " + err.to_string())
@@ -28,21 +30,9 @@ fn parse_expected_body(path : String) -> String raise {
 test "v5.3 multi-axis poll wins" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::PollCount,
-        threshold: 5,
-        ttl_seconds: 120,
-      },
-      {
-        axis: RetentionAxisV53::LogicalTime,
-        threshold: 100,
-        ttl_seconds: 300,
-      },
-      {
-        axis: RetentionAxisV53::EventCount,
-        threshold: 1000,
-        ttl_seconds: 600,
-      },
+      { axis: RetentionAxisV53::PollCount, threshold: 5, ttl_seconds: 120, },
+      { axis: RetentionAxisV53::LogicalTime, threshold: 100, ttl_seconds: 300, },
+      { axis: RetentionAxisV53::EventCount, threshold: 1000, ttl_seconds: 600, },
     ],
     current_poll_count: 6,
     current_logical_time: 50,
@@ -60,21 +50,9 @@ test "v5.3 multi-axis poll wins" {
 test "v5.3 multi-axis logical time wins" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::PollCount,
-        threshold: 10,
-        ttl_seconds: 240,
-      },
-      {
-        axis: RetentionAxisV53::LogicalTime,
-        threshold: 50,
-        ttl_seconds: 150,
-      },
-      {
-        axis: RetentionAxisV53::EventCount,
-        threshold: 1000,
-        ttl_seconds: 600,
-      },
+      { axis: RetentionAxisV53::PollCount, threshold: 10, ttl_seconds: 240, },
+      { axis: RetentionAxisV53::LogicalTime, threshold: 50, ttl_seconds: 150, },
+      { axis: RetentionAxisV53::EventCount, threshold: 1000, ttl_seconds: 600, },
     ],
     current_poll_count: 3,
     current_logical_time: 55,
@@ -92,21 +70,9 @@ test "v5.3 multi-axis logical time wins" {
 test "v5.3 multi-axis event count wins" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::PollCount,
-        threshold: 10,
-        ttl_seconds: 240,
-      },
-      {
-        axis: RetentionAxisV53::LogicalTime,
-        threshold: 100,
-        ttl_seconds: 300,
-      },
-      {
-        axis: RetentionAxisV53::EventCount,
-        threshold: 500,
-        ttl_seconds: 600,
-      },
+      { axis: RetentionAxisV53::PollCount, threshold: 10, ttl_seconds: 240, },
+      { axis: RetentionAxisV53::LogicalTime, threshold: 100, ttl_seconds: 300, },
+      { axis: RetentionAxisV53::EventCount, threshold: 500, ttl_seconds: 600, },
     ],
     current_poll_count: 3,
     current_logical_time: 30,
@@ -124,21 +90,9 @@ test "v5.3 multi-axis event count wins" {
 test "v5.3 multi-axis all three expired" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::PollCount,
-        threshold: 3,
-        ttl_seconds: 60,
-      },
-      {
-        axis: RetentionAxisV53::LogicalTime,
-        threshold: 20,
-        ttl_seconds: 60,
-      },
-      {
-        axis: RetentionAxisV53::EventCount,
-        threshold: 10,
-        ttl_seconds: 60,
-      },
+      { axis: RetentionAxisV53::PollCount, threshold: 3, ttl_seconds: 60, },
+      { axis: RetentionAxisV53::LogicalTime, threshold: 20, ttl_seconds: 60, },
+      { axis: RetentionAxisV53::EventCount, threshold: 10, ttl_seconds: 60, },
     ],
     current_poll_count: 5,
     current_logical_time: 25,
@@ -156,21 +110,9 @@ test "v5.3 multi-axis all three expired" {
 test "v5.3 multi-axis none expired" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::PollCount,
-        threshold: 10,
-        ttl_seconds: 240,
-      },
-      {
-        axis: RetentionAxisV53::LogicalTime,
-        threshold: 100,
-        ttl_seconds: 300,
-      },
-      {
-        axis: RetentionAxisV53::EventCount,
-        threshold: 1000,
-        ttl_seconds: 600,
-      },
+      { axis: RetentionAxisV53::PollCount, threshold: 10, ttl_seconds: 240, },
+      { axis: RetentionAxisV53::LogicalTime, threshold: 100, ttl_seconds: 300, },
+      { axis: RetentionAxisV53::EventCount, threshold: 1000, ttl_seconds: 600, },
     ],
     current_poll_count: 2,
     current_logical_time: 30,
@@ -188,11 +130,7 @@ test "v5.3 multi-axis none expired" {
 test "v5.3 single axis poll count" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::PollCount,
-        threshold: 5,
-        ttl_seconds: 120,
-      },
+      { axis: RetentionAxisV53::PollCount, threshold: 5, ttl_seconds: 120, },
     ],
     current_poll_count: 7,
     current_logical_time: 0,
@@ -210,11 +148,7 @@ test "v5.3 single axis poll count" {
 test "v5.3 single axis logical time" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::LogicalTime,
-        threshold: 50,
-        ttl_seconds: 150,
-      },
+      { axis: RetentionAxisV53::LogicalTime, threshold: 50, ttl_seconds: 150, },
     ],
     current_poll_count: 0,
     current_logical_time: 60,
@@ -232,11 +166,7 @@ test "v5.3 single axis logical time" {
 test "v5.3 single axis event count" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV53::EventCount,
-        threshold: 500,
-        ttl_seconds: 600,
-      },
+      { axis: RetentionAxisV53::EventCount, threshold: 500, ttl_seconds: 600, },
     ],
     current_poll_count: 0,
     current_logical_time: 0,

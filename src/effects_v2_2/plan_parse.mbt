@@ -126,7 +126,7 @@ fn parse_items(
               Ok(value) => value
               Err(reason) => return Err(reason)
             }
-            items.push({ effect_id, kind, payload, idempotency_key })
+            items.push({ effect_id, kind, payload, idempotency_key, })
           }
           _ => return Err(invalid_plan_reason("item must be object"))
         }
@@ -142,7 +142,9 @@ fn parse_items(
 pub fn parse_plan_json(
   input_json : String,
 ) -> Result[EffectsPlan, @core.Reason] {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(input_json)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(input_json)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
@@ -182,5 +184,5 @@ pub fn parse_plan_json(
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({ plan_version, entity_id, transition_id, status, items, reasons })
+  Ok({ plan_version, entity_id, transition_id, status, items, reasons, })
 }

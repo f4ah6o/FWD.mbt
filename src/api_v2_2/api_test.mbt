@@ -1,6 +1,8 @@
 ///|
 fn read_text_api_v2(path : String, label : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -30,7 +32,9 @@ fn plan_body(schema_text : String, input_json : String) -> String {
   obj["entityId"] = Json::string("order-1")
   obj["state"] = Json::string("Draft")
   obj["transition"] = Json::string("submit")
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(input_json)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(input_json)) catch {
+    error => Err(error)
+  }
   match parsed {
     Ok(value) => obj["input"] = value
     Err(_) => ()
@@ -41,7 +45,9 @@ fn plan_body(schema_text : String, input_json : String) -> String {
 ///|
 fn execute_body(plan_text : String) -> String {
   let obj : Map[String, Json] = Map::new()
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(plan_text)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(plan_text)) catch {
+    error => Err(error)
+  }
   match parsed {
     Ok(value) => obj["plan"] = value
     Err(_) => ()

@@ -11,23 +11,23 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -84,7 +84,9 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
 
 ///|
 fn extract_body_json(body : String) -> Result[Map[String, Json], @core.Reason] {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(body)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
@@ -114,7 +116,7 @@ fn extract_string_field(
 fn extract_int_field(
   obj : Map[String, Json],
   name : String,
-) -> Result[Int, @core.Reason] {
+) -> Result[Int32, @core.Reason] {
   match obj.get(name) {
     Some(Number(value, ..)) => Ok(value.to_int())
     Some(_) => Err(invalid_body_reason("field must be number: " + name))

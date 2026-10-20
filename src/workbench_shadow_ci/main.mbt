@@ -1,6 +1,8 @@
 ///|
 fn read_expected(path : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + path + ": " + err.to_string())
@@ -77,7 +79,7 @@ fn purchase_request_body() -> String {
 fn check_error(
   label : String,
   req : @api.ApiRequest,
-  expected_status : Int,
+  expected_status : Int32,
   expected_code : String,
 ) -> Bool {
   let resp = @api.handle_request(req)

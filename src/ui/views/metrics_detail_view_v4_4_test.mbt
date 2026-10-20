@@ -3,7 +3,9 @@ fn read_text_metrics_detail_v4_4(
   path : String,
   label : String,
 ) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -25,7 +27,7 @@ test "v4.4 metrics detail html fixture" {
   )
   let view : V4_4MetricsDetailView = {
     kind: "transition",
-    counts: { ok: 1, failed: 0, blocked: 0, denied: 0 },
+    counts: { ok: 1, failed: 0, blocked: 0, denied: 0, },
   }
   let mut output = render_metrics_detail_html_v4_4(view)
   if expected.has_suffix("\n") {

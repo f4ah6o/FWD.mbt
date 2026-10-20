@@ -1,9 +1,11 @@
 ///|
 /// v4 canonical JSON validation helpers (fixture-first).
 fn expect_object(json : Json, label : String) -> Map[String, Json] raise {
-  let result : Result[Map[String, Json], @json.JsonDecodeError] = try? @json.from_json(
-    json,
-  )
+  let result : Result[Map[String, Json], @json.JsonDecodeError] = Ok(
+    @json.from_json(json),
+  ) catch {
+    error => Err(error)
+  }
   match result {
     Ok(obj) => obj
     Err(err) => fail(label + ": expected object: " + err.to_string())
@@ -12,9 +14,9 @@ fn expect_object(json : Json, label : String) -> Map[String, Json] raise {
 
 ///|
 fn expect_string(json : Json, label : String) -> String raise {
-  let result : Result[String, @json.JsonDecodeError] = try? @json.from_json(
-    json,
-  )
+  let result : Result[String, @json.JsonDecodeError] = Ok(@json.from_json(json)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(value) => value
     Err(err) => fail(label + ": expected string: " + err.to_string())
@@ -23,9 +25,11 @@ fn expect_string(json : Json, label : String) -> String raise {
 
 ///|
 fn expect_array(json : Json, label : String) -> Array[Json] raise {
-  let result : Result[Array[Json], @json.JsonDecodeError] = try? @json.from_json(
-    json,
-  )
+  let result : Result[Array[Json], @json.JsonDecodeError] = Ok(
+    @json.from_json(json),
+  ) catch {
+    error => Err(error)
+  }
   match result {
     Ok(value) => value
     Err(err) => fail(label + ": expected array: " + err.to_string())

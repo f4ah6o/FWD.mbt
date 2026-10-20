@@ -3,7 +3,9 @@ fn read_text_workbench_view(
   path : String,
   label : String,
 ) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -36,9 +38,9 @@ fn invalid_builder() -> @wb.BuilderState {
     rollout_mode: @wb.default_rollout_mode(),
     states: ["Draft", "", ""],
     transitions: [
-      { name: "approve", from: "Draft", to: "Approved" },
-      { name: "", from: "", to: "" },
-      { name: "", from: "", to: "" },
+      { name: "approve", from: "Draft", to: "Approved", },
+      { name: "", from: "", to: "", },
+      { name: "", from: "", to: "", },
     ],
   }
 }

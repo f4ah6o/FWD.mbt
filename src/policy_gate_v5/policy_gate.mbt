@@ -26,7 +26,7 @@ pub(all) struct ReasonV1 {
 
 ///|
 pub(all) struct PolicyCheckResult {
-  status : Int
+  status : Int32
   reasons : Array[ReasonV1]
 }
 
@@ -114,9 +114,11 @@ fn extract_action(obj : Map[String, Json]) -> Result[String, ReasonV1] {
 pub fn check_policy(body : String?) -> PolicyCheckResult {
   let text = match body {
     Some(value) => value
-    None => return { status: 400, reasons: [invalid_reason("missing body")] }
+    None => return { status: 400, reasons: [invalid_reason("missing body")], }
   }
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(text)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(text)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
@@ -135,11 +137,11 @@ pub fn check_policy(body : String?) -> PolicyCheckResult {
   }
   let action = match extract_action(obj) {
     Ok(value) => value
-    Err(reason) => return { status: 400, reasons: [reason] }
+    Err(reason) => return { status: 400, reasons: [reason], }
   }
   if action == "export" {
-    { status: 200, reasons: [] }
+    { status: 200, reasons: [], }
   } else {
-    { status: 403, reasons: [denied_reason(action)] }
+    { status: 403, reasons: [denied_reason(action)], }
   }
 }

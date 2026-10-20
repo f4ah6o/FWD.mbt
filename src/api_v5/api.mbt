@@ -11,47 +11,47 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_jsonl(status : Int, body : String) -> ApiResponse {
+fn response_jsonl(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/jsonl"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_csv(status : Int, body : String) -> ApiResponse {
+fn response_csv(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/csv"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_html(status : Int, body : String) -> ApiResponse {
+fn response_html(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/html"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
 fn response_json_with_headers(
-  status : Int,
+  status : Int32,
   body : String,
   headers : Map[String, String],
 ) -> ApiResponse {
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -117,7 +117,9 @@ fn job_expired_reason(job_id : String) -> @core.Reason {
 
 ///|
 fn extract_body_json(body : String) -> Result[Map[String, Json], @core.Reason] {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(body)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
@@ -147,8 +149,8 @@ fn extract_string_field(
 fn extract_int_field_optional(
   obj : Map[String, Json],
   name : String,
-  default_value : Int,
-) -> Result[Int, @core.Reason] {
+  default_value : Int32,
+) -> Result[Int32, @core.Reason] {
   match obj.get(name) {
     Some(Number(value, ..)) => Ok(value.to_int())
     Some(_) => Err(invalid_query_reason("field must be number: " + name))
@@ -402,7 +404,7 @@ fn parse_child_specs(
           Ok(value) => value
           Err(reason) => return Err(reason)
         }
-        specs.push({ entity_id, from_logical_time, to_logical_time })
+        specs.push({ entity_id, from_logical_time, to_logical_time, })
       }
       Ok(specs)
     }
@@ -554,28 +556,28 @@ fn handle_job_result(job_id : String) -> ApiResponse {
 }
 
 ///|
-fn substring_from(value : String, start : Int) -> String {
+fn substring_from(value : String, start : Int32) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
 
 ///|
-fn substring_range(value : String, start : Int, end : Int) -> String {
+fn substring_range(value : String, start : Int32, end : Int32) -> String {
   let sb = StringBuilder::new()
   let limit = if end < value.length() { end } else { value.length() }
   for i in start..<limit {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
 
 ///|
-fn find_substring(haystack : String, needle : String) -> Int {
+fn find_substring(haystack : String, needle : String) -> Int32 {
   let h_len = haystack.length()
   let n_len = needle.length()
   if n_len == 0 {
@@ -630,7 +632,7 @@ fn parse_v5_2_policies(
       Ok(v) => v
       Err(r) => return Err(r)
     }
-    policies.push({ axis, threshold, ttl_seconds })
+    policies.push({ axis, threshold, ttl_seconds, })
   }
   Ok(policies)
 }
@@ -739,7 +741,7 @@ fn parse_v5_2_eval_input(
       Ok(value) => value
       Err(reason) => return Err(reason)
     }
-    policies.push({ axis, threshold, ttl_seconds })
+    policies.push({ axis, threshold, ttl_seconds, })
   }
   let current_poll_count = match
     extract_int_field_optional(obj, "currentPollCount", 0) {
@@ -751,7 +753,7 @@ fn parse_v5_2_eval_input(
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({ policies, current_poll_count, current_logical_time })
+  Ok({ policies, current_poll_count, current_logical_time, })
 }
 
 ///|
@@ -798,7 +800,7 @@ fn parse_v5_3_policies(
       Ok(v) => v
       Err(r) => return Err(r)
     }
-    policies.push({ axis, threshold, ttl_seconds })
+    policies.push({ axis, threshold, ttl_seconds, })
   }
   Ok(policies)
 }
@@ -834,7 +836,7 @@ fn parse_v5_3_eval_input(
       Ok(value) => value
       Err(reason) => return Err(reason)
     }
-    policies.push({ axis, threshold, ttl_seconds })
+    policies.push({ axis, threshold, ttl_seconds, })
   }
   let current_poll_count = match
     extract_int_field_optional(obj, "currentPollCount", 0) {
@@ -851,7 +853,12 @@ fn parse_v5_3_eval_input(
     Ok(value) => value
     Err(reason) => return Err(reason)
   }
-  Ok({ policies, current_poll_count, current_logical_time, current_event_count })
+  Ok({
+    policies,
+    current_poll_count,
+    current_logical_time,
+    current_event_count,
+  })
 }
 
 ///|
@@ -917,27 +924,23 @@ fn handle_v5_3_job_cancel(job_id : String) -> ApiResponse {
 }
 
 ///|
-fn v5_1_retention_with_ttl(ttl_seconds : Int) -> @export_job_v5.Retention {
-  {
-    axis: @export_job_v5.RetentionAxis::PollCount,
-    ttl_polls: 99,
-    ttl_seconds,
-  }
+fn v5_1_retention_with_ttl(ttl_seconds : Int32) -> @export_job_v5.Retention {
+  { axis: @export_job_v5.RetentionAxis::PollCount, ttl_polls: 99, ttl_seconds, }
 }
 
 ///|
 fn v5_1_seed_job_record(
   job_id : String,
   status : @export_job_v5.JobStatus,
-  processed : Int,
-  total : Int,
-  ttl_seconds : Int,
-  poll_count : Int,
+  processed : Int32,
+  total : Int32,
+  ttl_seconds : Int32,
+  poll_count : Int32,
 ) -> @export_job_v5.JobRecord {
   let record : @export_job_v5.JobRecord = {
-    id: { value: job_id },
+    id: { value: job_id, },
     status,
-    progress: { processed, total },
+    progress: { processed, total, },
     retention: v5_1_retention_with_ttl(ttl_seconds),
     format: @export_job_v5.ResultFormat::Jsonl,
     reasons: [],
@@ -991,10 +994,10 @@ fn v5_1_seed_batch_record(
   batch_id : String,
   child_ids : Array[String],
   status : @export_job_v5.JobStatus,
-  processed : Int,
-  total : Int,
-  ttl_seconds : Int,
-  poll_count : Int,
+  processed : Int32,
+  total : Int32,
+  ttl_seconds : Int32,
+  poll_count : Int32,
 ) -> @export_job_batch_v5.BatchJobRecord {
   let child_specs : Array[@export_job_batch_v5.BatchChildSpec] = []
   for i, _child_id in child_ids {
@@ -1010,7 +1013,7 @@ fn v5_1_seed_batch_record(
     child_ids,
     child_specs,
     status,
-    progress: { processed, total },
+    progress: { processed, total, },
     retention: v5_1_retention_with_ttl(ttl_seconds),
     format: @export_job_v5.ResultFormat::Jsonl,
     reasons: [],
@@ -1292,10 +1295,7 @@ fn handle_v5_4_job_timeline(job_id : String) -> ApiResponse {
       response_json(200, @job_timeline_v5_4.timeline_json(job_id, events))
     }
     None =>
-      response_json(
-        404,
-        error_envelope_json(job_not_found_reason(job_id)),
-      )
+      response_json(404, error_envelope_json(job_not_found_reason(job_id)))
   }
 }
 
@@ -1318,18 +1318,12 @@ fn handle_v5_4_batch_timeline(batch_id : String) -> ApiResponse {
         }
       }
     None =>
-      response_json(
-        404,
-        error_envelope_json(job_not_found_reason(batch_id)),
-      )
+      response_json(404, error_envelope_json(job_not_found_reason(batch_id)))
   }
 }
 
 ///|
-fn parse_query_int(
-  query : Map[String, String],
-  name : String,
-) -> Int? {
+fn parse_query_int(query : Map[String, String], name : String) -> Int32? {
   match query.get(name) {
     Some(value) => {
       let mut num = 0
@@ -1386,10 +1380,7 @@ fn handle_v5_5_job_timeline(
   let kind_filter = match parse_kind_filter(query) {
     Ok(k) => k
     Err(msg) =>
-      return response_json(
-        400,
-        error_envelope_json(invalid_query_reason(msg)),
-      )
+      return response_json(400, error_envelope_json(invalid_query_reason(msg)))
   }
   let limit = match parse_query_int(query, "limit") {
     Some(n) => n
@@ -1402,9 +1393,7 @@ fn handle_v5_5_job_timeline(
         None =>
           return response_json(
             400,
-            error_envelope_json(
-              invalid_query_reason("invalid cursor format"),
-            ),
+            error_envelope_json(invalid_query_reason("invalid cursor format")),
           )
       }
     None => 0
@@ -1425,16 +1414,12 @@ fn handle_v5_5_job_timeline(
     Some("html") =>
       response_html(
         200,
-        @views.render_job_timeline_html_v6(
-          { job_id, base_url, page },
-        ),
+        @views.render_job_timeline_html_v6({ job_id, base_url, page, }),
       )
     Some("mx") =>
       response_html(
         200,
-        @views.render_job_timeline_html_v6_mx(
-          { job_id, base_url, page },
-        ),
+        @views.render_job_timeline_html_v6_mx({ job_id, base_url, page, }),
       )
     _ =>
       response_json(
@@ -1460,10 +1445,7 @@ fn handle_v5_5_job_timeline_export(
   let kind_filter = match parse_kind_filter(query) {
     Ok(k) => k
     Err(msg) =>
-      return response_json(
-        400,
-        error_envelope_json(invalid_query_reason(msg)),
-      )
+      return response_json(400, error_envelope_json(invalid_query_reason(msg)))
   }
   let events = @job_timeline_v5_4.get_timeline(job_id)
   let filtered = @job_timeline_v5_5.filter_events(
@@ -1527,31 +1509,30 @@ fn handle_v5_5_batch_timeline(
         Some("html") =>
           response_html(
             200,
-            @views.render_job_timeline_html_v6(
-              { job_id: batch_id, base_url, page },
-            ),
+            @views.render_job_timeline_html_v6({
+              job_id: batch_id,
+              base_url,
+              page,
+            }),
           )
         Some("mx") =>
           response_html(
             200,
-            @views.render_job_timeline_html_v6_mx(
-              { job_id: batch_id, base_url, page },
-            ),
+            @views.render_job_timeline_html_v6_mx({
+              job_id: batch_id,
+              base_url,
+              page,
+            }),
           )
         _ =>
           response_json(
             200,
-            @job_timeline_v5_5.paginated_batch_timeline_json(
-              batch_id, page,
-            ),
+            @job_timeline_v5_5.paginated_batch_timeline_json(batch_id, page),
           )
       }
     }
     None =>
-      response_json(
-        404,
-        error_envelope_json(job_not_found_reason(batch_id)),
-      )
+      response_json(404, error_envelope_json(job_not_found_reason(batch_id)))
   }
 }
 
@@ -1583,10 +1564,7 @@ fn handle_v5_5_batch_timeline_export(
       response_jsonl(200, body)
     }
     None =>
-      response_json(
-        404,
-        error_envelope_json(job_not_found_reason(batch_id)),
-      )
+      response_json(404, error_envelope_json(job_not_found_reason(batch_id)))
   }
 }
 
@@ -1609,9 +1587,7 @@ fn handle_v5_7_job_timeline_event(
     None =>
       return response_json(
         400,
-        error_envelope_json(
-          invalid_query_reason("invalid event ID format"),
-        ),
+        error_envelope_json(invalid_query_reason("invalid event ID format")),
       )
   }
   let detail = match @job_timeline_v5_7.lookup_event_detail(parsed) {
@@ -1633,16 +1609,20 @@ fn handle_v5_7_job_timeline_event(
     Some("html") =>
       response_html(
         200,
-        @views.render_job_timeline_detail_html_v6(
-          { event_id: event_id_str, base_url, detail },
-        ),
+        @views.render_job_timeline_detail_html_v6({
+          event_id: event_id_str,
+          base_url,
+          detail,
+        }),
       )
     Some("mx") =>
       response_html(
         200,
-        @views.render_job_timeline_detail_html_v6_mx(
-          { event_id: event_id_str, base_url, detail },
-        ),
+        @views.render_job_timeline_detail_html_v6_mx({
+          event_id: event_id_str,
+          base_url,
+          detail,
+        }),
       )
     _ => response_json(200, @job_timeline_v5_7.detail_json(detail))
   }
@@ -1661,57 +1641,49 @@ fn handle_v5_7_batch_timeline_event(
         None =>
           return response_json(
             400,
-            error_envelope_json(
-              invalid_query_reason("invalid event ID format"),
-            ),
+            error_envelope_json(invalid_query_reason("invalid event ID format")),
           )
       }
-      let detail = match @job_timeline_v5_7.lookup_batch_event_detail(
-        batch.child_ids,
-        parsed,
-      ) {
+      let detail = match
+        @job_timeline_v5_7.lookup_batch_event_detail(batch.child_ids, parsed) {
         Some(d) => d
         None =>
           return response_json(
             404,
             error_envelope_json(
-              @core.Reason::with_context(
-                "EVENT_NOT_FOUND", "event not found", [
-                  ("target", "runtime"),
-                  ("level", "error"),
-                ],
-              ),
+              @core.Reason::with_context("EVENT_NOT_FOUND", "event not found", [
+                ("target", "runtime"),
+                ("level", "error"),
+              ]),
             ),
           )
       }
       let format = query.get("format")
-      let base_url = "/v5.7/export/batch/jobs/" +
-        batch_id +
-        "/timeline/event"
+      let base_url = "/v5.7/export/batch/jobs/" + batch_id + "/timeline/event"
       match format {
         Some("html") =>
           response_html(
             200,
-            @views.render_job_timeline_detail_html_v6(
-              { event_id: event_id_str, base_url, detail },
-            ),
+            @views.render_job_timeline_detail_html_v6({
+              event_id: event_id_str,
+              base_url,
+              detail,
+            }),
           )
         Some("mx") =>
           response_html(
             200,
-            @views.render_job_timeline_detail_html_v6_mx(
-              { event_id: event_id_str, base_url, detail },
-            ),
+            @views.render_job_timeline_detail_html_v6_mx({
+              event_id: event_id_str,
+              base_url,
+              detail,
+            }),
           )
-        _ =>
-          response_json(200, @job_timeline_v5_7.detail_json(detail))
+        _ => response_json(200, @job_timeline_v5_7.detail_json(detail))
       }
     }
     None =>
-      response_json(
-        404,
-        error_envelope_json(job_not_found_reason(batch_id)),
-      )
+      response_json(404, error_envelope_json(job_not_found_reason(batch_id)))
   }
 }
 
@@ -1797,7 +1769,10 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" && req.path.has_prefix(v5_1_view_jobs_prefix) {
     let job_id = substring_from(req.path, v5_1_view_jobs_prefix.length())
     if job_id.length() == 0 {
-      return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
     }
     return handle_v5_1_job_view(job_id)
   }
@@ -1805,7 +1780,10 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
   if req.http_method == "GET" && req.path.has_prefix(v5_1_view_batch_prefix) {
     let job_id = substring_from(req.path, v5_1_view_batch_prefix.length())
     if job_id.length() == 0 {
-      return response_json(404, error_envelope_json(job_not_found_reason(job_id)))
+      return response_json(
+        404,
+        error_envelope_json(job_not_found_reason(job_id)),
+      )
     }
     return handle_v5_1_batch_view(job_id)
   }
@@ -2161,12 +2139,11 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
     if marker_pos >= 0 {
       let job_id = substring_range(suffix, 0, marker_pos)
       let event_id_str = substring_from(
-        suffix, marker_pos + tl_event_marker.length(),
+        suffix,
+        marker_pos + tl_event_marker.length(),
       )
       if job_id.length() > 0 && event_id_str.length() > 0 {
-        return handle_v5_7_job_timeline_event(
-          job_id, event_id_str, req.query,
-        )
+        return handle_v5_7_job_timeline_event(job_id, event_id_str, req.query)
       }
     }
   }
@@ -2178,11 +2155,14 @@ pub fn handle_request(req : ApiRequest) -> ApiResponse {
     if marker_pos >= 0 {
       let batch_id = substring_range(suffix, 0, marker_pos)
       let event_id_str = substring_from(
-        suffix, marker_pos + tl_event_marker.length(),
+        suffix,
+        marker_pos + tl_event_marker.length(),
       )
       if batch_id.length() > 0 && event_id_str.length() > 0 {
         return handle_v5_7_batch_timeline_event(
-          batch_id, event_id_str, req.query,
+          batch_id,
+          event_id_str,
+          req.query,
         )
       }
     }

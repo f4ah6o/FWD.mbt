@@ -20,12 +20,16 @@ pub fn describe_error(err : CompileError) -> String {
 
 ///|
 pub fn parse_yaml(input : String) -> Result[@schema.Schema, CompileError] {
-  let value_result : Result[YamlValue, YamlError] = try? parse_yaml_value(input)
+  let value_result : Result[YamlValue, YamlError] = Ok(parse_yaml_value(input)) catch {
+    error => Err(error)
+  }
   match value_result {
     Ok(value) => {
-      let schema_result : Result[@schema.Schema, DecodeError] = try? schema_from_yaml(
-        value,
-      )
+      let schema_result : Result[@schema.Schema, DecodeError] = Ok(
+        schema_from_yaml(value),
+      ) catch {
+        error => Err(error)
+      }
       match schema_result {
         Ok(schema) => Ok(schema)
         Err(err) => Err(ParseFailure(err.to_string()))
