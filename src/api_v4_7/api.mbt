@@ -11,28 +11,28 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   headers : Map[String, String]
   body : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
+fn response_json(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/json"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_jsonl(status : Int, body : String) -> ApiResponse {
+fn response_jsonl(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "application/jsonl"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
 fn response_jsonl_with_cursor(
-  status : Int,
+  status : Int32,
   body : String,
   next_cursor : String?,
 ) -> ApiResponse {
@@ -42,14 +42,14 @@ fn response_jsonl_with_cursor(
     Some(value) => headers["x-next-cursor"] = value
     None => ()
   }
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
-fn response_csv(status : Int, body : String) -> ApiResponse {
+fn response_csv(status : Int32, body : String) -> ApiResponse {
   let headers : Map[String, String] = Map::new()
   headers["content-type"] = "text/csv"
-  { status, headers, body }
+  { status, headers, body, }
 }
 
 ///|
@@ -115,7 +115,9 @@ fn job_expired_reason(job_id : String) -> @core.Reason {
 
 ///|
 fn extract_body_json(body : String) -> Result[Map[String, Json], @core.Reason] {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(body)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
@@ -157,7 +159,7 @@ fn extract_optional_string(
 fn extract_optional_int(
   obj : Map[String, Json],
   name : String,
-) -> Result[Int?, @core.Reason] {
+) -> Result[Int32?, @core.Reason] {
   match obj.get(name) {
     Some(Number(value, ..)) => Ok(Some(value.to_int()))
     Some(_) => Err(invalid_query_reason("field must be number: " + name))
@@ -166,7 +168,7 @@ fn extract_optional_int(
 }
 
 ///|
-fn extract_limit(obj : Map[String, Json]) -> Result[Int, @core.Reason] {
+fn extract_limit(obj : Map[String, Json]) -> Result[Int32, @core.Reason] {
   match obj.get("limit") {
     Some(Number(value, ..)) => {
       let limit = value.to_int()
@@ -196,22 +198,22 @@ fn validate_cursor(value : String?) -> Result[String?, @core.Reason] {
 }
 
 ///|
-fn substring_from(value : String, start : Int) -> String {
+fn substring_from(value : String, start : Int32) -> String {
   let sb = StringBuilder::new()
   for i in start..<value.length() {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }
 
 ///|
-fn substring_range(value : String, start : Int, end : Int) -> String {
+fn substring_range(value : String, start : Int32, end : Int32) -> String {
   let sb = StringBuilder::new()
   let limit = if end < value.length() { end } else { value.length() }
   for i in start..<limit {
     let ch = value[i].to_int()
-    sb.write_char(Int::unsafe_to_char(ch))
+    sb.write_char(Int32::unsafe_to_char(ch))
   }
   sb.to_string()
 }

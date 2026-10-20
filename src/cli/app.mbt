@@ -23,14 +23,18 @@ fn read_input(path : String) -> String? {
 
 ///|
 fn read_input_result(path : String) -> Result[String, @fs.IOError] {
-  try? @fs.read_file_to_string(path)
+  Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
 }
 
 ///|
 fn write_output(path : String, output : String) -> Bool {
-  let write_result : Result[Unit, @fs.IOError] = try? @fs.write_string_to_file(
-    path, output,
-  )
+  let write_result : Result[Unit, @fs.IOError] = Ok(
+    @fs.write_string_to_file(path, output),
+  ) catch {
+    error => Err(error)
+  }
   match write_result {
     Ok(_) => true
     Err(err) => {
@@ -44,7 +48,7 @@ fn write_output(path : String, output : String) -> Bool {
 fn record_send_stub(
   _req : @effects_exec_adapters_v2_2.HttpRequest,
 ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-  Ok({ status: 200, body: "{\"ok\":true}" })
+  Ok({ status: 200, body: "{\"ok\":true}", })
 }
 
 ///|
@@ -84,7 +88,7 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
 }
 
 ///|
-pub fn run(args : Array[String]) -> Int {
+pub fn run(args : Array[String]) -> Int32 {
   if args.length() == 0 {
     println(usage())
     return 1

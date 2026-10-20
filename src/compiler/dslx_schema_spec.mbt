@@ -169,9 +169,11 @@ fn fwd_dslx_schema_compiler_example_diagnostics() -> Array[@dslx.Diag] {
 pub fn compile_dslx_l1(input : String) -> Result[@ir.FwdIR, CompileError] {
   match @dslx.runx(fwd_dslx_schema_compiler_spec(), "sche", input) {
     { done: true, tree: Some(tree), .. } => {
-      let schema_result : Result[@schema.Schema, DecodeError] = try? schema_from_dslx_l1_tree(
-        tree,
-      )
+      let schema_result : Result[@schema.Schema, DecodeError] = Ok(
+        schema_from_dslx_l1_tree(tree),
+      ) catch {
+        error => Err(error)
+      }
       match schema_result {
         Ok(schema) =>
           match resolve_schema(schema) {

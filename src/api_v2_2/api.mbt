@@ -10,14 +10,14 @@ pub(all) struct ApiRequest {
 
 ///|
 pub(all) struct ApiResponse {
-  status : Int
+  status : Int32
   body : String
   content_type : String
 }
 
 ///|
-fn response_json(status : Int, body : String) -> ApiResponse {
-  { status, body, content_type: "application/json" }
+fn response_json(status : Int32, body : String) -> ApiResponse {
+  { status, body, content_type: "application/json", }
 }
 
 ///|
@@ -65,7 +65,9 @@ fn reason_from_compile_error(err : @compiler.CompileError) -> @core.Reason {
 
 ///|
 fn extract_body_json(body : String) -> Result[Map[String, Json], @core.Reason] {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(body)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(body)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>

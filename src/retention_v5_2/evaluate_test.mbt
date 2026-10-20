@@ -1,6 +1,8 @@
 ///|
 fn read_fixture(path : String) -> String raise {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => text
     Err(err) => fail("read fixture: " + err.to_string())
@@ -28,16 +30,8 @@ fn parse_expected_body(path : String) -> String raise {
 test "v5.2 multi-axis poll wins" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV52::PollCount,
-        threshold: 5,
-        ttl_seconds: 120,
-      },
-      {
-        axis: RetentionAxisV52::LogicalTime,
-        threshold: 100,
-        ttl_seconds: 300,
-      },
+      { axis: RetentionAxisV52::PollCount, threshold: 5, ttl_seconds: 120, },
+      { axis: RetentionAxisV52::LogicalTime, threshold: 100, ttl_seconds: 300, },
     ],
     current_poll_count: 6,
     current_logical_time: 50,
@@ -54,16 +48,8 @@ test "v5.2 multi-axis poll wins" {
 test "v5.2 multi-axis logical time wins" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV52::PollCount,
-        threshold: 10,
-        ttl_seconds: 240,
-      },
-      {
-        axis: RetentionAxisV52::LogicalTime,
-        threshold: 50,
-        ttl_seconds: 150,
-      },
+      { axis: RetentionAxisV52::PollCount, threshold: 10, ttl_seconds: 240, },
+      { axis: RetentionAxisV52::LogicalTime, threshold: 50, ttl_seconds: 150, },
     ],
     current_poll_count: 3,
     current_logical_time: 55,
@@ -80,16 +66,8 @@ test "v5.2 multi-axis logical time wins" {
 test "v5.2 multi-axis both expired" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV52::PollCount,
-        threshold: 3,
-        ttl_seconds: 60,
-      },
-      {
-        axis: RetentionAxisV52::LogicalTime,
-        threshold: 20,
-        ttl_seconds: 60,
-      },
+      { axis: RetentionAxisV52::PollCount, threshold: 3, ttl_seconds: 60, },
+      { axis: RetentionAxisV52::LogicalTime, threshold: 20, ttl_seconds: 60, },
     ],
     current_poll_count: 5,
     current_logical_time: 25,
@@ -106,16 +84,8 @@ test "v5.2 multi-axis both expired" {
 test "v5.2 multi-axis none expired" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV52::PollCount,
-        threshold: 10,
-        ttl_seconds: 240,
-      },
-      {
-        axis: RetentionAxisV52::LogicalTime,
-        threshold: 100,
-        ttl_seconds: 300,
-      },
+      { axis: RetentionAxisV52::PollCount, threshold: 10, ttl_seconds: 240, },
+      { axis: RetentionAxisV52::LogicalTime, threshold: 100, ttl_seconds: 300, },
     ],
     current_poll_count: 2,
     current_logical_time: 30,
@@ -132,11 +102,7 @@ test "v5.2 multi-axis none expired" {
 test "v5.2 single axis poll count" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV52::PollCount,
-        threshold: 5,
-        ttl_seconds: 120,
-      },
+      { axis: RetentionAxisV52::PollCount, threshold: 5, ttl_seconds: 120, },
     ],
     current_poll_count: 7,
     current_logical_time: 0,
@@ -153,11 +119,7 @@ test "v5.2 single axis poll count" {
 test "v5.2 single axis logical time" {
   let input : MultiAxisEvalInput = {
     policies: [
-      {
-        axis: RetentionAxisV52::LogicalTime,
-        threshold: 50,
-        ttl_seconds: 150,
-      },
+      { axis: RetentionAxisV52::LogicalTime, threshold: 50, ttl_seconds: 150, },
     ],
     current_poll_count: 0,
     current_logical_time: 60,

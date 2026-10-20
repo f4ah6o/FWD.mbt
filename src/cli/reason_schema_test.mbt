@@ -43,7 +43,9 @@ fn json_number(json : Json, label : String) -> Result[Double, String] {
 
 ///|
 fn parse_json(input : String, label : String) -> Result[Json, String] {
-  let result : Result[Json, @json.ParseError] = try? @json.parse(input)
+  let result : Result[Json, @json.ParseError] = Ok(@json.parse(input)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(value) => Ok(value)
     Err(err) => Err("json parse failed: " + label + ": " + err.to_string())
@@ -52,7 +54,9 @@ fn parse_json(input : String, label : String) -> Result[Json, String] {
 
 ///|
 fn read_text(path : String, label : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -73,9 +77,11 @@ fn object_get(
 
 ///|
 fn load_reason_schema() -> Result[ReasonSchema, String] {
-  let schema_text_result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(
-    "src/schema/reason.schema.v1.json",
-  )
+  let schema_text_result : Result[String, @fs.IOError] = Ok(
+    @fs.read_file_to_string("src/schema/reason.schema.v1.json"),
+  ) catch {
+    error => Err(error)
+  }
   let schema_text = match schema_text_result {
     Ok(text) => text
     Err(err) => return Err("read schema failed: " + err.to_string())
@@ -239,11 +245,11 @@ fn load_reason_schema() -> Result[ReasonSchema, String] {
       Err(msg) => return Err(msg)
     }
   }
-  Ok({ required, level_enum, target_enum, code_pattern: code_pattern_value })
+  Ok({ required, level_enum, target_enum, code_pattern: code_pattern_value, })
 }
 
 ///|
-fn is_code_char(ch : Int) -> Bool {
+fn is_code_char(ch : Int32) -> Bool {
   (ch >= 65 && ch <= 90) || (ch >= 48 && ch <= 57) || ch == 95
 }
 

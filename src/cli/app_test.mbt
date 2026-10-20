@@ -5,7 +5,9 @@ test "run validate" {
 
 ///|
 fn read_text_cli(path : String, label : String) -> String raise {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => text
     Err(err) => fail("read failed: " + label + ": " + err.to_string())
@@ -14,9 +16,11 @@ fn read_text_cli(path : String, label : String) -> String raise {
 
 ///|
 fn write_text_cli(path : String, text : String, label : String) -> Unit raise {
-  let result : Result[Unit, @fs.IOError] = try? @fs.write_string_to_file(
-    path, text,
-  )
+  let result : Result[Unit, @fs.IOError] = Ok(
+    @fs.write_string_to_file(path, text),
+  ) catch {
+    error => Err(error)
+  }
   match result {
     Ok(_) => ()
     Err(err) => fail("write failed: " + label + ": " + err.to_string())
@@ -25,7 +29,9 @@ fn write_text_cli(path : String, text : String, label : String) -> Unit raise {
 
 ///|
 fn remove_file_cli(path : String) -> Unit {
-  let result : Result[Unit, @fs.IOError] = try? @fs.remove_file(path)
+  let result : Result[Unit, @fs.IOError] = Ok(@fs.remove_file(path)) catch {
+    error => Err(error)
+  }
   ignore(result)
 }
 

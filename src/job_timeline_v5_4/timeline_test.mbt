@@ -1,6 +1,8 @@
 ///|
 fn read_fixture(path : String) -> String raise {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => text
     Err(err) => fail("read fixture: " + err.to_string())

@@ -1,6 +1,8 @@
 ///|
 fn read_text_real(path : String, label : String) -> Result[String, String] {
-  let result : Result[String, @fs.IOError] = try? @fs.read_file_to_string(path)
+  let result : Result[String, @fs.IOError] = Ok(@fs.read_file_to_string(path)) catch {
+    error => Err(error)
+  }
   match result {
     Ok(text) => Ok(text)
     Err(err) => Err("read failed: " + label + ": " + err.to_string())
@@ -19,7 +21,7 @@ fn load_fixture(path : String) -> String raise {
 fn fake_send(
   _req : @effects_exec_adapters_v2_2.HttpRequest,
 ) -> Result[@effects_exec_adapters_v2_2.HttpResponse, @core.Reason] {
-  Ok({ status: 200, body: "{\"ok\":true}" })
+  Ok({ status: 200, body: "{\"ok\":true}", })
 }
 
 ///|

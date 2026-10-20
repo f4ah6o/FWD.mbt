@@ -5,7 +5,9 @@
 pub fn parse_rule_results(
   input_json : String,
 ) -> Result[Map[String, Bool], @core.Reason] {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(input_json)
+  let parsed : Result[Json, @json.ParseError] = Ok(@json.parse(input_json)) catch {
+    error => Err(error)
+  }
   let value = match parsed {
     Ok(v) => v
     Err(err) =>
